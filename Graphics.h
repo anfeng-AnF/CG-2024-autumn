@@ -3,6 +3,7 @@
 #include <sstream>
 #include <vector>
 #include <wrl.h>
+#include <d3dcompiler.h>
 #include "ChiliWin.h"
 
 #include "ChiliException.h"
@@ -15,6 +16,7 @@ public:
 	~Graphics()=default;
 	void EndFrame();
 	void ClearBuffer(float red, float green, float blue)noexcept;
+	void DrawTestTriangle();
 private:
 	Microsoft::WRL::ComPtr<ID3D11Device> pDevice = nullptr;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwap = nullptr;

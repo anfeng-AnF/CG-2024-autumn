@@ -25,6 +25,9 @@
     <Filter Include="D3DCore\Source Files">
       <UniqueIdentifier>{aaec0b4c-213f-4c40-9271-ef6a3c3ed6b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{825fddb3-13ff-41f4-94ec-09b5abb1f8ca}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -102,5 +105,13 @@
     <Image Include="..\..\..\..\3_pictures\原神元素\hydroON.ico">
       <Filter>资源文件</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="VertexShader.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="PixelShader.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
