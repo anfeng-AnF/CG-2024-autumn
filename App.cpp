@@ -24,6 +24,6 @@ void App::DoFrame()
 	const float g = sin(timer.Peek()+3.14/4);
 	const float b = sin(timer.Peek());
 	wnd.Gfx().ClearBuffer(r,g,b);
-	wnd.Gfx().DrawTestTriangle();
+	wnd.Gfx().DrawTestTriangle(timer.Peek());
 	wnd.Gfx().EndFrame();
 }
