@@ -37,7 +37,7 @@ int CALLBACK WinMain(
 	
 	try
 	{
-		return App{}.Go();
+		return App(1080,640).Go();
 	}
 	catch (const ChiliException& e)
 	{

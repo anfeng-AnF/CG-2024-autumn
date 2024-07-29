@@ -64,7 +64,7 @@ HINSTANCE Window::WindowClass::GetInstance() noexcept
 
 
 // Window Stuff
-Window::Window(int width, int height, const WCHAR* name)
+Window::Window(float width, float height, const WCHAR* name)
 	:
 	width(width),
 	height(height)

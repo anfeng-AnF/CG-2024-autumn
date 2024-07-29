@@ -28,6 +28,21 @@
     <Filter Include="Shader">
       <UniqueIdentifier>{825fddb3-13ff-41f4-94ec-09b5abb1f8ca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="D3DCore\Header\Bindable">
+      <UniqueIdentifier>{3b7d5438-b50e-4f05-9895-d433008891d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DCore\Header\Drawable">
+      <UniqueIdentifier>{19417215-6466-41f2-8732-a8289b1d02e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Others">
+      <UniqueIdentifier>{f5cdeac1-f749-4c38-993d-e1a78fde485f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DCore\Source Files\BIndable">
+      <UniqueIdentifier>{3ff763f0-1ff2-437a-a596-67e95a35bd23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DCore\Source Files\Drawable">
+      <UniqueIdentifier>{5eb8e3c6-5827-4775-9ffe-9a087cd36529}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -56,6 +71,39 @@
     </ClCompile>
     <ClCompile Include="DxgiInfoManager.cpp">
       <Filter>D3DCore\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test.cpp">
+      <Filter>Others</Filter>
+    </ClCompile>
+    <ClCompile Include="Bindable.cpp">
+      <Filter>D3DCore\Source Files\BIndable</Filter>
+    </ClCompile>
+    <ClCompile Include="IndexBuffer.cpp">
+      <Filter>D3DCore\Source Files\BIndable</Filter>
+    </ClCompile>
+    <ClCompile Include="InputLayout.cpp">
+      <Filter>D3DCore\Source Files\BIndable</Filter>
+    </ClCompile>
+    <ClCompile Include="PixelShader.cpp">
+      <Filter>D3DCore\Source Files\BIndable</Filter>
+    </ClCompile>
+    <ClCompile Include="Topology.cpp">
+      <Filter>D3DCore\Source Files\BIndable</Filter>
+    </ClCompile>
+    <ClCompile Include="Drawable.cpp">
+      <Filter>D3DCore\Source Files\Drawable</Filter>
+    </ClCompile>
+    <ClCompile Include="TransformCbuf.cpp">
+      <Filter>D3DCore\Source Files\BIndable</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexBuffer.cpp">
+      <Filter>D3DCore\Source Files\BIndable</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexShader.cpp">
+      <Filter>D3DCore\Source Files\BIndable</Filter>
+    </ClCompile>
+    <ClCompile Include="Box.cpp">
+      <Filter>D3DCore\Source Files\Drawable</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -95,6 +143,42 @@
     <ClInclude Include="DxgiInfoManager.h">
       <Filter>D3DCore\Header</Filter>
     </ClInclude>
+    <ClInclude Include="Bindable.h">
+      <Filter>D3DCore\Header\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="BindableBase.h">
+      <Filter>D3DCore\Header\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantBuffers.h">
+      <Filter>D3DCore\Header\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="IndexBuffer.h">
+      <Filter>D3DCore\Header\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="InputLayout.h">
+      <Filter>D3DCore\Header\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelShader.h">
+      <Filter>D3DCore\Header\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Topology.h">
+      <Filter>D3DCore\Header\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformCbuf.h">
+      <Filter>D3DCore\Header\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Drawable.h">
+      <Filter>D3DCore\Header\Drawable</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBuffer.h">
+      <Filter>D3DCore\Header\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexShader.h">
+      <Filter>D3DCore\Header\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Box.h">
+      <Filter>D3DCore\Header\Drawable</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX12Learn.rc">
@@ -113,5 +197,9 @@
     <FxCompile Include="PixelShader.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
 </Project>
