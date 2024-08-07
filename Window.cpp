@@ -166,15 +166,23 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 	{
 		return true;
 	}
+
+	const auto imio = ImGui::GetIO();
+
+
 	switch (msg)
 	{
 	case WM_CLOSE:
 		PostQuitMessage(0);
 		return 0;
+	case WM_KEYDOWN:
 		// syskey commands need to be handled to track ALT key (VK_MENU) and F10
 	case WM_SYSKEYDOWN:
 		// stifle this keyboard message if imgui wants to capture
-
+		if (imio.WantCaptureKeyboard)
+		{
+			break;
+		}
 		if (!(lParam & 0x40000000) || Kbd.AutorepeatIsEnabled()) // filter autorepeat
 		{
 			Kbd.OnKeyPressed(static_cast<unsigned char>(wParam));
@@ -183,7 +191,10 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 	case WM_KEYUP:
 	case WM_SYSKEYUP:
 		// stifle this keyboard message if imgui wants to capture
-
+		if (imio.WantCaptureKeyboard)
+		{
+			break;
+		}
 		Kbd.OnKeyReleased(static_cast<unsigned char>(wParam));
 		break;
 	case WM_CHAR:

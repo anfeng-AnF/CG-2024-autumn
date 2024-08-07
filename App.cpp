@@ -87,7 +87,7 @@ void App::DoFrame()
 	wnd.Gfx().ClearBuffer(0.07f, 0.0f, 0.12f);
 	for (auto& b : drawables)
 	{
-		b->Update(dt);
+		b->Update(wnd.Kbd.KeyIsPressed(VK_SPACE) ? 0.0f : dt);
 		b->Draw(wnd.Gfx());
 	}
 	// imgui stuff
