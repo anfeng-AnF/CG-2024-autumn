@@ -22,4 +22,5 @@ private:
 	std::vector<std::unique_ptr<class Drawable>> drawables;
 	static constexpr size_t nDrawables = 180;
 	float width, height;
+	float speed_factor = 1.0f;
 };
