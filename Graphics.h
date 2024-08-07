@@ -16,7 +16,7 @@ public:
 	Graphics(HWND hWnd, int width, int height);
 	Graphics(const Graphics&) = delete;
 	Graphics& operator=(const Graphics&) = delete;
-	~Graphics()=default;
+	~Graphics();
 	void EndFrame();
 	void ClearBuffer(float red, float green, float blue)noexcept;
 	void DrawTestTriangle(float angle);
