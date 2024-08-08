@@ -2,7 +2,7 @@
 #include "Window.h"
 #include "ChiliTimer.h"
 #include "ImguiManager.h"
-
+#include "Camera.h"
 
 
 class App
@@ -23,4 +23,5 @@ private:
 	static constexpr size_t nDrawables = 180;
 	float width, height;
 	float speed_factor = 1.0f;
+	Camera cam;
 };

@@ -63,6 +63,7 @@ App::App(float width, float height) :wnd(width, height, L"¸ÊÓê"), width(width), 
 	std::generate_n(std::back_inserter(drawables), nDrawables, f);
 
 	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, height/width, 0.5f, 40.0f));
+	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 20.0f));
 }
 int App::Go()
 {
@@ -85,6 +86,8 @@ void App::DoFrame()
 {
 	const auto dt = timer.Mark() * speed_factor;
 	wnd.Gfx().ClearBuffer(0.07f, 0.0f, 0.12f);
+	wnd.Gfx().SetCamera(cam.GetMatrix());
+
 	for (auto& b : drawables)
 	{
 		b->Update(wnd.Kbd.KeyIsPressed(VK_SPACE) ? 0.0f : dt);
@@ -97,18 +100,18 @@ void App::DoFrame()
 
 	static char buffer[1024];
 
-	ImGui::Begin("simulation speed");
-	ImGui::SliderFloat("speed factor", &speed_factor, 0, 10);
-	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-	ImGui::InputText("Butts", buffer, sizeof(buffer));
-	ImGui::End();
-	if (wnd.Kbd.KeyIsPressed('c')) {
-		exit(1);
+	if (ImGui::Begin("simulation speed")) {
+		ImGui::SliderFloat("speed factor", &speed_factor, 0, 10);
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::InputText("Butts", buffer, sizeof(buffer));
+		ImGui::End();
 	}
+
+	// imgui window to control camera
+	cam.SpawnControlWindow();
 
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
 	// present
 
 	wnd.Gfx().EndFrame();
