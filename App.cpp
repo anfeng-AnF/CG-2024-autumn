@@ -12,12 +12,24 @@
 #include "imgui/imgui_impl_dx11.h"
 #include "GDIPlusManager.h"
 
+#include "assimp\Importer.hpp"
+#include "assimp\scene.h"
+#include "assimp\postprocess.h"
 GDIPlusManager gdipm;
 
 
 
 App::App(float width, float height) :wnd(width, height, L"∏ ”Í"), width(width), height(height), light(wnd.Gfx())
 {
+
+	Assimp::Importer imp;
+
+	auto model = imp.ReadFile("Models/Lantern_Fixed.fbx",
+		aiProcess_Triangulate|
+		aiProcess_JoinIdenticalVertices
+	);
+
+
 	class Factory
 	{
 	public:

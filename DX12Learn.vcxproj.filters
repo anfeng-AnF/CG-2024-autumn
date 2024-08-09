@@ -159,6 +159,12 @@
     <ClCompile Include="SkinnedBox.cpp">
       <Filter>D3DCore\Source Files\Drawable</Filter>
     </ClCompile>
+    <ClCompile Include="PointLight.cpp">
+      <Filter>Base\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SolidSphere.cpp">
+      <Filter>Base\源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChiliWin.h">
@@ -311,6 +317,12 @@
     <ClInclude Include="SkinnedBox.h">
       <Filter>D3DCore\Header\Drawable</Filter>
     </ClInclude>
+    <ClInclude Include="PointLight.h">
+      <Filter>Base\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SolidSphere.h">
+      <Filter>Base\头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX12Learn.rc">
@@ -347,5 +359,9 @@
     <FxCompile Include="TextureVS.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
+    <FxCompile Include="PhongPS.hlsl" />
+    <FxCompile Include="PhongVS.hlsl" />
+    <FxCompile Include="SolidPS.hlsl" />
+    <FxCompile Include="SolidVS.hlsl" />
   </ItemGroup>
 </Project>
