@@ -36,8 +36,6 @@ Box::Box(Graphics& gfx,
 		auto model = Cube::MakeIndependent<Vertex>();
 		model.SetNormalsIndependentFlat();
 
-
-
 		AddStaticBind(std::make_unique<VertexBuffer>(gfx, model.vertices));
 
 		auto pvs = std::make_unique<VertexShader>(gfx, L"PhongVS.cso");
@@ -47,12 +45,6 @@ Box::Box(Graphics& gfx,
 		AddStaticBind(std::make_unique<PixelShader>(gfx, L"PhongPS.cso"));
 
 		AddStaticIndexBuffer(std::make_unique<IndexBuffer>(gfx, model.indices));
-
-		//struct PSLightConstants
-		//{
-		//	dx::XMVECTOR pos;
-		//};
-		//AddStaticBind(std::make_unique<PixelConstantBuffer<PSLightConstants>>(gfx));
 
 		const std::vector<D3D11_INPUT_ELEMENT_DESC> ied =
 		{
@@ -69,8 +61,10 @@ Box::Box(Graphics& gfx,
 	}
 	struct PSMaterialConstant
 	{
-		dx::XMFLOAT3 color;
-		float padding;
+		alignas(16) dx::XMFLOAT3 color;
+		float specularIntensity=0.6f;
+		float speculayPower=30.0f;
+		float padding[2];
 	} colorConst;
 	colorConst.color = material;
 	AddBind(std::make_unique<PixelConstantBuffer<PSMaterialConstant>>(gfx, colorConst, 1u));

@@ -76,7 +76,7 @@ void App::DoFrame()
 	const auto dt = timer.Mark() * speed_factor;
 	wnd.Gfx().ClearBuffer(0.07f, 0.0f, 0.12f);
 	wnd.Gfx().SetCamera(cam.GetMatrix());
-	light.Bind(wnd.Gfx());
+	light.Bind(wnd.Gfx(), cam.GetMatrix());
 
 	for (auto& b : drawables)
 	{
@@ -93,7 +93,7 @@ void App::DoFrame()
 	static char buffer[1024];
 
 	if (ImGui::Begin("simulation speed")) {
-		ImGui::SliderFloat("speed factor", &speed_factor, 0, 10);
+		ImGui::SliderFloat("Speed Factor", &speed_factor, 0.0f, 6.0f, "%.4f");
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::InputText("Butts", buffer, sizeof(buffer));
 		ImGui::End();
