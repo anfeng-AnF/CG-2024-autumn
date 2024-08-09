@@ -2,13 +2,19 @@
 #include "Melon.h"
 #include "Pyramid.h"
 #include "Box.h"
+#include "Sheet.h"
+#include "SkinnedBox.h"
+
+
 #include <memory>
 #include <algorithm>
 #include "ChiliMath.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_win32.h"
 #include "imgui/imgui_impl_dx11.h"
+#include "GDIPlusManager.h"
 
+GDIPlusManager gdipm;
 
 
 
@@ -40,6 +46,16 @@ App::App(float width, float height) :wnd(width, height, L"∏ ”Í"), width(width), 
 					gfx, rng, adist, ddist,
 					odist, rdist, longdist, latdist
 				);
+			case 3:
+				return std::make_unique<Sheet>(
+					gfx, rng, adist, ddist,
+					odist, rdist
+				);
+			case 4:
+				return std::make_unique<SkinnedBox>(
+					gfx, rng, adist, ddist,
+					odist, rdist
+				);
 			default:
 				assert(false && "bad drawable type in factory");
 				return {};
@@ -55,14 +71,14 @@ App::App(float width, float height) :wnd(width, height, L"∏ ”Í"), width(width), 
 		std::uniform_real_distribution<float> bdist{ 0.4f,3.0f };
 		std::uniform_int_distribution<int> latdist{ 5,20 };
 		std::uniform_int_distribution<int> longdist{ 10,40 };
-		std::uniform_int_distribution<int> typedist{ 0,2 };
+		std::uniform_int_distribution<int> typedist{ 0,4 };
 	};
 
 	Factory f(wnd.Gfx());
 	drawables.reserve(nDrawables);
 	std::generate_n(std::back_inserter(drawables), nDrawables, f);
 
-	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, height/width, 0.5f, 40.0f));
+	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, height/width, 0.5f, D3D11_FLOAT32_MAX));
 	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 20.0f));
 }
 int App::Go()

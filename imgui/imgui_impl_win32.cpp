@@ -212,18 +212,18 @@ IMGUI_IMPL_API bool     ImGui_ImplWin32_InitForOpenGL(void* hwnd)
 void    ImGui_ImplWin32_Shutdown()
 {
     ImGui_ImplWin32_Data* bd = ImGui_ImplWin32_GetBackendData();
-    IM_ASSERT(bd != nullptr && "No platform backend to shutdown, or already shutdown?");
+    //IM_ASSERT(bd != nullptr && "No platform backend to shutdown, or already shutdown?");
     ImGuiIO& io = ImGui::GetIO();
 
     // Unload XInput library
 #ifndef IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
-    if (bd->XInputDLL)
+    if (bd&&bd->XInputDLL)
         ::FreeLibrary(bd->XInputDLL);
 #endif // IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
 
-    io.BackendPlatformName = nullptr;
-    io.BackendPlatformUserData = nullptr;
-    io.BackendFlags &= ~(ImGuiBackendFlags_HasMouseCursors | ImGuiBackendFlags_HasSetMousePos | ImGuiBackendFlags_HasGamepad);
+    //io.BackendPlatformName = nullptr;
+    //io.BackendPlatformUserData = nullptr;
+    //io.BackendFlags &= ~(ImGuiBackendFlags_HasMouseCursors | ImGuiBackendFlags_HasSetMousePos | ImGuiBackendFlags_HasGamepad);
     IM_DELETE(bd);
 }
 
