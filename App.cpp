@@ -11,6 +11,7 @@
 #include "imgui/imgui_impl_win32.h"
 #include "imgui/imgui_impl_dx11.h"
 #include "GDIPlusManager.h"
+#include "AssTest.h"
 
 #include "assimp\Importer.hpp"
 #include "assimp\scene.h"
@@ -39,10 +40,14 @@ App::App(float width, float height) :wnd(width, height, L"∏ ”Í"), width(width), 
 		{}
 		std::unique_ptr<Drawable> operator()()
 		{
-			const DirectX::XMFLOAT3 mat = { cdist(rng),cdist(rng),cdist(rng) };
-			return std::make_unique<Box>(
+			const DirectX::XMFLOAT3 mat = {1.0,1.0,1.0 };
+			//return std::make_unique<Box>(
+			//	gfx, rng, adist, ddist,
+			//	odist, rdist, bdist, mat
+			//);
+			return std::make_unique<AssTest>(
 				gfx, rng, adist, ddist,
-				odist, rdist, bdist, mat
+				odist, rdist, mat, 1.5f
 			);
 		}
 	private:

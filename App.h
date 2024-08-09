@@ -22,7 +22,7 @@ private:
 	Window wnd;
 	ChiliTimer timer;
 	std::vector<std::unique_ptr<class Drawable>> drawables;
-	static constexpr size_t nDrawables = 180;
+	static constexpr size_t nDrawables = 1;
 	float width, height;
 	float speed_factor = 1.0f;
 	Camera cam;	

@@ -165,6 +165,9 @@
     <ClCompile Include="SolidSphere.cpp">
       <Filter>Base\源文件</Filter>
     </ClCompile>
+    <ClCompile Include="AssTest.cpp">
+      <Filter>D3DCore\Source Files\Drawable</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChiliWin.h">
@@ -322,6 +325,12 @@
     </ClInclude>
     <ClInclude Include="SolidSphere.h">
       <Filter>Base\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="AssTest.h">
+      <Filter>D3DCore\Header\Drawable</Filter>
+    </ClInclude>
+    <ClInclude Include="TestObject.h">
+      <Filter>D3DCore\Header\Drawable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
