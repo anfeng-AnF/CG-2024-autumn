@@ -10,7 +10,8 @@ Box::Box(Graphics& gfx,
 	std::uniform_real_distribution<float>& ddist,
 	std::uniform_real_distribution<float>& odist,
 	std::uniform_real_distribution<float>& rdist,
-	std::uniform_real_distribution<float>& bdist)
+	std::uniform_real_distribution<float>& bdist,
+	DirectX::XMFLOAT3 material)
 	:
 	r(rdist(rng)),
 	droll(ddist(rng)),
@@ -47,11 +48,11 @@ Box::Box(Graphics& gfx,
 
 		AddStaticIndexBuffer(std::make_unique<IndexBuffer>(gfx, model.indices));
 
-		struct PSLightConstants
-		{
-			dx::XMVECTOR pos;
-		};
-		AddStaticBind(std::make_unique<PixelConstantBuffer<PSLightConstants>>(gfx));
+		//struct PSLightConstants
+		//{
+		//	dx::XMVECTOR pos;
+		//};
+		//AddStaticBind(std::make_unique<PixelConstantBuffer<PSLightConstants>>(gfx));
 
 		const std::vector<D3D11_INPUT_ELEMENT_DESC> ied =
 		{
@@ -66,6 +67,14 @@ Box::Box(Graphics& gfx,
 	{
 		SetIndexFromStatic();
 	}
+	struct PSMaterialConstant
+	{
+		dx::XMFLOAT3 color;
+		float padding;
+	} colorConst;
+	colorConst.color = material;
+	AddBind(std::make_unique<PixelConstantBuffer<PSMaterialConstant>>(gfx, colorConst, 1u));
+
 
 	AddBind(std::make_unique<TransformCbuf>(gfx, *this));
 

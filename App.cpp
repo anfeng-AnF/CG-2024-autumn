@@ -27,9 +27,10 @@ App::App(float width, float height) :wnd(width, height, L"∏ ”Í"), width(width), 
 		{}
 		std::unique_ptr<Drawable> operator()()
 		{
+			const DirectX::XMFLOAT3 mat = { cdist(rng),cdist(rng),cdist(rng) };
 			return std::make_unique<Box>(
 				gfx, rng, adist, ddist,
-				odist, rdist, bdist
+				odist, rdist, bdist, mat
 			);
 		}
 	private:
@@ -39,7 +40,8 @@ App::App(float width, float height) :wnd(width, height, L"∏ ”Í"), width(width), 
 		std::uniform_real_distribution<float> ddist{ 0.0f,PI * 0.5f };
 		std::uniform_real_distribution<float> odist{ 0.0f,PI * 0.08f };
 		std::uniform_real_distribution<float> rdist{ 6.0f,20.0f };
-		std::uniform_real_distribution<float> bdist{ 0.4f,3.0f };
+		std::uniform_real_distribution<float> bdist{ 0.4f,3.0f };		
+		std::uniform_real_distribution<float> cdist{ 0.0f,1.0f };
 		std::uniform_int_distribution<int> latdist{ 5,20 };
 		std::uniform_int_distribution<int> longdist{ 10,40 };
 		std::uniform_int_distribution<int> typedist{ 0,4 };
@@ -49,7 +51,7 @@ App::App(float width, float height) :wnd(width, height, L"∏ ”Í"), width(width), 
 	drawables.reserve(nDrawables);
 	std::generate_n(std::back_inserter(drawables), nDrawables, f);
 
-	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, height/width, 0.5f, D3D11_FLOAT32_MAX));
+	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, height/width, 0.5f, 1000));
 	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 20.0f));
 }
 int App::Go()
