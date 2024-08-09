@@ -4,8 +4,6 @@
 #include "Box.h"
 #include "Sheet.h"
 #include "SkinnedBox.h"
-
-
 #include <memory>
 #include <algorithm>
 #include "ChiliMath.h"
@@ -18,7 +16,7 @@ GDIPlusManager gdipm;
 
 
 
-App::App(float width, float height) :wnd(width, height, L"∏ ”Í"), width(width), height(height)
+App::App(float width, float height) :wnd(width, height, L"∏ ”Í"), width(width), height(height), light(wnd.Gfx())
 {
 	class Factory
 	{
@@ -29,37 +27,10 @@ App::App(float width, float height) :wnd(width, height, L"∏ ”Í"), width(width), 
 		{}
 		std::unique_ptr<Drawable> operator()()
 		{
-			switch (typedist(rng))
-			{
-			case 0:
-				return std::make_unique<Pyramid>(
-					gfx, rng, adist, ddist,
-					odist, rdist
-				);
-			case 1:
-				return std::make_unique<Box>(
-					gfx, rng, adist, ddist,
-					odist, rdist, bdist
-				);
-			case 2:
-				return std::make_unique<Melon>(
-					gfx, rng, adist, ddist,
-					odist, rdist, longdist, latdist
-				);
-			case 3:
-				return std::make_unique<Sheet>(
-					gfx, rng, adist, ddist,
-					odist, rdist
-				);
-			case 4:
-				return std::make_unique<SkinnedBox>(
-					gfx, rng, adist, ddist,
-					odist, rdist
-				);
-			default:
-				assert(false && "bad drawable type in factory");
-				return {};
-			}
+			return std::make_unique<Box>(
+				gfx, rng, adist, ddist,
+				odist, rdist, bdist
+			);
 		}
 	private:
 		Graphics& gfx;
@@ -103,12 +74,15 @@ void App::DoFrame()
 	const auto dt = timer.Mark() * speed_factor;
 	wnd.Gfx().ClearBuffer(0.07f, 0.0f, 0.12f);
 	wnd.Gfx().SetCamera(cam.GetMatrix());
+	light.Bind(wnd.Gfx());
 
 	for (auto& b : drawables)
 	{
 		b->Update(wnd.Kbd.KeyIsPressed(VK_SPACE) ? 0.0f : dt);
 		b->Draw(wnd.Gfx());
 	}
+	light.Draw(wnd.Gfx());
+
 	// imgui stuff
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
@@ -125,6 +99,7 @@ void App::DoFrame()
 
 	// imgui window to control camera
 	cam.SpawnControlWindow();
+	light.SpawnControlWindow();
 
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

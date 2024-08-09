@@ -1,8 +1,8 @@
-#include "App.h"
 #include <sstream>
 #include <iostream>
 #include <cstdlib>
 #include <cwchar>
+#include "App.h"
 
 void CreateConsole() {
 	AllocConsole();  // 分配一个新的控制台
