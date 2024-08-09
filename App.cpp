@@ -2,9 +2,22 @@
 #include "Melon.h"
 #include "Pyramid.h"
 #include "Box.h"
+#include "Sheet.h"
+#include "SkinnedBox.h"
+
+
 #include <memory>
 #include <algorithm>
 #include "ChiliMath.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_win32.h"
+#include "imgui/imgui_impl_dx11.h"
+#include "GDIPlusManager.h"
+
+GDIPlusManager gdipm;
+
+
+
 App::App(float width, float height) :wnd(width, height, L"∏ ”Í"), width(width), height(height)
 {
 	class Factory
@@ -33,6 +46,16 @@ App::App(float width, float height) :wnd(width, height, L"∏ ”Í"), width(width), 
 					gfx, rng, adist, ddist,
 					odist, rdist, longdist, latdist
 				);
+			case 3:
+				return std::make_unique<Sheet>(
+					gfx, rng, adist, ddist,
+					odist, rdist
+				);
+			case 4:
+				return std::make_unique<SkinnedBox>(
+					gfx, rng, adist, ddist,
+					odist, rdist
+				);
 			default:
 				assert(false && "bad drawable type in factory");
 				return {};
@@ -48,14 +71,15 @@ App::App(float width, float height) :wnd(width, height, L"∏ ”Í"), width(width), 
 		std::uniform_real_distribution<float> bdist{ 0.4f,3.0f };
 		std::uniform_int_distribution<int> latdist{ 5,20 };
 		std::uniform_int_distribution<int> longdist{ 10,40 };
-		std::uniform_int_distribution<int> typedist{ 0,2 };
+		std::uniform_int_distribution<int> typedist{ 0,4 };
 	};
 
 	Factory f(wnd.Gfx());
 	drawables.reserve(nDrawables);
 	std::generate_n(std::back_inserter(drawables), nDrawables, f);
 
-	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, height/width, 0.5f, 40.0f));
+	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, height/width, 0.5f, D3D11_FLOAT32_MAX));
+	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 20.0f));
 }
 int App::Go()
 {
@@ -76,12 +100,35 @@ App::~App()
 
 void App::DoFrame()
 {
-	auto dt = timer.Mark();
+	const auto dt = timer.Mark() * speed_factor;
 	wnd.Gfx().ClearBuffer(0.07f, 0.0f, 0.12f);
+	wnd.Gfx().SetCamera(cam.GetMatrix());
+
 	for (auto& b : drawables)
 	{
-		b->Update(dt);
+		b->Update(wnd.Kbd.KeyIsPressed(VK_SPACE) ? 0.0f : dt);
 		b->Draw(wnd.Gfx());
 	}
+	// imgui stuff
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	static char buffer[1024];
+
+	if (ImGui::Begin("simulation speed")) {
+		ImGui::SliderFloat("speed factor", &speed_factor, 0, 10);
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::InputText("Butts", buffer, sizeof(buffer));
+		ImGui::End();
+	}
+
+	// imgui window to control camera
+	cam.SpawnControlWindow();
+
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	// present
+
 	wnd.Gfx().EndFrame();
 }

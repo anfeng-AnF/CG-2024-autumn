@@ -21,7 +21,7 @@
 #include "WindowsThrowMacros.h"
 #include "resource.h"
 #include <sstream>
-
+#include "imgui/imgui_impl_win32.h"
 
 
 // Window Class Stuff
@@ -49,6 +49,7 @@ Window::WindowClass::WindowClass() noexcept
 
 Window::WindowClass::~WindowClass()
 {
+	ImGui_ImplWin32_Shutdown();
 	UnregisterClass(wndClassName, GetInstance());
 }
 
@@ -89,12 +90,15 @@ Window::Window(float width, float height, const WCHAR* name)
 	}
 	// newly created windows start off as hidden
 	ShowWindow(hWnd, SW_SHOWDEFAULT);
+	// Init ImGui Win32 Impl
+	ImGui_ImplWin32_Init(hWnd);
 
 	pGfx = std::make_unique<Graphics>(hWnd, width, height);
 }
 
 Window::~Window()
 {
+	ImGui_ImplWin32_Shutdown();
 	DestroyWindow(hWnd);
 }
 
@@ -155,17 +159,30 @@ LRESULT CALLBACK Window::HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 	return pWnd->HandleMsg(hWnd, msg, wParam, lParam);
 }
 
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+	{
+		return true;
+	}
+
+	const auto& imio = ImGui::GetIO();
+
+
 	switch (msg)
 	{
 	case WM_CLOSE:
 		PostQuitMessage(0);
 		return 0;
+	case WM_KEYDOWN:
 		// syskey commands need to be handled to track ALT key (VK_MENU) and F10
 	case WM_SYSKEYDOWN:
 		// stifle this keyboard message if imgui wants to capture
-
+		if (imio.WantCaptureKeyboard)
+		{
+			break;
+		}
 		if (!(lParam & 0x40000000) || Kbd.AutorepeatIsEnabled()) // filter autorepeat
 		{
 			Kbd.OnKeyPressed(static_cast<unsigned char>(wParam));
@@ -174,7 +191,10 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 	case WM_KEYUP:
 	case WM_SYSKEYUP:
 		// stifle this keyboard message if imgui wants to capture
-
+		if (imio.WantCaptureKeyboard)
+		{
+			break;
+		}
 		Kbd.OnKeyReleased(static_cast<unsigned char>(wParam));
 		break;
 	case WM_CHAR:
