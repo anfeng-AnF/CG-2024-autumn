@@ -332,6 +332,9 @@
     <ClInclude Include="TestObject.h">
       <Filter>D3DCore\Header\Drawable</Filter>
     </ClInclude>
+    <ClInclude Include="VertexLayout.h">
+      <Filter>D3DCore\Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX12Learn.rc">
@@ -368,9 +371,17 @@
     <FxCompile Include="TextureVS.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
-    <FxCompile Include="PhongPS.hlsl" />
-    <FxCompile Include="PhongVS.hlsl" />
-    <FxCompile Include="SolidPS.hlsl" />
-    <FxCompile Include="SolidVS.hlsl" />
+    <FxCompile Include="PhongPS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="PhongVS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="SolidPS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="SolidVS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
