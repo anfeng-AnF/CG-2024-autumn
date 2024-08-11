@@ -41,9 +41,6 @@ AssTest::AssTest(Graphics& gfx, std::mt19937& rng,
 
 
 			const int dotnum = vbuf.Size();
-			std::wostringstream oss;
-			oss << dotnum << std::endl;
-			OutputDebugString(oss.str().c_str());
 			for (unsigned int i = 0; i < pMesh->mNumVertices; i++)
 			{
 				vbuf.EmplaceBack(
@@ -71,12 +68,7 @@ AssTest::AssTest(Graphics& gfx, std::mt19937& rng,
 
 		AddStaticBind(std::make_unique<PixelShader>(gfx, L"PhongPS.cso"));
 
-		const std::vector<D3D11_INPUT_ELEMENT_DESC> ied =
-		{
-			{ "Position",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0 },
-			{ "Normal",0,DXGI_FORMAT_R32G32B32_FLOAT,0,12,D3D11_INPUT_PER_VERTEX_DATA,0 },
-		};
-		AddStaticBind(std::make_unique<InputLayout>(gfx, ied, pvsbc));
+		AddStaticBind(std::make_unique<InputLayout>(gfx, vbuf.GetLayout().GetD3DLayout(), pvsbc));
 
 		AddStaticBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 

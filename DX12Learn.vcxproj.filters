@@ -46,6 +46,9 @@
     <Filter Include="imgui">
       <UniqueIdentifier>{f072d211-9c07-4fb8-a981-4727ccb52359}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader\Axis">
+      <UniqueIdentifier>{f47b895f-828a-4395-a786-ef42f08ce882}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -166,6 +169,9 @@
       <Filter>Base\源文件</Filter>
     </ClCompile>
     <ClCompile Include="AssTest.cpp">
+      <Filter>D3DCore\Source Files\Drawable</Filter>
+    </ClCompile>
+    <ClCompile Include="Axis.cpp">
       <Filter>D3DCore\Source Files\Drawable</Filter>
     </ClCompile>
   </ItemGroup>
@@ -335,6 +341,9 @@
     <ClInclude Include="Vertex.h">
       <Filter>D3DCore\Header</Filter>
     </ClInclude>
+    <ClInclude Include="Axis.h">
+      <Filter>D3DCore\Header\Drawable</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX12Learn.rc">
@@ -382,6 +391,12 @@
     </FxCompile>
     <FxCompile Include="SolidVS.hlsl">
       <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="AxisVS.hlsl">
+      <Filter>Shader\Axis</Filter>
+    </FxCompile>
+    <FxCompile Include="AxisPS.hlsl">
+      <Filter>Shader\Axis</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

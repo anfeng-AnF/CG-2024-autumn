@@ -4,6 +4,7 @@
 #include "Box.h"
 #include "Sheet.h"
 #include "SkinnedBox.h"
+#include "Axis.h"
 #include <memory>
 #include <algorithm>
 #include "ChiliMath.h"
@@ -60,7 +61,7 @@ App::App(float width, float height) :wnd(width, height, L"∏ ”Í"), width(width), 
 	Factory f(wnd.Gfx());
 	drawables.reserve(nDrawables);
 	std::generate_n(std::back_inserter(drawables), nDrawables, f);
-
+	drawables.push_back(std::make_unique<Axis>(wnd.Gfx()));
 	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, height/width, 0.5f, 1000));
 	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 20.0f));
 }
