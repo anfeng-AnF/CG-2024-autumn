@@ -11,7 +11,7 @@ class App
 {
 public:
 	App() = delete;
-	App(float width,float height);
+	App(UINT width, UINT height);
 	// master frame / message loop
 	int Go();
 	~App();
@@ -23,7 +23,7 @@ private:
 	ChiliTimer timer;
 	std::vector<std::unique_ptr<class Drawable>> drawables;
 	static constexpr size_t nDrawables = 1;
-	float width, height;
+	UINT width, height;
 	float speed_factor = 1.0f;
 	Camera cam;	
 	PointLight light;

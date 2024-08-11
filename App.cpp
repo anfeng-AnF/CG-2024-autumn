@@ -22,7 +22,7 @@ GDIPlusManager gdipm;
 namespace dx = DirectX;
 
 
-App::App(float width, float height) :wnd(width, height, L"∏ ”Í"), width(width), height(height), light(wnd.Gfx())
+App::App(UINT width, UINT height) :wnd(width, height, L"∏ ”Í"), width(width), height(height), light(wnd.Gfx())
 {
 
 	class Factory
@@ -62,7 +62,7 @@ App::App(float width, float height) :wnd(width, height, L"∏ ”Í"), width(width), 
 	drawables.reserve(nDrawables);
 	std::generate_n(std::back_inserter(drawables), nDrawables, f);
 	drawables.push_back(std::make_unique<Axis>(wnd.Gfx()));
-	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, height/width, 0.5f, 1000));
+	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, height/ (float)width, 0.5f, 1000));
 	wnd.Gfx().SetCamera(DirectX::XMMatrixTranslation(0.0f, 0.0f, 20.0f));
 }
 int App::Go()

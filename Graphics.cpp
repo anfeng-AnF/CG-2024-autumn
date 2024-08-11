@@ -8,8 +8,8 @@ namespace wrl = Microsoft::WRL;
 Graphics::Graphics(HWND hWnd, int width, int height)
 {
 	DXGI_SWAP_CHAIN_DESC sd = {};
-	sd.BufferDesc.Width = (float)width;
-	sd.BufferDesc.Height = (float)height;
+	sd.BufferDesc.Width = width;
+	sd.BufferDesc.Height = height;
 	sd.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 	sd.BufferDesc.RefreshRate.Numerator = 0;
 	sd.BufferDesc.RefreshRate.Denominator = 0;
@@ -28,9 +28,6 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 #ifndef NDEBUG
 	swapCreateFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
-
-	// for checking results of d3d functions
-	HRESULT hr;
 
 	// create device and front/back buffers, and swap chain and rendering context
 	D3D11CreateDeviceAndSwapChain(
@@ -67,8 +64,8 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 	// create depth stensil texture
 	wrl::ComPtr<ID3D11Texture2D> pDepthStencil;
 	D3D11_TEXTURE2D_DESC descDepth = {};
-	descDepth.Width = (float)width;
-	descDepth.Height = (float)height;
+	descDepth.Width = width;
+	descDepth.Height = height;
 	descDepth.MipLevels = 1u;
 	descDepth.ArraySize = 1u;
 	descDepth.Format = DXGI_FORMAT_D32_FLOAT;
@@ -133,7 +130,6 @@ void Graphics::ClearBuffer(float red, float green, float blue) noexcept
 void Graphics::DrawTestTriangle(float angle)
 {
 	namespace wrl = Microsoft::WRL;
-	HRESULT hr;
 
 	struct Vertex
 	{
