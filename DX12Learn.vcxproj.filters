@@ -332,7 +332,7 @@
     <ClInclude Include="TestObject.h">
       <Filter>D3DCore\Header\Drawable</Filter>
     </ClInclude>
-    <ClInclude Include="VertexLayout.h">
+    <ClInclude Include="Vertex.h">
       <Filter>D3DCore\Header</Filter>
     </ClInclude>
   </ItemGroup>

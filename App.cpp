@@ -12,7 +12,7 @@
 #include "imgui/imgui_impl_dx11.h"
 #include "GDIPlusManager.h"
 #include "AssTest.h"
-#include "VertexLayout.h"
+#include "Vertex.h"
 
 #include "assimp\Importer.hpp"
 #include "assimp\scene.h"
@@ -20,38 +20,9 @@
 GDIPlusManager gdipm;
 namespace dx = DirectX;
 
-void f()
-{
-	VertexBuffer vb(std::move(
-		VertexLayout{}
-		.Append<VertexLayout::Position3D>()
-		.Append<VertexLayout::Normal>()
-		.Append<VertexLayout::Texture2D>()
-	));
-	vb.EmplaceBack(
-		dx::XMFLOAT3{ 1.0f,1.0f,5.0f },
-		dx::XMFLOAT3{ 2.0f,1.0f,4.0f },
-		dx::XMFLOAT2{ 6.0f,9.0f }
-	);
-	vb.EmplaceBack(
-		dx::XMFLOAT3{ 6.0f,9.0f,6.0f },
-		dx::XMFLOAT3{ 9.0f,6.0f,9.0f },
-		dx::XMFLOAT2{ 4.2f,0.0f }
-	);
-	auto pos = vb[0].Attr<VertexLayout::Position3D>();
-	auto nor = vb[0].Attr<VertexLayout::Normal>();
-	auto tex = vb[1].Attr<VertexLayout::Texture2D>();
-	vb.Back().Attr<VertexLayout::Position3D>().z = 420.0f;
-	pos = vb.Back().Attr<VertexLayout::Position3D>();
-}
 
 App::App(float width, float height) :wnd(width, height, L"∏ ”Í"), width(width), height(height), light(wnd.Gfx())
 {
-
-	Assimp::Importer imp;
-
-	f();
-
 
 	class Factory
 	{
