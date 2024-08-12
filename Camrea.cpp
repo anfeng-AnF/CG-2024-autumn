@@ -3,33 +3,76 @@
 
 namespace dx = DirectX;
 
+Camera::Camera() noexcept
+{
+	// 初始化位置：设为建模软件常用的起始位置
+	transform.position = DirectX::XMVectorSet(0.0f, 0.0f, -5.0f, 0.0f); // 例如，默认位置在 Z 轴负方向
+
+	// 初始化旋转：将角度转换为四元数
+	// 例如，设定默认旋转（四元数表示的单位旋转，没有旋转）
+	transform.rotation = DirectX::XMQuaternionIdentity(); // 没有旋转
+
+	// 初始化缩放：设为建模软件常用的缩放因子
+	transform.scale = DirectX::XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f); // 默认缩放因子为 1（即不缩放）
+}
+
 DirectX::XMMATRIX Camera::GetMatrix() const noexcept
 {
-	const auto pos = dx::XMVector3Transform(
-		dx::XMVectorSet(0.0f, 0.0f, -r, 0.0f),
-		dx::XMMatrixRotationRollPitchYaw(phi, -theta, 0.0f)
-	);
+	XMVECTOR ForwardVector = XMVector3TransformNormal(
+		{ 0.0f, 0.0f, 1.0f, 0.0f }, 
+		XMMatrixRotationQuaternion(transform.rotation));
 
-	return dx::XMMatrixLookAtLH(
-		pos, dx::XMVectorZero(),
-		dx::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)
-	) * dx::XMMatrixRotationRollPitchYaw(
-		pitch, -yaw, roll
+	XMVECTOR UpVector = XMVector3TransformNormal(
+		{ 0.0f, 1.0f, 0.0f, 0.0f }, 
+		XMMatrixRotationQuaternion(transform.rotation));
+
+
+	return DirectX::XMMatrixLookAtLH(
+		transform.position,
+		XMVectorAdd(transform.position, ForwardVector),
+		UpVector
 	);
+}
+DirectX::XMFLOAT3 QuaternionToEuler(const XMVECTOR& quaternion) {
+	// 将四元数转换为矩阵
+	XMMATRIX rotationMatrix = XMMatrixRotationQuaternion(quaternion);
+
+	// 提取矩阵的元素
+	float m11 = rotationMatrix.r[0].m128_f32[0];
+	float m21 = rotationMatrix.r[1].m128_f32[0];
+	float m31 = rotationMatrix.r[2].m128_f32[0];
+	float m32 = rotationMatrix.r[2].m128_f32[1];
+	float m33 = rotationMatrix.r[2].m128_f32[2];
+
+	// 计算欧拉角
+	float pitch = atan2f(m32, m33);
+	float yaw = asinf(-m31);
+	float roll = atan2f(m21, m11);
+
+	// 将角度转换为度（可选）
+	pitch *= (180.0f / XM_PI);
+	yaw *= (180.0f / XM_PI);
+	roll *= (180.0f / XM_PI);
+	return { pitch,yaw,roll };
 }
 
 void Camera::SpawnControlWindow() noexcept
 {
 	if (ImGui::Begin("Camera"))
 	{
-		ImGui::Text("Position");
-		ImGui::SliderFloat("R", &r, 0.0f, 2000.0f, "%.1f");
-		ImGui::SliderAngle("Theta", &theta, -360.0f, 360.0f);
-		ImGui::SliderAngle("Phi", &phi, -89.0f, 89.0f);
-		ImGui::Text("Orientation");
-		ImGui::SliderAngle("Roll", &roll, -180.0f, 180.0f);
-		ImGui::SliderAngle("Pitch", &pitch, -180.0f, 180.0f);
-		ImGui::SliderAngle("Yaw", &yaw, -180.0f, 180.0f);
+
+		// 提取各个分量
+		float x = XMVectorGetX(transform.position);
+		float y = XMVectorGetY(transform.position);
+		float z = XMVectorGetZ(transform.position);
+
+		// 使用 ImGui 显示位置
+		ImGui::Text("Position: %f, %f, %f", x, y, z);
+
+		XMFLOAT3 euler = QuaternionToEuler(transform.rotation);
+		ImGui::Text("Rotation (Pitch, Yaw, Roll): %.2f, %.2f, %.2f", euler.x, euler.y, euler.z);
+
+
 		if (ImGui::Button("Reset"))
 		{
 			Reset();
@@ -40,10 +83,26 @@ void Camera::SpawnControlWindow() noexcept
 
 void Camera::Reset() noexcept
 {
-	r = 20.0f;
-	theta = 0.0f;
-	phi = 0.0f;
-	pitch = 0.0f;
-	yaw = 0.0f;
-	roll = 0.0f;
+	transform = FTransform{};
 }
+
+void Camera::RotatePitchYaw(float dx, float dy) noexcept
+{
+	XMVECTOR deltaRotation=DirectX::XMQuaternionRotationRollPitchYaw(dx*rotationSpeed,dy*rotationSpeed,0);
+	transform.rotation = DirectX::XMQuaternionMultiply(transform.rotation, deltaRotation);
+	transform.rotation = DirectX::XMQuaternionNormalize(transform.rotation);
+}
+
+void Camera::RotateRoll(float dz) noexcept
+{
+	XMVECTOR deltaRotation = DirectX::XMQuaternionRotationRollPitchYaw(0, 0, dz*rotationSpeed);
+	transform.rotation = DirectX::XMQuaternionMultiply(transform.rotation, deltaRotation);
+	transform.rotation = DirectX::XMQuaternionNormalize(transform.rotation);
+}
+
+void Camera::Translate(DirectX::XMFLOAT3 deltaTranslation) noexcept
+{
+	transform.position += { deltaTranslation.x, deltaTranslation.y, deltaTranslation.z, 0};
+}
+
+

@@ -305,6 +305,9 @@
     <ClInclude Include="Mesh.h">
       <Filter>D3DCore\Header\Drawable</Filter>
     </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>Base\头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX12Learn.rc">
