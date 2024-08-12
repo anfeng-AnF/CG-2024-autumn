@@ -1,10 +1,12 @@
 #include "AssTest.h"
-#include "BindableBase.h"
+#include "BindableCommon.h"
 #include "GraphicsThrowMacros.h"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include "Vertex.h"
+
+using namespace Bind;
 
 
 AssTest::AssTest(Graphics& gfx, std::mt19937& rng,
@@ -21,20 +23,20 @@ AssTest::AssTest(Graphics& gfx, std::mt19937& rng,
 
 	if (!IsStaticInitialized())
 	{
-		using hw3dexp::VertexLayout;
-		hw3dexp::VertexBuffer vbuf(std::move(
+		using Dvtx::VertexLayout;
+		Dvtx::VertexBuffer vbuf(std::move(
 			VertexLayout{}
 			.Append(VertexLayout::Position3D)
 			.Append(VertexLayout::Normal)
 		));
 
 		Assimp::Importer imp;
-		const auto pModel = imp.ReadFile("Models\\Lantern_Fixed.fbx",
+		const auto pModel = imp.ReadFile("Models\\firefly\\firefly.pmx",
 			aiProcess_Triangulate |
 			aiProcess_JoinIdenticalVertices
 		);
-
-			std::vector<unsigned short> indices;
+		
+		std::vector<unsigned short> indices;
 
 		for (int a = 0; a < pModel->mNumMeshes; a++) {
 			const auto pMesh = pModel->mMeshes[a];

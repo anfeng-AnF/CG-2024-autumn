@@ -9,6 +9,7 @@ DirectX::XMMATRIX Camera::GetMatrix() const noexcept
 		dx::XMVectorSet(0.0f, 0.0f, -r, 0.0f),
 		dx::XMMatrixRotationRollPitchYaw(phi, -theta, 0.0f)
 	);
+
 	return dx::XMMatrixLookAtLH(
 		pos, dx::XMVectorZero(),
 		dx::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)
@@ -23,7 +24,7 @@ void Camera::SpawnControlWindow() noexcept
 	{
 		ImGui::Text("Position");
 		ImGui::SliderFloat("R", &r, 0.0f, 80.0f, "%.1f");
-		ImGui::SliderAngle("Theta", &theta, -180.0f, 180.0f);
+		ImGui::SliderAngle("Theta", &theta, -360.0f, 360.0f);
 		ImGui::SliderAngle("Phi", &phi, -89.0f, 89.0f);
 		ImGui::Text("Orientation");
 		ImGui::SliderAngle("Roll", &roll, -180.0f, 180.0f);

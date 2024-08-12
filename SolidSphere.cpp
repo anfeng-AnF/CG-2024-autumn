@@ -1,5 +1,5 @@
 #include "SolidSphere.h"
-#include "BindableBase.h"
+#include "BindableCommon.h"
 #include "GraphicsThrowMacros.h"
 #include "Sphere.h"
 
@@ -7,6 +7,7 @@
 SolidSphere::SolidSphere(Graphics& gfx, float radius)
 {
 	namespace dx = DirectX;
+	using namespace Bind;
 
 	if (!IsStaticInitialized())
 	{

@@ -3,6 +3,7 @@
 #include "IndexBuffer.h"
 #include <cassert>
 #include <typeinfo>
+using namespace Bind;
 
 void Drawable::Draw(Graphics& gfx) const noexcept
 {

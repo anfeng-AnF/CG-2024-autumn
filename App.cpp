@@ -1,9 +1,4 @@
 #include "App.h"
-#include "Melon.h"
-#include "Pyramid.h"
-#include "Box.h"
-#include "Sheet.h"
-#include "SkinnedBox.h"
 #include "Axis.h"
 #include <memory>
 #include <algorithm>

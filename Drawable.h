@@ -1,9 +1,12 @@
 #pragma once
 #include "Graphics.h"
-//#include "BindableBase.h"
 #include <DirectXMath.h>
 
-class Bindable;
+namespace Bind
+{
+	class Bindable;
+	class IndexBuffer;
+}
 
 class Drawable
 {
@@ -14,15 +17,15 @@ public:
 	Drawable(const Drawable&) = delete;
 	virtual DirectX::XMMATRIX GetTransformXM() const noexcept = 0;
 	void Draw(Graphics& gfx) const noexcept;
-	virtual void Update(float dt) noexcept = 0;
-	void AddBind(std::unique_ptr<Bindable> bind) noexcept;
-	void AddIndexBuffer(std::unique_ptr<class IndexBuffer> ibuf) noexcept;
+	virtual void Update(float dt) noexcept {};
+	void AddBind(std::unique_ptr<Bind::Bindable> bind) noexcept;
+	void AddIndexBuffer(std::unique_ptr<class Bind::IndexBuffer> ibuf) noexcept;
 	virtual ~Drawable() = default;
 
 protected:
-	virtual const std::vector<std::unique_ptr<Bindable>>& GetStaticBinds() const noexcept = 0;
+	virtual const std::vector<std::unique_ptr<Bind::Bindable>>& GetStaticBinds() const noexcept = 0;
 
 private:
-	const class IndexBuffer* pIndexBuffer = nullptr;
-	std::vector<std::unique_ptr<Bindable>> binds;
+	const class Bind::IndexBuffer* pIndexBuffer = nullptr;
+	std::vector<std::unique_ptr<Bind::Bindable>> binds;
 };

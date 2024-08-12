@@ -1,11 +1,11 @@
 #include "Axis.h"
 #include "Vertex.h"
-#include "BindableBase.h"
+#include "BindableCommon.h"
 
 
 namespace dx = DirectX;
 
-void GetAxis(hw3dexp::VertexBuffer& vbf, std::vector<uint16_t>& indices) {
+void GetAxis(Dvtx::VertexBuffer& vbf, std::vector<uint16_t>& indices) {
 	const float AxisMax = 20.0f;
 	const float AxisMinWidth = 1.0f;
 
@@ -128,9 +128,9 @@ void GetAxis(hw3dexp::VertexBuffer& vbf, std::vector<uint16_t>& indices) {
 
 Axis::Axis(Graphics&gfx)
 {
-	using hw3dexp::VertexLayout;
+	using Dvtx::VertexLayout;
 
-	hw3dexp::VertexBuffer vbf(hw3dexp::VertexLayout{}
+	Dvtx::VertexBuffer vbf(Dvtx::VertexLayout{}
 		.Append(VertexLayout::Position3D)
 		.Append(VertexLayout::Float3Color)
 	);

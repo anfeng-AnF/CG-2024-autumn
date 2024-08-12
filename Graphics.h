@@ -9,9 +9,13 @@
 #include <random>
 #include "ChiliWin.h"
 #include "ChiliException.h"
+namespace Bind
+{
+	class Bindable;
+}
 
 class Graphics {
-	friend class Bindable;
+	friend Bind::Bindable;
 public:
 	Graphics(HWND hWnd, int width, int height);
 	Graphics(const Graphics&) = delete;
@@ -19,7 +23,6 @@ public:
 	~Graphics();
 	void EndFrame();
 	void ClearBuffer(float red, float green, float blue)noexcept;
-	void DrawTestTriangle(float angle);
 	void DrawIndexed(UINT count) noexcept;
 	void SetProjection(DirectX::FXMMATRIX proj) noexcept;
 	DirectX::XMMATRIX GetProjection() const noexcept;
