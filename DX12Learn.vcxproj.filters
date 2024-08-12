@@ -147,9 +147,6 @@
     <ClCompile Include="GDIPlusManager.cpp">
       <Filter>D3DCore\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AssTest.cpp">
-      <Filter>D3DCore\Source Files\Drawable</Filter>
-    </ClCompile>
     <ClCompile Include="Axis.cpp">
       <Filter>D3DCore\Source Files\Drawable</Filter>
     </ClCompile>
@@ -163,7 +160,7 @@
       <Filter>D3DCore\Source Files\Drawable</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
-      <Filter>D3DCore\Source Files</Filter>
+      <Filter>D3DCore\Source Files\Drawable</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -239,19 +236,7 @@
     <ClInclude Include="ChiliMath.h">
       <Filter>Base\头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Cone.h">
-      <Filter>Base\头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Cube.h">
-      <Filter>Base\头文件</Filter>
-    </ClInclude>
     <ClInclude Include="IndexedTriangleList.h">
-      <Filter>Base\头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Plane.h">
-      <Filter>Base\头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Prism.h">
       <Filter>Base\头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sphere.h">
@@ -302,20 +287,11 @@
     <ClInclude Include="DrawableBase.h">
       <Filter>D3DCore\Header\Drawable</Filter>
     </ClInclude>
-    <ClInclude Include="AssTest.h">
-      <Filter>D3DCore\Header\Drawable</Filter>
-    </ClInclude>
-    <ClInclude Include="TestObject.h">
-      <Filter>D3DCore\Header\Drawable</Filter>
-    </ClInclude>
     <ClInclude Include="Vertex.h">
       <Filter>D3DCore\Header</Filter>
     </ClInclude>
     <ClInclude Include="Axis.h">
       <Filter>D3DCore\Header\Drawable</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>D3DCore\Header</Filter>
     </ClInclude>
     <ClInclude Include="Color.h">
       <Filter>D3DCore</Filter>
@@ -324,6 +300,9 @@
       <Filter>D3DCore\Header</Filter>
     </ClInclude>
     <ClInclude Include="SolidSphere.h">
+      <Filter>D3DCore\Header\Drawable</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
       <Filter>D3DCore\Header\Drawable</Filter>
     </ClInclude>
   </ItemGroup>

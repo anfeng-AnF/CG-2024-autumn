@@ -4,7 +4,9 @@
 #include "ImguiManager.h"
 #include "Camera.h"
 #include "PointLight.h"
+#include "Axis.h"
 #include "Mesh.h"
+#include <set>
 
 
 
@@ -18,6 +20,8 @@ public:
 	~App();
 private:
 	void DoFrame();
+	void ShowImguiDemoWindow();
+
 private:
 	ImguiManager imgui;
 	Window wnd;
@@ -27,5 +31,7 @@ private:
 	UINT width, height;
 	float speed_factor = 1.0f;
 	Camera cam;	
-	PointLight light;
+	PointLight light;	
+	Model nano{ wnd.Gfx(),"Models\\firefly\\firefly.pmx" };
+	Axis axis{ wnd.Gfx() };
 };
