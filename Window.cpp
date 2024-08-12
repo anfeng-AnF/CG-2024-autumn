@@ -94,6 +94,16 @@ Window::Window(UINT width, UINT height, const WCHAR* name)
 	ImGui_ImplWin32_Init(hWnd);
 
 	pGfx = std::make_unique<Graphics>(hWnd, width, height);
+
+	//register mouse raw input
+	RAWINPUTDEVICE rid;
+	rid.usUsagePage = 0x01;
+	rid.usUsage = 0x02;
+	rid.dwFlags = 0;
+	rid.hwndTarget = nullptr;
+	if (RegisterRawInputDevices(&rid, 1, sizeof(rid)) == false) {
+		assert(0);
+	}
 }
 
 Window::~Window()
@@ -130,6 +140,60 @@ Graphics& Window::Gfx()
 		throw std::runtime_error("no gfx error");
 	}
 	return *pGfx;
+}
+
+void Window::EnableCursor()noexcept
+{
+	cursorEnabled = true;
+	ShowCursor();
+	EnableImGuiMouse();
+	FreeCursor();
+}
+
+void Window::DisableCursor()noexcept
+{
+	cursorEnabled = false;
+	HideCursor();
+	DisableImGuiMouse();
+	ConfineCursor();
+}
+
+void Window::HideCursor()noexcept
+{
+	while (::ShowCursor(FALSE) >= 0);
+}
+
+void Window::ConfineCursor() noexcept
+{
+	RECT rect;
+	GetClientRect(hWnd, &rect);
+	MapWindowPoints(hWnd, nullptr, reinterpret_cast<POINT*>(&rect), 2);
+	ClipCursor(&rect);
+}
+
+void Window::FreeCursor() noexcept
+{
+	ClipCursor(nullptr);
+}
+
+void Window::ShowCursor()noexcept
+{
+	while (::ShowCursor(TRUE) < 0);
+}
+
+void Window::EnableImGuiMouse()noexcept
+{
+	ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+}
+
+void Window::DisableImGuiMouse()noexcept
+{
+	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
+}
+
+bool Window::CursorEnabled() const noexcept
+{
+	return cursorEnabled;
 }
 
 LRESULT CALLBACK Window::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
@@ -169,12 +233,73 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 
 	const auto& imio = ImGui::GetIO();
 
-
 	switch (msg)
 	{
+	case WM_INPUT:
+	{
+		if (CursorEnabled()) {
+			break;
+		}
+		UINT size;
+		if (GetRawInputData(
+			reinterpret_cast<HRAWINPUT>(lParam),
+			RID_INPUT,
+			nullptr,
+			&size,
+			sizeof(RAWINPUTHEADER)
+		)) {
+			//if faild get break;
+			assert(0);
+			break;
+		}
+
+		rawBuffer.resize(size);
+		if (GetRawInputData(
+			reinterpret_cast<HRAWINPUT>(lParam),
+			RID_INPUT,
+			rawBuffer.data(),
+			&size,
+			sizeof(RAWINPUTHEADER)) != size)
+		{
+			assert(0);
+			//if faild get break;
+			break;
+		}
+		auto& ri = reinterpret_cast<const RAWINPUT&>(*rawBuffer.data());
+		if (ri.header.dwType == RIM_TYPEMOUSE &&
+			(ri.data.mouse.lLastX != 0 || ri.data.mouse.lLastY != 0)
+			)
+		{
+			mouse.OnRawDelta(ri.data.mouse.lLastX, ri.data.mouse.lLastY);
+		}
+		break;
+	}
 	case WM_CLOSE:
 		PostQuitMessage(0);
 		return 0;
+	case WM_KILLFOCUS:
+		Kbd.ClearState();
+		break;
+	case WM_ACTIVATE:
+
+		// confine/free cursor on window to foreground/background if cursor disabled
+		if (!cursorEnabled)
+		{
+			if (wParam & WA_ACTIVE)
+			{
+
+				ConfineCursor();
+				HideCursor();
+			}
+			else
+			{
+
+				FreeCursor();
+				ShowCursor();
+			}
+		}
+		break;
+
 	case WM_KEYDOWN:
 		// syskey commands need to be handled to track ALT key (VK_MENU) and F10
 	case WM_SYSKEYDOWN:
@@ -206,6 +331,22 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 	case WM_MOUSEMOVE:
 	{
 		const POINTS pt = MAKEPOINTS(lParam);
+
+		// cursorless exclusive gets first dibs
+		if (!cursorEnabled)
+		{
+			if (!mouse.IsInWindow())
+			{
+				SetCapture(hWnd);
+				mouse.OnMouseEnter();
+				HideCursor();
+			}
+			break;
+		}
+		if (imio.WantCaptureMouse)
+		{
+			break;
+		}
 		// cursorless exclusive gets first dibs
 
 		// stifle this mouse message if imgui wants to capture
@@ -239,7 +380,11 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 	case WM_LBUTTONDOWN:
 	{
 		SetForegroundWindow(hWnd);
-
+		if (!cursorEnabled)
+		{
+			ConfineCursor();
+			HideCursor();
+		}
 		// stifle this mouse message if imgui wants to capture
 
 		const POINTS pt = MAKEPOINTS(lParam);
@@ -289,6 +434,7 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 		mouse.OnWheelDelta(pt.x, pt.y, delta);
 		break;
 	}
+	
 	/************** END MOUSE MESSAGES **************/
 	}
 	return DefWindowProc(hWnd, msg, wParam, lParam);

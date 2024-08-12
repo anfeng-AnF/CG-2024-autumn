@@ -74,16 +74,30 @@ public:
 	Window& operator=(const Window&) = delete;
 	void SetTitle(const std::wstring& title);
 	static std::optional<int> ProcessMessages();
-	Graphics& Gfx();
+	Graphics& Gfx();	
+	void EnableCursor() noexcept;
+	void DisableCursor() noexcept;
+	bool CursorEnabled() const noexcept;
+
 private:
+	void ConfineCursor() noexcept;
+	void FreeCursor() noexcept;
+	void ShowCursor() noexcept;
+	void HideCursor() noexcept;
+	void EnableImGuiMouse() noexcept;
+	void DisableImGuiMouse() noexcept;
+
 	static LRESULT CALLBACK HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 	static LRESULT CALLBACK HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 	LRESULT HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 
 private:
+	bool cursorEnabled = false;
 	int width;
 	int height;
 	HWND hWnd;
+	std::vector<BYTE> rawBuffer;
+
 public:
 	Keyboard Kbd;
 	Mouse mouse;
