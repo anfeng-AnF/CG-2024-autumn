@@ -21,10 +21,9 @@ public:
 private:
 	void DoFrame();
 	void ShowImguiDemoWindow();
-	void ShowRawInputWindow();
 
 private:	
-	int x = 0, y = 0;
+	bool showDemoWindow = false;
 	ImguiManager imgui;
 	Window wnd;
 	ChiliTimer timer;

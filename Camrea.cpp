@@ -88,21 +88,50 @@ void Camera::Reset() noexcept
 
 void Camera::RotatePitchYaw(float dx, float dy) noexcept
 {
-	XMVECTOR deltaRotation=DirectX::XMQuaternionRotationRollPitchYaw(dx*rotationSpeed,dy*rotationSpeed,0);
-	transform.rotation = DirectX::XMQuaternionMultiply(transform.rotation, deltaRotation);
+	XMVECTOR RightVector = XMVector3TransformNormal(
+		{ 1.0f, 0.0f, 0.0f, 0.0f },
+		XMMatrixRotationQuaternion(transform.rotation));
+
+	XMVECTOR UpVector = XMVector3TransformNormal(
+		{ 0.0f, 1.0f, 0.0f, 0.0f },
+		XMMatrixRotationQuaternion(transform.rotation));
+
+
+	XMVECTOR deltaYawRotation = XMQuaternionRotationAxis(UpVector, dx * rotationSpeed);
+	XMVECTOR deltaPitchRotation = XMQuaternionRotationAxis(RightVector, dy * rotationSpeed);
+	transform.rotation = DirectX::XMQuaternionMultiply(transform.rotation, deltaYawRotation);
+	transform.rotation = DirectX::XMQuaternionMultiply(transform.rotation, deltaPitchRotation);
 	transform.rotation = DirectX::XMQuaternionNormalize(transform.rotation);
 }
 
 void Camera::RotateRoll(float dz) noexcept
 {
-	XMVECTOR deltaRotation = DirectX::XMQuaternionRotationRollPitchYaw(0, 0, dz*rotationSpeed);
-	transform.rotation = DirectX::XMQuaternionMultiply(transform.rotation, deltaRotation);
+	XMVECTOR ForwardVector = XMVector3TransformNormal(
+		{ 0.0f, 0.0f, 1.0f, 0.0f },
+	XMMatrixRotationQuaternion(transform.rotation));
+	XMVECTOR deltaRollRotation = XMQuaternionRotationAxis(ForwardVector, dz * rotationSpeed);
+	transform.rotation = DirectX::XMQuaternionMultiply(transform.rotation, deltaRollRotation);
 	transform.rotation = DirectX::XMQuaternionNormalize(transform.rotation);
 }
 
 void Camera::Translate(DirectX::XMFLOAT3 deltaTranslation) noexcept
 {
-	transform.position += { deltaTranslation.x, deltaTranslation.y, deltaTranslation.z, 0};
+	XMVECTOR ForwardVector = XMVector3TransformNormal(
+		{ 0.0f, 0.0f, 1.0f, 0.0f },
+		XMMatrixRotationQuaternion(transform.rotation));
+
+	XMVECTOR RightVector = XMVector3TransformNormal(
+		{ 1.0f, 0.0f, 0.0f, 0.0f },
+		XMMatrixRotationQuaternion(transform.rotation));
+
+	XMVECTOR UpVector = XMVector3TransformNormal(
+		{ 0.0f, 1.0f, 0.0f, 0.0f },
+		XMMatrixRotationQuaternion(transform.rotation));
+
+	transform.position +=
+		DirectX::XMVectorScale(ForwardVector,deltaTranslation.x)
+		+ DirectX::XMVectorScale(RightVector, deltaTranslation.y)
+		+ DirectX::XMVectorScale(UpVector, deltaTranslation.z);
 }
 
 
