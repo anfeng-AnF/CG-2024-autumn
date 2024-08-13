@@ -84,13 +84,19 @@ void App::DoFrame()
 		{
 			cam.Translate({ 0.0f,dt,0.0f });
 		}
-		if (wnd.Kbd.KeyIsPressed('R'))
+		if (wnd.Kbd.KeyIsPressed('Q'))
 		{
-			cam.Translate({ 0.0f,0.0f,-dt });
+			cam.RotateRoll(1.0f);
 		}
-		if (wnd.Kbd.KeyIsPressed('F'))
+		if (wnd.Kbd.KeyIsPressed('E'))
 		{
+			cam.RotateRoll(-1.0f);
+		}
+		if (wnd.Kbd.KeyIsPressed(VK_SPACE)) {
 			cam.Translate({ 0.0f,0.0f,dt });
+		}
+		if (wnd.Kbd.KeyIsPressed(VK_CONTROL)) {
+			cam.Translate({ 0.0f,0.0f,-dt });
 		}
 	}
 

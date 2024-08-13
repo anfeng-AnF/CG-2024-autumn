@@ -1,6 +1,7 @@
 #pragma once
 
 #include <DirectXMath.h>
+#include <cmath>
 
 using namespace DirectX;
 
@@ -27,6 +28,9 @@ public:
         // ×éºÏ¾ØÕó
         return scaleMatrix * rotationMatrix * translationMatrix;
     }
+
+    XMFLOAT3 GetRotationEuler()noexcept;
+    XMVECTOR ComputeRotationQuaternion(const XMVECTOR& from, const XMVECTOR& to) noexcept;
 
 public:
     XMVECTOR position; // Î»ÖÃ
