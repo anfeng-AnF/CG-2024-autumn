@@ -45,3 +45,9 @@ XMVECTOR FTransform::ComputeRotationQuaternion(const XMVECTOR& from, const XMVEC
 
 	return rotationQuaternion;
 }
+
+
+// 静态常量变量的定义和初始化
+const DirectX::XMVECTOR FTransform::ForwardVector = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+const DirectX::XMVECTOR FTransform::RightVector = DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+const DirectX::XMVECTOR FTransform::UpVector = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);

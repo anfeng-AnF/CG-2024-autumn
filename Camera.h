@@ -2,6 +2,7 @@
 #include "Graphics.h"
 #include "Transform.h"
 
+
 class Camera
 {
 public:
@@ -12,7 +13,7 @@ public:
 	void RotatePitchYaw(float dx, float dy)noexcept;
 	void RotateRoll(float dz)noexcept;
 	void Translate(DirectX::XMFLOAT3 translation) noexcept;
-	void addTravelSpeed();
+	void IncreaseTravelSpeed();
 	void DecreaseTravelSpeed();
 private:
 	bool EnableRollRotate = false;

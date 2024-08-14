@@ -31,7 +31,7 @@ public:
 
     XMFLOAT3 GetRotationEuler()noexcept;
     XMVECTOR ComputeRotationQuaternion(const XMVECTOR& from, const XMVECTOR& to) noexcept;
-
+    static const XMVECTOR ForwardVector, RightVector, UpVector;
 public:
     XMVECTOR position; // 位置
     XMVECTOR rotation; // 旋转（四元数）

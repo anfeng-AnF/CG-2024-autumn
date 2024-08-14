@@ -11,11 +11,11 @@ Camera::Camera() noexcept
 DirectX::XMMATRIX Camera::GetMatrix() const noexcept
 {
 	XMVECTOR ForwardVector = XMVector3TransformNormal(
-		{ 0.0f, 0.0f, 1.0f, 0.0f }, 
+		FTransform::ForwardVector, 
 		XMMatrixRotationQuaternion(transform.rotation));
 
 	XMVECTOR UpVector = XMVector3TransformNormal(
-		{ 0.0f, 1.0f, 0.0f, 0.0f }, 
+		FTransform::UpVector, 
 		XMMatrixRotationQuaternion(transform.rotation));
 
 
@@ -36,12 +36,12 @@ void Camera::SpawnControlWindow() noexcept
 		float x = XMVectorGetX(transform.position);
 		float y = XMVectorGetY(transform.position);
 		float z = XMVectorGetZ(transform.position);
-
+		float w;
 		// 使用 ImGui 显示位置
 		ImGui::Text("Position: %f, %f, %f", x, y, z);
-
 		XMFLOAT3 euler = transform.GetRotationEuler();
 		ImGui::Text("Rotation (Pitch,Roll,Yaw): %.2f, %.2f, %.2f", euler.x, euler.y, euler.z);
+		ImGui::Text("Travel Speed: %f", travelSpeed);
 
 
 		if (ImGui::Button("Reset"))
@@ -55,42 +55,38 @@ void Camera::SpawnControlWindow() noexcept
 void Camera::Reset() noexcept
 {
 	transform = FTransform{};
-	transform.position = XMVectorSet(-6.0f, 10.0f, 8.0f, 0.0f);
-	transform.rotation = { 0.846903, 0.221031, 0.123545, 0.467586 };
+	transform.position = XMVectorSet(-10.0f,13.0f,-16.0f, 0.0f);
+	transform.rotation = DirectX::XMQuaternionRotationRollPitchYaw(0.5f,0.52f,0.0f);
 	EnableRollRotate = false;
 }
 
 void Camera::RotatePitchYaw(float dx, float dy) noexcept
 {
-	XMVECTOR UpVector;
+	XMVECTOR UpVector = XMVector3TransformNormal(
+		FTransform::UpVector,
+		XMMatrixRotationQuaternion(transform.rotation));
 	XMVECTOR RightVector = XMVector3TransformNormal(
-		{ 1.0f, 0.0f, 0.0f, 0.0f },
+		FTransform::RightVector,
 		XMMatrixRotationQuaternion(transform.rotation));
 
-	if (EnableRollRotate) {
-		UpVector = XMVector3TransformNormal(
-			{ 0.0f, 1.0f, 0.0f, 0.0f },
-			XMMatrixRotationQuaternion(transform.rotation));
+	if (!EnableRollRotate) {
+		UpVector = {0.0f,XMVectorGetY(UpVector),0.0f,0.0f};
 	}
-	else
-	{
-		UpVector = { 0.0f, 0.0F, 1.0f, 0.0f };
-		//RightVector = -_mm_and_ps(RightVector, { 1.0f, 0.0f, 1.0f, 0.0f });
-	}
+
 
 	XMVECTOR deltaYawRotation = XMQuaternionRotationNormal(UpVector, dx * rotationSpeed);
 	XMVECTOR deltaPitchRotation = XMQuaternionRotationNormal(RightVector, dy * rotationSpeed);
-	transform.rotation = DirectX::XMQuaternionMultiply(transform.rotation, deltaYawRotation);
-	transform.rotation = DirectX::XMQuaternionNormalize(transform.rotation);
 	transform.rotation = DirectX::XMQuaternionMultiply(transform.rotation, deltaPitchRotation);
+	transform.rotation = DirectX::XMQuaternionMultiply(transform.rotation, deltaYawRotation);
 	transform.rotation = DirectX::XMQuaternionNormalize(transform.rotation);
 }
 
 void Camera::RotateRoll(float dz) noexcept
 {
 	EnableRollRotate = true;
+
 	XMVECTOR ForwardVector = XMVector3TransformNormal(
-		{ 0.0f, 0.0f, 1.0f, 0.0f },
+		FTransform::ForwardVector,
 	XMMatrixRotationQuaternion(transform.rotation));
 	XMVECTOR deltaRollRotation = XMQuaternionRotationAxis(ForwardVector, dz * rotationSpeed);
 	transform.rotation = DirectX::XMQuaternionMultiply(transform.rotation, deltaRollRotation);
@@ -100,17 +96,17 @@ void Camera::RotateRoll(float dz) noexcept
 void Camera::Translate(DirectX::XMFLOAT3 deltaTranslation) noexcept
 {
 	XMVECTOR ForwardVector = XMVector3TransformNormal(
-		{ 0.0f, 0.0f, 1.0f, 0.0f },
+		FTransform::ForwardVector,
 		XMMatrixRotationQuaternion(transform.rotation));
 
 	XMVECTOR RightVector = XMVector3TransformNormal(
-		{ 1.0f, 0.0f, 0.0f, 0.0f },
+		FTransform::RightVector,
 		XMMatrixRotationQuaternion(transform.rotation));
 
-	XMVECTOR UpVector = { 0.0f, 0.0f, 1.0f, 0.0f };
+	XMVECTOR UpVector = FTransform::UpVector;
 	if (EnableRollRotate) {
 		UpVector = XMVector3TransformNormal(
-			{ 0.0f, 1.0f, 0.0f, 0.0f },
+			FTransform::UpVector,
 			XMMatrixRotationQuaternion(transform.rotation));
 	}
 
@@ -120,24 +116,23 @@ void Camera::Translate(DirectX::XMFLOAT3 deltaTranslation) noexcept
 		+ DirectX::XMVectorScale(UpVector, deltaTranslation.z * travelSpeed);
 }
 
-void Camera::addTravelSpeed()
+void Camera::IncreaseTravelSpeed()
 {
-	if (travelSpeed >= 20) {
-		travelSpeed = 20;
+	if (travelSpeed >= 20.0f) {
+		travelSpeed = 20.0f;
 		return;
 	}
-	travelSpeed += travelSpeed >= 1 ? 1 : 0.1;
+	travelSpeed += travelSpeed >= 1.0f ? 1.0f : 0.1f;
 }
 
 void Camera::DecreaseTravelSpeed()
 {
-
-	if (travelSpeed <= 0.1)
+	if (travelSpeed <= 0.15f)
 	{
-		travelSpeed = 0.1;
+		travelSpeed = 0.1f;
 		return;
 	}
-	travelSpeed -= travelSpeed >= 1 ? 1 : 0.1;
+	travelSpeed -= travelSpeed > 1.0f ? 1.0f : 0.1f;
 }
 
 

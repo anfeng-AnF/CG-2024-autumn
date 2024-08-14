@@ -25,7 +25,7 @@ void GetAxis(Dvtx::VertexBuffer& vbf, std::vector<uint16_t>& indices) {
 				color = { 0.0f, 0.0f, 0.0f };
 			}
 			vbf.EmplaceBack(
-				dx::XMFLOAT3{ x,y,0 },
+				dx::XMFLOAT3{ x,0,y },
 				color);
 			if (y != -AxisMax) {
 				indices.push_back(index);

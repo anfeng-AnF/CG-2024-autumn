@@ -311,6 +311,9 @@
     <ClInclude Include="Transform.h">
       <Filter>Base\头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CoordinateTransformer.h">
+      <Filter>Base\头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX12Learn.rc">

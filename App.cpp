@@ -108,6 +108,17 @@ void App::DoFrame()
 			cam.RotatePitchYaw(delta->x, delta->y);
 		}
 	}
+	while (const auto delta = wnd.mouse.Read())
+	{
+		if (delta->GetType() == Mouse::Event::Type::WheelDown)
+		{
+			cam.DecreaseTravelSpeed();
+		}
+		if (delta->GetType() == Mouse::Event::Type::WheelUp)
+		{
+			cam.IncreaseTravelSpeed();
+		}
+	}
 
 	// imgui windows
 	cam.SpawnControlWindow();
