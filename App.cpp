@@ -19,7 +19,8 @@ App::App(UINT width, UINT height)
 	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, height/ (float)width, 0.5f, 100000));
 	wnd.DisableCursor();
 	auto a = Bind::VertexShader::Resolve(wnd.Gfx(), "PhongVS.cso");
-	auto b = Bind::VertexShader::Resolve(wnd.Gfx(), "PhongVS.cso");
+	auto b = Bind::Sampler::Resolve(wnd.Gfx());
+	auto c = Bind::Sampler::Resolve(wnd.Gfx());
 }
 int App::Go()
 {
@@ -47,7 +48,7 @@ void App::DoFrame()
 
 	nano.Draw(wnd.Gfx());
 	light.Draw(wnd.Gfx());
-	axis.Draw(wnd.Gfx());
+	//axis.Draw(wnd.Gfx());
 
 	while (const auto e = wnd.Kbd.ReadKey())
 	{

@@ -4,7 +4,7 @@
 #include "ImguiManager.h"
 #include "Camera.h"
 #include "PointLight.h"
-#include "Axis.h"
+//#include "Axis.h"
 #include "Mesh.h"
 #include <set>
 
@@ -34,5 +34,5 @@ private:
 	Camera cam;	
 	PointLight light;	
 	Model nano{ wnd.Gfx(),"Models\\WangShukz\\WangShuKZ.fbx" };
-	Axis axis{ wnd.Gfx() };
+	//Axis axis{ wnd.Gfx() };
 };
