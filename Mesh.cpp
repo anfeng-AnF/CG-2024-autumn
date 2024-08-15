@@ -172,6 +172,13 @@ Model::Model(Graphics& gfx, const std::string fileName)
 	:
 	pWindow(std::make_unique<ModelWindow>())
 {
+	//get and save file patch
+	std::size_t pos = fileName.find_last_of('\\');
+	if (pos != std::string::npos) {
+		filePatch = fileName.substr(0, pos+1);
+	}
+
+
 	Assimp::Importer imp;
 	const auto pScene = imp.ReadFile(fileName.c_str(),
 		aiProcess_Triangulate |
@@ -241,15 +248,35 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh,const a
 
 	std::vector<std::unique_ptr<Bind::Bindable>> bindablePtrs;
 
+	bool hasSpecularMap = false;
+	float shininess = 35.0f;
+
 	if (mesh.mMaterialIndex >= 0)
 	{
 		using namespace std::string_literals;
 		auto& material = *pMaterials[mesh.mMaterialIndex];
+		auto base = filePatch;
 		aiString texFileName;
 		material.GetTexture(aiTextureType_DIFFUSE, 0, &texFileName);
-		auto a = texFileName.C_Str();
+		std::string a = texFileName.C_Str();
+		for (char& c : a) {
+			if (c == '/') {
+				c = '\\';
+			}
+		}
 
-		bindablePtrs.push_back(std::make_unique<Bind::Texture>(gfx, Surface::FromFile("Models\\Lantern\\"s+a)));
+		bindablePtrs.push_back(std::make_unique<Bind::Texture>(gfx, Surface::FromFile(base+a.c_str())));
+		if (material.GetTexture(aiTextureType_SPECULAR, 0, &texFileName) == aiReturn_SUCCESS)
+		{
+			bindablePtrs.push_back(std::make_unique<Bind::Texture>(gfx, Surface::FromFile(base + a.c_str()), 1));
+			hasSpecularMap = true;
+		}
+		else
+		{
+			material.Get(AI_MATKEY_SHININESS, shininess);
+		}
+
+
 		bindablePtrs.push_back(std::make_unique<Bind::Sampler>(gfx));
 	}
 	bindablePtrs.push_back(std::make_unique<Bind::VertexBuffer>(gfx, vbuf));
@@ -260,17 +287,28 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh,const a
 	auto pvsbc = pvs->GetBytecode();
 	bindablePtrs.push_back(std::move(pvs));
 
-	bindablePtrs.push_back(std::make_unique<Bind::PixelShader>(gfx, L"PhongPS.cso"));
-
 	bindablePtrs.push_back(std::make_unique<Bind::InputLayout>(gfx, vbuf.GetLayout().GetD3DLayout(), pvsbc));
 
-	struct PSMaterialConstant
+	if (hasSpecularMap)
 	{
-		float specularIntensity = 0.6f;
-		float specularPower = 30.0f;
-		float padding[2];
-	} pmc;
-	bindablePtrs.push_back(std::make_unique<Bind::PixelConstantBuffer<PSMaterialConstant>>(gfx, pmc, 1u));
+		bindablePtrs.push_back(std::make_unique<Bind::PixelShader>(gfx, L"PhongPSSpecMap.cso"));
+	}
+	else
+	{
+		bindablePtrs.push_back(std::make_unique<Bind::PixelShader>(gfx, L"PhongPS.cso"));
+
+		bindablePtrs.push_back(std::make_unique<Bind::InputLayout>(gfx, vbuf.GetLayout().GetD3DLayout(), pvsbc));
+
+		struct PSMaterialConstant
+		{
+			float specularIntensity = 0.8f;
+			float specularPower = 30.0f;
+			float padding[2];
+		} pmc;
+		pmc.specularPower = shininess;
+		bindablePtrs.push_back(std::make_unique<Bind::PixelConstantBuffer<PSMaterialConstant>>(gfx, pmc, 1u));
+	
+	}
 
 	return std::make_unique<Mesh>(gfx, std::move(bindablePtrs));
 }

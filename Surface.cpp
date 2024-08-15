@@ -117,6 +117,8 @@ Surface Surface::FromFile(const std::wstring& name)
 	unsigned int width = 0;
 	unsigned int height = 0;
 	OutputDebugString(name.c_str());
+	//OutputDebugStringA((LPCSTR)'\n');
+
 	std::unique_ptr<Color[]> pBuffer;
 	{
 		Gdiplus::Bitmap bitmap(name.c_str());

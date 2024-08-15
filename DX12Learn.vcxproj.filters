@@ -344,6 +344,9 @@
     <FxCompile Include="AxisPS.hlsl">
       <Filter>Shader\Axis</Filter>
     </FxCompile>
+    <FxCompile Include="PhongPSSpecMap.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
