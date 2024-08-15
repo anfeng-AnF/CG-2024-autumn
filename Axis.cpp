@@ -139,21 +139,21 @@ Axis::Axis(Graphics&gfx)
 	GetAxis(vbf, indices);
 
 
-	AddBind(std::make_unique<VertexBuffer>(gfx, vbf));
+	AddBind(std::make_shared<VertexBuffer>(gfx, vbf));
 	
-	AddIndexBuffer(std::make_unique<IndexBuffer>(gfx, indices));
+	AddBind(std::make_shared<IndexBuffer>(gfx, indices));
 
-	AddBind(std::make_unique<PixelShader>(gfx, L"AxisPS.cso"));
+	AddBind(std::make_shared<PixelShader>(gfx, L"AxisPS.cso"));
 
-	auto pvs = std::make_unique<VertexShader>(gfx, L"AxisVS.cso");
+	auto pvs = std::make_shared<VertexShader>(gfx, L"AxisVS.cso");
 	auto pvsbc = pvs->GetBytecode();
 	AddBind(std::move(pvs));
 
-	AddBind(std::make_unique<InputLayout>(gfx, vbf.GetLayout().GetD3DLayout(), pvsbc));
+	AddBind(std::make_shared<InputLayout>(gfx, vbf.GetLayout().GetD3DLayout(), pvsbc));
 
-	AddBind(std::make_unique<Topology>(gfx, D3D_PRIMITIVE_TOPOLOGY_LINELIST));
+	AddBind(std::make_shared<Topology>(gfx, D3D_PRIMITIVE_TOPOLOGY_LINELIST));
 
-	AddBind(std::make_unique<TransformCbuf>(gfx, *this));
+	AddBind(std::make_shared<TransformCbuf>(gfx, *this));
 }
 
 DirectX::XMMATRIX Axis::GetTransformXM() const noexcept
@@ -161,11 +161,3 @@ DirectX::XMMATRIX Axis::GetTransformXM() const noexcept
 	return DirectX::XMMATRIX(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f));
 }
 
-void Axis::Update(float dt) noexcept
-{
-}
-
-const std::vector<std::unique_ptr<Bindable>>& Axis::GetStaticBinds() const noexcept
-{
-	return std::vector<std::unique_ptr<Bindable>>{};
-}

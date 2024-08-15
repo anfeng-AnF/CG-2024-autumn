@@ -287,9 +287,6 @@
     <ClInclude Include="GDIPlusManager.h">
       <Filter>D3DCore</Filter>
     </ClInclude>
-    <ClInclude Include="DrawableBase.h">
-      <Filter>D3DCore\Header\Drawable</Filter>
-    </ClInclude>
     <ClInclude Include="Vertex.h">
       <Filter>D3DCore\Header</Filter>
     </ClInclude>
@@ -313,6 +310,9 @@
     </ClInclude>
     <ClInclude Include="CoordinateTransformer.h">
       <Filter>Base\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BindableCodex.h">
+      <Filter>D3DCore\Header\Bindable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

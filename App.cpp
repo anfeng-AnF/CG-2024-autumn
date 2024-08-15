@@ -3,13 +3,9 @@
 #include <algorithm>
 #include "ChiliMath.h"
 #include "imgui/imgui.h"
-#include "imgui/imgui_impl_win32.h"
-#include "imgui/imgui_impl_dx11.h"
 #include "GDIPlusManager.h"
 #include "Vertex.h"
-#include "assimp\Importer.hpp"
-#include "assimp\scene.h"
-#include "assimp\postprocess.h"
+#include "VertexBuffer.h"
 
 GDIPlusManager gdipm;
 namespace dx = DirectX;
@@ -22,6 +18,8 @@ App::App(UINT width, UINT height)
 {
 	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, height/ (float)width, 0.5f, 100000));
 	wnd.DisableCursor();
+	auto a = Bind::VertexShader::Resolve(wnd.Gfx(), "PhongVS.cso");
+	auto b = Bind::VertexShader::Resolve(wnd.Gfx(), "PhongVS.cso");
 }
 int App::Go()
 {
