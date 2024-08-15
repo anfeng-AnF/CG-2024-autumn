@@ -8,18 +8,6 @@
 #include <assimp/postprocess.h>
 
 
-
-class ModelException : public ChiliException
-{
-public:
-	ModelException(int line, const char* file, std::string note) noexcept;
-	const char* what() const noexcept override;
-	const char* GetType() const noexcept override;
-	const std::string& GetNote() const noexcept;
-private:
-	std::string note;
-};
-
 class Mesh : public DrawableBase<Mesh>
 {
 public:
@@ -59,7 +47,7 @@ public:
 	void ShowWindow(const char* windowName = nullptr) noexcept;
 	~Model() noexcept;
 private:
-	static std::unique_ptr<Mesh> ParseMesh(Graphics& gfx, const aiMesh& mesh);
+	static std::unique_ptr<Mesh> ParseMesh(Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials);
 	std::unique_ptr<Node> ParseNode(int& nextId, const aiNode& node) noexcept;
 private:
 	std::unique_ptr<Node> pRoot;

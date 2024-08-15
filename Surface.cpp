@@ -107,19 +107,22 @@ const Surface::Color* Surface::GetBufferPtrConst() const noexcept
 
 Surface Surface::FromFile(const std::string& name)
 {
+	wchar_t wideName[512];
+	mbstowcs_s(nullptr, wideName, name.c_str(), _TRUNCATE);
+	return FromFile(wideName);
+}
+
+Surface Surface::FromFile(const std::wstring& name)
+{
 	unsigned int width = 0;
 	unsigned int height = 0;
+	OutputDebugString(name.c_str());
 	std::unique_ptr<Color[]> pBuffer;
-
 	{
-		// convert filenam to wide string (for Gdiplus)
-		wchar_t wideName[512];
-		mbstowcs_s(nullptr, wideName, name.c_str(), _TRUNCATE);
-
-		Gdiplus::Bitmap bitmap(wideName);
+		Gdiplus::Bitmap bitmap(name.c_str());
 		if (bitmap.GetLastStatus() != Gdiplus::Status::Ok)
 		{
-			std::stringstream ss;
+			std::wstringstream ss;
 			ss << "Loading image [" << name << "]: failed to load.";
 		}
 

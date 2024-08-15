@@ -10,6 +10,7 @@
 #include "assimp\Importer.hpp"
 #include "assimp\scene.h"
 #include "assimp\postprocess.h"
+
 GDIPlusManager gdipm;
 namespace dx = DirectX;
 
@@ -21,7 +22,6 @@ App::App(UINT width, UINT height)
 {
 	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, height/ (float)width, 0.5f, 100000));
 	wnd.DisableCursor();
-
 }
 int App::Go()
 {
@@ -84,6 +84,12 @@ void App::DoFrame()
 		{
 			cam.Translate({ 0.0f,dt,0.0f });
 		}
+		if (wnd.Kbd.KeyIsPressed(VK_SPACE)) {
+			cam.Translate({ 0.0f,0.0f,dt });
+		}
+		if (wnd.Kbd.KeyIsPressed(VK_CONTROL)) {
+			cam.Translate({ 0.0f,0.0f,-dt });
+		}
 		if (wnd.Kbd.KeyIsPressed('Q'))
 		{
 			cam.RotateRoll(1.0f);
@@ -91,12 +97,6 @@ void App::DoFrame()
 		if (wnd.Kbd.KeyIsPressed('E'))
 		{
 			cam.RotateRoll(-1.0f);
-		}
-		if (wnd.Kbd.KeyIsPressed(VK_SPACE)) {
-			cam.Translate({ 0.0f,0.0f,dt });
-		}
-		if (wnd.Kbd.KeyIsPressed(VK_CONTROL)) {
-			cam.Translate({ 0.0f,0.0f,-dt });
 		}
 	}
 
@@ -110,6 +110,7 @@ void App::DoFrame()
 	}
 	while (const auto delta = wnd.mouse.Read())
 	{
+		if (wnd.CursorEnabled())break;
 		if (delta->GetType() == Mouse::Event::Type::WheelDown)
 		{
 			cam.DecreaseTravelSpeed();
