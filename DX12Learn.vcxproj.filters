@@ -165,6 +165,9 @@
     <ClCompile Include="Transform.cpp">
       <Filter>Base\源文件</Filter>
     </ClCompile>
+    <ClCompile Include="TestPlane.cpp">
+      <Filter>D3DCore\Source Files\Drawable</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChiliWin.h">
@@ -313,6 +316,12 @@
     </ClInclude>
     <ClInclude Include="BindableCodex.h">
       <Filter>D3DCore\Header\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Plane.h">
+      <Filter>D3DCore\Header\Drawable</Filter>
+    </ClInclude>
+    <ClInclude Include="TestPlane.h">
+      <Filter>D3DCore\Header\Drawable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

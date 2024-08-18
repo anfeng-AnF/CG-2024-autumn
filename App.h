@@ -5,8 +5,10 @@
 #include "Camera.h"
 #include "PointLight.h"
 //#include "Axis.h"
+#include "TestPlane.h"
 #include "Mesh.h"
 #include <set>
+
 
 
 
@@ -36,4 +38,5 @@ private:
 	Model nano{ wnd.Gfx(),"Models\\Lantern\\Lantern_Fixed1.fbx" };
 	Model nano2{ wnd.Gfx(),"Models\\Lantern\\Lantern_Fixed1.fbx" };
 	//Axis axis{ wnd.Gfx() };
+	TestPlane plane;
 };
