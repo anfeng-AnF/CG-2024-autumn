@@ -99,6 +99,37 @@ namespace Dvtx
 		return { "INVALID",0,DXGI_FORMAT_UNKNOWN,0,0,D3D11_INPUT_PER_VERTEX_DATA,0 };
 	}
 
+	std::string VertexLayout::GetCode() const
+	{
+		std::string code;
+		for (const auto& e : elements)
+		{
+			code += e.GetCode();
+		}
+		return code;
+	}
+	const char* Dvtx::VertexLayout::Element::GetCode() const noexcept
+	{
+		switch (type)
+		{
+		case Position2D:
+			return Map<Position2D>::code;
+		case Position3D:
+			return Map<Position3D>::code;
+		case Texture2D:
+			return Map<Texture2D>::code;
+		case Normal:
+			return Map<Normal>::code;
+		case Float3Color:
+			return Map<Float3Color>::code;
+		case Float4Color:
+			return Map<Float4Color>::code;
+		case BGRAColor:
+			return Map<BGRAColor>::code;
+		}
+		assert("Invalid element type" && false);
+		return "Invalid";
+	}
 
 	// Vertex
 	Vertex::Vertex(char* pData, const VertexLayout& layout) 

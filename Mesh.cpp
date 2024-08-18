@@ -10,7 +10,7 @@ namespace dx = DirectX;
 Mesh::Mesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>> bindPtrs)
 {
 
-	AddBind(std::make_shared<Bind::Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+	AddBind(Bind::Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 
 	for (auto& pb : bindPtrs)
 	{
@@ -57,7 +57,7 @@ void Node::Draw(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const
 	}
 }
 
-void Node::AddChild(std::shared_ptr<Node> pChild)
+void Node::AddChild(std::unique_ptr<Node> pChild)
 {
 	assert(pChild);
 	childPtrs.push_back(std::move(pChild));
@@ -160,7 +160,7 @@ private:
 
 Model::Model(Graphics& gfx, const std::string fileName)
 	:
-	pWindow(std::make_shared<ModelWindow>())
+	pWindow(std::make_unique<ModelWindow>())
 {
 	//get and save file patch
 	std::size_t pos = fileName.find_last_of('\\');
@@ -204,8 +204,9 @@ void Model::ShowWindow(const char* windowName) noexcept
 Model::~Model() noexcept
 {}
 
-std::shared_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh,const aiMaterial* const* pMaterials)
+std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh,const aiMaterial* const* pMaterials)
 {
+	using namespace Bind;
 	namespace dx = DirectX;
 	using Dvtx::VertexLayout;
 
@@ -236,16 +237,16 @@ std::shared_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh,const a
 		indices.push_back(face.mIndices[2]);
 	}
 
-	std::vector<std::shared_ptr<Bind::Bindable>> bindablePtrs;
+	std::vector<std::shared_ptr<Bindable>> bindablePtrs;
 
 	bool hasSpecularMap = false;
 	float shininess = 35.0f;
+	auto base = filePatch;
 
 	if (mesh.mMaterialIndex >= 0)
 	{
 		using namespace std::string_literals;
 		auto& material = *pMaterials[mesh.mMaterialIndex];
-		auto base = filePatch;
 		aiString texFileName;
 		material.GetTexture(aiTextureType_DIFFUSE, 0, &texFileName);
 		std::string a = texFileName.C_Str();
@@ -255,10 +256,10 @@ std::shared_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh,const a
 			}
 		}
 
-		bindablePtrs.push_back(std::make_shared<Bind::Texture>(gfx, Surface::FromFile(base+a.c_str())));
+		bindablePtrs.push_back(Texture::Resolve(gfx, base+a.c_str()));
 		if (material.GetTexture(aiTextureType_SPECULAR, 0, &texFileName) == aiReturn_SUCCESS)
 		{
-			bindablePtrs.push_back(std::make_shared<Bind::Texture>(gfx, Surface::FromFile(base + a.c_str()), 1));
+			bindablePtrs.push_back(Texture::Resolve(gfx, base + a.c_str(), 1));
 			hasSpecularMap = true;
 		}
 		else
@@ -267,42 +268,41 @@ std::shared_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh,const a
 		}
 
 
-		bindablePtrs.push_back(std::make_shared<Bind::Sampler>(gfx));
+		bindablePtrs.push_back(Sampler::Resolve(gfx));
 	}
-	bindablePtrs.push_back(std::make_shared<Bind::VertexBuffer>(gfx, vbuf));
+	auto meshTag = base + "%" + mesh.mName.C_Str()+std::to_string(vbuf.Size());
 
-	bindablePtrs.push_back(std::make_shared<Bind::IndexBuffer>(gfx, indices));
+	bindablePtrs.push_back(VertexBuffer::Resolve(gfx,meshTag, vbuf));
+
+	bindablePtrs.push_back(IndexBuffer::Resolve(gfx,meshTag, indices));
 	
-	auto pvs = std::make_shared<Bind::VertexShader>(gfx, "PhongVS.cso");
+	auto pvs = VertexShader::Resolve(gfx, "PhongVS.cso");
 	auto pvsbc = pvs->GetBytecode();
 	bindablePtrs.push_back(std::move(pvs));
 
-	bindablePtrs.push_back(std::make_shared<Bind::InputLayout>(gfx, vbuf.GetLayout().GetD3DLayout(), pvsbc));
+	bindablePtrs.push_back(InputLayout::Resolve(gfx, vbuf.GetLayout(), pvsbc));
 
 	if (hasSpecularMap)
 	{
-		bindablePtrs.push_back(std::make_shared<Bind::PixelShader>(gfx, L"PhongPSSpecMap.cso"));
+		bindablePtrs.push_back(PixelShader::Resolve(gfx, "PhongPSSpecMap.cso"));
 	}
 	else
 	{
-		bindablePtrs.push_back(std::make_shared<Bind::PixelShader>(gfx, L"PhongPS.cso"));
-
-		bindablePtrs.push_back(std::make_shared<Bind::InputLayout>(gfx, vbuf.GetLayout().GetD3DLayout(), pvsbc));
+		bindablePtrs.push_back(PixelShader::Resolve(gfx, "PhongPS.cso"));
 
 		struct PSMaterialConstant
 		{
 			float specularIntensity = 0.8f;
 			float specularPower = 30.0f;
-			float padding[2];
+			float padding[2] = {0.0f,0.0f};
 		} pmc;
 		pmc.specularPower = shininess;
-		bindablePtrs.push_back(std::make_shared<Bind::PixelConstantBuffer<PSMaterialConstant>>(gfx, pmc, 1u));
-	
+		bindablePtrs.push_back(PixelConstantBuffer<PSMaterialConstant>::Resolve(gfx, pmc, 1u));
 	}
 
-	return std::make_shared<Mesh>(gfx, std::move(bindablePtrs));
+	return std::make_unique<Mesh>(gfx, std::move(bindablePtrs));
 }
-std::shared_ptr<Node> Model::ParseNode(int& nextId, const aiNode& node) noexcept
+std::unique_ptr<Node> Model::ParseNode(int& nextId, const aiNode& node) noexcept
 {
 	namespace dx = DirectX;
 	const auto transform = dx::XMMatrixTranspose(dx::XMLoadFloat4x4(
@@ -317,7 +317,7 @@ std::shared_ptr<Node> Model::ParseNode(int& nextId, const aiNode& node) noexcept
 		curMeshPtrs.push_back(meshPtrs.at(meshIdx).get());
 	}
 
-	auto pNode = std::make_shared<Node>(nextId++, node.mName.C_Str(), std::move(curMeshPtrs), transform);
+	auto pNode = std::make_unique<Node>(nextId++, node.mName.C_Str(), std::move(curMeshPtrs), transform);
 	for (size_t i = 0; i < node.mNumChildren; i++)
 	{
 		pNode->AddChild(ParseNode(nextId, *node.mChildren[i]));
