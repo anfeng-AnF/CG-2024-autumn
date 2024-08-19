@@ -1,11 +1,11 @@
-//#pragma once
-//#include "Drawable.h"
-//
-//using namespace Bind;
-//class Axis :public Drawable {
-//public:
-//	Axis(Graphics &gfx);
-//
-//	// 通过 Drawable 继承
-//	DirectX::XMMATRIX GetTransformXM() const noexcept override;
-//};
+#pragma once
+#include "Drawable.h"
+
+using namespace Bind;
+class Axis :public Drawable {
+public:
+	Axis(Graphics &gfx);
+
+	// 通过 Drawable 继承
+	DirectX::XMMATRIX GetTransformXM() const noexcept override;
+};

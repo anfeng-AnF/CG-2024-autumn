@@ -17,7 +17,7 @@ App::App(UINT width, UINT height)
 	width(width), height(height), light(wnd.Gfx()),
 	plane(wnd.Gfx(),3.0f)
 {
-	plane.SetPos({ 1.0f,17.0f,-1.0f });
+	plane.SetPos({ 4.0f,10.0f,-2.0f });
 	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, height/ (float)width, 0.5f, 100000));
 	wnd.DisableCursor();
 }
@@ -45,10 +45,10 @@ void App::DoFrame()
 	wnd.Gfx().SetCamera(cam.GetMatrix());
 	light.Bind(wnd.Gfx(), cam.GetMatrix());
 
-	nano.Draw(wnd.Gfx());
-	plane.Draw(wnd.Gfx());
+	//nano.Draw(wnd.Gfx());
 	light.Draw(wnd.Gfx());
-	//axis.Draw(wnd.Gfx());
+	plane.Draw(wnd.Gfx());
+	axis.Draw(wnd.Gfx());
 
 	while (const auto e = wnd.Kbd.ReadKey())
 	{
@@ -104,7 +104,7 @@ void App::DoFrame()
 	{
 		if (!wnd.CursorEnabled())
 		{
-			cam.RotatePitchYaw(delta->x, delta->y);
+			cam.RotatePitchYaw((float)delta->x, (float)delta->y);
 		}
 	}
 	while (const auto delta = wnd.mouse.Read())
@@ -124,7 +124,8 @@ void App::DoFrame()
 	cam.SpawnControlWindow();
 	light.SpawnControlWindow();
 	ShowImguiDemoWindow();
-	nano.ShowWindow();
+	//nano.ShowWindow();
+	plane.SpawnControlWindow(wnd.Gfx());
 
 
 	// present

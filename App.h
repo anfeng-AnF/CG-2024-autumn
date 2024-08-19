@@ -4,7 +4,7 @@
 #include "ImguiManager.h"
 #include "Camera.h"
 #include "PointLight.h"
-//#include "Axis.h"
+#include "Axis.h"
 #include "TestPlane.h"
 #include "Mesh.h"
 #include <set>
@@ -35,8 +35,7 @@ private:
 	float speed_factor = 1.0f;
 	Camera cam;	
 	PointLight light;	
-	Model nano{ wnd.Gfx(),"Models\\Lantern\\Lantern_Fixed1.fbx" };
-	Model nano2{ wnd.Gfx(),"Models\\Lantern\\Lantern_Fixed1.fbx" };
-	//Axis axis{ wnd.Gfx() };
+	//Model nano{ wnd.Gfx(),"Models\\Lantern\\Lantern_Fixed1.fbx" };
+	Axis axis{ wnd.Gfx() };
 	TestPlane plane;
 };

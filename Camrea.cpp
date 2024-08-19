@@ -36,7 +36,7 @@ void Camera::SpawnControlWindow() noexcept
 		float x = XMVectorGetX(transform.position);
 		float y = XMVectorGetY(transform.position);
 		float z = XMVectorGetZ(transform.position);
-		float w;
+
 		// 使用 ImGui 显示位置
 		ImGui::Text("Position: %f, %f, %f", x, y, z);
 		XMFLOAT3 euler = transform.GetRotationEuler();
