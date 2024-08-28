@@ -247,6 +247,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh,const a
 	bool hasSpecularMap = false;
 	float shininess = 35.0f;
 	auto base = filePatch;
+	BOOL hasNormalMap = FALSE;
 
 	if (mesh.mMaterialIndex >= 0)
 	{
@@ -271,7 +272,10 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh,const a
 		{
 			material.Get(AI_MATKEY_SHININESS, shininess);
 		}
-		material.GetTexture(aiTextureType_NORMALS, 0, &texFileName);
+		if (material.GetTexture(aiTextureType_NORMALS, 0, &texFileName) == aiReturn_SUCCESS) {
+			hasNormalMap = TRUE;
+		}
+
 		bindablePtrs.push_back(Texture::Resolve(gfx, base + texFileName.C_Str(), 2));
 
 
@@ -295,9 +299,10 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh,const a
 
 		struct PSMaterialConstant
 		{
-			BOOL  normalMapEnabled = TRUE;
+			BOOL  normalMapEnabled;
 			float padding[3];
 		} pmc;
+		pmc.normalMapEnabled = hasNormalMap;
 		// this is CLEARLY an issue... all meshes will share same mat const, but may have different
 		// Ns (specular power) specified for each in the material properties... bad conflict
 		bindablePtrs.push_back(PixelConstantBuffer<PSMaterialConstant>::Resolve(gfx, pmc, 1u));
@@ -311,9 +316,10 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh,const a
 		{
 			float specularIntensity = 0.8f;
 			float specularPower = 30.0f;
-			BOOL  normalMapEnabled = TRUE;
+			BOOL  normalMapEnabled;
 			float padding[1];
 		} pmc;
+		pmc.normalMapEnabled = hasNormalMap;
 		pmc.specularPower = shininess;
 		bindablePtrs.push_back(PixelConstantBuffer<PSMaterialConstant>::Resolve(gfx, pmc, 1u));
 	}

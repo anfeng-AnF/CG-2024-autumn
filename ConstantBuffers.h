@@ -120,7 +120,9 @@ namespace Bind
 		static std::string GenerateUID(UINT slot = 0)
 		{
 			using namespace std::string_literals;
-			return typeid(PixelConstantBuffer).name() + "#"s + std::to_string(slot);
+			static int usage = 0;
+			//simple way to fix different object use one constantBuffer
+			return typeid(PixelConstantBuffer).name() + "#"s + std::to_string(slot)+std::to_string(usage++);
 		}
 		std::string GetUID() const noexcept override
 		{
