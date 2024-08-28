@@ -76,8 +76,8 @@
     <LibraryPath>D:\1_MyFile\10_libs\Assimp\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>D:\1_MyFile\10_libs\Assimp\include</IncludePath>
-    <LibraryPath>D:\1_MyFile\10_libs\Assimp\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)Assimp\include</IncludePath>
+    <LibraryPath>$(ProjectDir)Assimp\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -186,7 +186,6 @@
     <ClCompile Include="SolidSphere.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="test.cpp" />
-    <ClCompile Include="TestPlane.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Topology.cpp" />
     <ClCompile Include="Transform.cpp" />
@@ -232,14 +231,12 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="PixelShader.h" />
-    <ClInclude Include="Plane.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Sampler.h" />
     <ClInclude Include="SolidSphere.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Surface.h" />
-    <ClInclude Include="TestPlane.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Topology.h" />
     <ClInclude Include="Transform.h" />
@@ -281,7 +278,7 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="PhongPSSpecMap.hlsl">
+    <FxCompile Include="PhongPSSpecNormalMap.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
@@ -292,6 +289,12 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="PhongVSNormalMap.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="SolidPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>

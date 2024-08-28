@@ -165,9 +165,6 @@
     <ClCompile Include="Transform.cpp">
       <Filter>Base\源文件</Filter>
     </ClCompile>
-    <ClCompile Include="TestPlane.cpp">
-      <Filter>D3DCore\Source Files\Drawable</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChiliWin.h">
@@ -317,12 +314,6 @@
     <ClInclude Include="BindableCodex.h">
       <Filter>D3DCore\Header\Bindable</Filter>
     </ClInclude>
-    <ClInclude Include="Plane.h">
-      <Filter>D3DCore\Header\Drawable</Filter>
-    </ClInclude>
-    <ClInclude Include="TestPlane.h">
-      <Filter>D3DCore\Header\Drawable</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX12Learn.rc">
@@ -353,12 +344,9 @@
     <FxCompile Include="AxisPS.hlsl">
       <Filter>Shader\Axis</Filter>
     </FxCompile>
-    <FxCompile Include="PhongPSSpecMap.hlsl">
-      <Filter>Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="PhongPSNormalMap.hlsl">
-      <Filter>Shader</Filter>
-    </FxCompile>
+    <FxCompile Include="PhongPSNormalMap.hlsl" />
+    <FxCompile Include="PhongPSSpecNormalMap.hlsl" />
+    <FxCompile Include="PhongVSNormalMap.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

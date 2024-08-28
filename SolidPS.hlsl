@@ -1,4 +1,4 @@
-cbuffer CBuf : register(b1)
+cbuffer CBuf
 {
     float4 color;
 };

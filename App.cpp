@@ -14,10 +14,8 @@ namespace dx = DirectX;
 App::App(UINT width, UINT height) 
 	:
 	wnd(width, height, L"∏ ”Í"), 
-	width(width), height(height), light(wnd.Gfx()),
-	plane(wnd.Gfx(),3.0f)
+	width(width), height(height), light(wnd.Gfx())
 {
-	plane.SetPos({ 4.0f,10.0f,-2.0f });
 	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, height/ (float)width, 0.5f, 100000));
 	wnd.DisableCursor();
 }
@@ -45,9 +43,9 @@ void App::DoFrame()
 	wnd.Gfx().SetCamera(cam.GetMatrix());
 	light.Bind(wnd.Gfx(), cam.GetMatrix());
 
-	//nano.Draw(wnd.Gfx());
+	nano.Draw(wnd.Gfx());
+	wall.Draw(wnd.Gfx());
 	light.Draw(wnd.Gfx());
-	plane.Draw(wnd.Gfx());
 	axis.Draw(wnd.Gfx());
 
 	while (const auto e = wnd.Kbd.ReadKey())
@@ -124,9 +122,8 @@ void App::DoFrame()
 	cam.SpawnControlWindow();
 	light.SpawnControlWindow();
 	ShowImguiDemoWindow();
-	//nano.ShowWindow();
-	plane.SpawnControlWindow(wnd.Gfx());
-
+	nano.ShowWindow();
+	wall.ShowWindow();
 
 	// present
 	wnd.Gfx().EndFrame();
