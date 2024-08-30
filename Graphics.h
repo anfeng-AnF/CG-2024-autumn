@@ -8,7 +8,7 @@
 #include <memory>
 #include <random>
 #include "ChiliWin.h"
-#include "ChiliException.h"
+
 namespace Bind
 {
 	class Bindable;
