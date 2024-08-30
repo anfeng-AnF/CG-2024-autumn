@@ -49,6 +49,9 @@
     <Filter Include="Shader\Axis">
       <UniqueIdentifier>{f47b895f-828a-4395-a786-ef42f08ce882}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader\CG_Shader">
+      <UniqueIdentifier>{5529cdcd-6ff3-4dd0-8cd5-7ff1c6d34bdb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -161,6 +164,9 @@
     </ClCompile>
     <ClCompile Include="Transform.cpp">
       <Filter>Base\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionGeometry.cpp">
+      <Filter>D3DCore\Source Files\Drawable</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -302,6 +308,9 @@
     <ClInclude Include="BindableCodex.h">
       <Filter>D3DCore\Header\Bindable</Filter>
     </ClInclude>
+    <ClInclude Include="CollisionGeometry.h">
+      <Filter>D3DCore\Header\Drawable</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX12Learn.rc">
@@ -340,6 +349,12 @@
     </FxCompile>
     <FxCompile Include="PhongPSSpecNormalMap.hlsl">
       <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="CollisionGeomertyVS.hlsl">
+      <Filter>Shader\CG_Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="CollisionGeomertyPS.hlsl">
+      <Filter>Shader\CG_Shader</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
