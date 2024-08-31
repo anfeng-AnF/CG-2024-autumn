@@ -70,9 +70,9 @@ std::vector<CollisionGeomerty::CollisionRes> CollisionGeomerty::TraceByLine(Dire
         p0 = *reinterpret_cast<DirectX::XMFLOAT3*>(getSubStr(data + indices[i] * layoutSize + offset, sizeof(DirectX::XMFLOAT3)).data());
         p1 = *reinterpret_cast<DirectX::XMFLOAT3*>(getSubStr(data + indices[i+1] * layoutSize + offset, sizeof(DirectX::XMFLOAT3)).data());
         p2 = *reinterpret_cast<DirectX::XMFLOAT3*>(getSubStr(data + indices[i+2] * layoutSize + offset, sizeof(DirectX::XMFLOAT3)).data());
-        v0 = { p0.x,p0.y,p0.z,0.0f };
-        v1 = { p1.x,p1.y,p1.z,0.0f };
-        v2 = { p2.x,p2.y,p2.z,0.0f };
+        v0 = { p0.x+pos.x,p0.y+pos.y,p0.z+pos.z,0.0f };
+        v1 = { p1.x+pos.x,p1.y+pos.y,p1.z+pos.z,0.0f };
+        v2 = { p2.x+pos.x,p2.y+pos.y,p2.z+pos.z,0.0f };
 
         dx::XMVECTOR edge1 = dx::XMVectorSubtract(v1, v0);
         dx::XMVECTOR edge2 = dx::XMVectorSubtract(v2, v0);
@@ -118,6 +118,11 @@ std::vector<CollisionGeomerty::CollisionRes> CollisionGeomerty::TraceByLine(Dire
 void CollisionGeomerty::SetPos(DirectX::XMFLOAT3 pos) noexcept
 {
     this->pos = pos;
+}
+
+DirectX::XMFLOAT3 CollisionGeomerty::GetPos() noexcept
+{
+    return pos;
 }
 
 void CollisionGeomerty::SetColor(DirectX::XMFLOAT3 Color) noexcept

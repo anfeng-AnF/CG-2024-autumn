@@ -115,6 +115,11 @@ Graphics& Window::Gfx()
 	return *pGfx;
 }
 
+std::pair<int, int> Window::GetWndSize()
+{
+	return std::pair<int, int>(width,height);
+}
+
 void Window::EnableCursor()noexcept
 {
 	cursorEnabled = true;

@@ -15,7 +15,7 @@ public:
 	Drawable() = default;
 	Drawable(const Drawable&) = delete;
 	virtual DirectX::XMMATRIX GetTransformXM() const noexcept = 0;
-	void Draw(Graphics& gfx) const noexcept;
+	virtual void Draw(Graphics& gfx) const noexcept;
 
 	virtual ~Drawable() = default;
 	void destory() {};
@@ -34,7 +34,7 @@ protected:
 	}
 	void AddBind(std::shared_ptr<Bind::Bindable> bind);
 
+	std::vector<std::shared_ptr<Bind::Bindable>> binds;
 private:
 	const class Bind::IndexBuffer* pIndexBuffer = nullptr;
-	std::vector<std::shared_ptr<Bind::Bindable>> binds;
 };

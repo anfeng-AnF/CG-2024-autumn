@@ -37,6 +37,7 @@ public:
 	void SetTitle(const std::wstring& title);
 	static std::optional<int> ProcessMessages();
 	Graphics& Gfx();	
+	std::pair<int, int> GetWndSize();
 	void EnableCursor() noexcept;
 	void DisableCursor() noexcept;
 	bool CursorEnabled() const noexcept;

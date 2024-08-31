@@ -34,8 +34,8 @@ private:
 	float speed_factor = 1.0f;
 	Camera cam;	
 	PointLight light;	
-	CtrlCeomerty ctrl;
-	Model wall{ wnd.Gfx(),"Models\\RockWall\\RockWall.fbx" };
-	Model nano{ wnd.Gfx(),"Models\\Lantern\\Lantern_Fixed1.fbx" };
+	CtrlGeomerty ctrl;
+	//Model wall{ wnd.Gfx(),"Models\\RockWall\\RockWall.fbx" };
+	//Model nano{ wnd.Gfx(),"Models\\Lantern\\Lantern_Fixed1.fbx" };
 	Axis axis{ wnd.Gfx() };
 };

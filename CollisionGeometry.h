@@ -21,7 +21,9 @@ public:
 	CollisionGeomerty(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos={0.0f,0.0f,0.0f});
 	DirectX::XMMATRIX GetTransformXM() const noexcept override;
 	std::vector<CollisionRes> TraceByLine(DirectX::XMFLOAT3 lineBeginPos,DirectX::XMFLOAT3 lineVector);
+	
 	void SetPos(DirectX::XMFLOAT3 pos) noexcept;
+	DirectX::XMFLOAT3 GetPos() noexcept;
 	void SetColor(DirectX::XMFLOAT3 Color) noexcept;
 	void Bind(Graphics& gfx)noexcept;
 	void SetSelect(bool IsSelected)noexcept;

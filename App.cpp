@@ -20,8 +20,10 @@ App::App(UINT width, UINT height)
 	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, height/ (float)width, 0.5f, 100000));
 	wnd.DisableCursor();
 
-	auto a=Sphere::Make(10.0f);
+	auto a=Sphere::Make(4.0f);
 	ctrl.AddGeomerty(wnd.Gfx(), a.vertices, a.indices);
+	ctrl.AddGeomerty(wnd.Gfx(), a.vertices, a.indices,{10.0f,0.0f,0.0f});
+	ctrl.AddGeomerty(wnd.Gfx(), a.vertices, a.indices, { 0.0f,10.0f,0.0f });
 }
 int App::Go()
 {
@@ -47,8 +49,8 @@ void App::DoFrame()
 	wnd.Gfx().SetCamera(cam.GetMatrix());
 	light.Bind(wnd.Gfx(), cam.GetMatrix());
 
-	nano.Draw(wnd.Gfx());
-	wall.Draw(wnd.Gfx());
+	//nano.Draw(wnd.Gfx());
+	//wall.Draw(wnd.Gfx());
 	light.Draw(wnd.Gfx());
 	axis.Draw(wnd.Gfx());
 
@@ -134,8 +136,8 @@ void App::DoFrame()
 	cam.SpawnControlWindow();
 	light.SpawnControlWindow();
 	ShowImguiDemoWindow();
-	nano.ShowWindow();
-	wall.ShowWindow();
+	//nano.ShowWindow();
+	//wall.ShowWindow();
 
 	// present
 	wnd.Gfx().EndFrame();

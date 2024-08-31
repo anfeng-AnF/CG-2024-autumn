@@ -183,6 +183,9 @@
     <ClCompile Include="DebugSphere.cpp">
       <Filter>D3DCore\Source Files\Drawable\DebugGraphs</Filter>
     </ClCompile>
+    <ClCompile Include="ArrowComponent.cpp">
+      <Filter>D3DCore\Source Files\Drawable\DebugGraphs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChiliWin.h">
@@ -338,6 +341,12 @@
     <ClInclude Include="BasicGeomerty.h">
       <Filter>D3DCore\Header\Drawable\SpawnBasicGeomerty</Filter>
     </ClInclude>
+    <ClInclude Include="ArrowComponent.h">
+      <Filter>D3DCore\Header\Drawable\DebugGraphs</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadPool.h">
+      <Filter>Base\头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX12Learn.rc">
@@ -387,6 +396,12 @@
       <Filter>Shader\CG_Shader</Filter>
     </FxCompile>
     <FxCompile Include="DebugSpherePS.hlsl">
+      <Filter>Shader\CG_Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="ArrowVS.hlsl">
+      <Filter>Shader\CG_Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="ArrowPS.hlsl">
       <Filter>Shader\CG_Shader</Filter>
     </FxCompile>
   </ItemGroup>
