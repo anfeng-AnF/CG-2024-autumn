@@ -80,7 +80,7 @@ inline void CtrlCeomerty::TraceByLine(int click_x, int click_y,const int windowW
     for (auto& obj : Geomertys) {
         auto hitResult = obj->TraceByLine(rayOrigin, rayDirection);
         this->hitRes.push_back({ obj,hitResult });
-        for (auto val : hitResult) {
+        for (auto& val : hitResult) {
             this->DebugGraphs.push_back(std::make_unique<DebugSphere>(gfx, XMFLOAT3{ 0.0f,0.0f,1.0f }, val.pos));
         }
     }

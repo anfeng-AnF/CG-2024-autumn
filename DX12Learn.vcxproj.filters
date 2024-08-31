@@ -58,6 +58,9 @@
     <Filter Include="D3DCore\Source Files\Drawable\DebugGraphs">
       <UniqueIdentifier>{cc9c9b83-7504-4213-846e-47e12cd8126a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="D3DCore\Header\Drawable\SpawnBasicGeomerty">
+      <UniqueIdentifier>{c312511f-5fe0-48e3-aeb3-7e6f24e6e29b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -331,6 +334,9 @@
     </ClInclude>
     <ClInclude Include="DebugSphere.h">
       <Filter>D3DCore\Header\Drawable\DebugGraphs</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicGeomerty.h">
+      <Filter>D3DCore\Header\Drawable\SpawnBasicGeomerty</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

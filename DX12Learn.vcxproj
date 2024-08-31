@@ -212,6 +212,7 @@
     <ClInclude Include="Color.h" />
     <ClInclude Include="ConstantBuffers.h" />
     <ClInclude Include="CtrlCeomerty.h" />
+    <ClInclude Include="BasicGeomerty.h" />
     <ClInclude Include="DebugSphere.h" />
     <ClInclude Include="Drawable.h" />
     <ClInclude Include="DxgiInfoManager.h" />
