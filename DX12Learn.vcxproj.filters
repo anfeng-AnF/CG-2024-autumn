@@ -52,6 +52,12 @@
     <Filter Include="Shader\CG_Shader">
       <UniqueIdentifier>{5529cdcd-6ff3-4dd0-8cd5-7ff1c6d34bdb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="D3DCore\Header\Drawable\DebugGraphs">
+      <UniqueIdentifier>{1eaffa0f-f000-407d-b13b-2aeef1217d0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3DCore\Source Files\Drawable\DebugGraphs">
+      <UniqueIdentifier>{cc9c9b83-7504-4213-846e-47e12cd8126a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -167,6 +173,12 @@
     </ClCompile>
     <ClCompile Include="CollisionGeometry.cpp">
       <Filter>D3DCore\Source Files\Drawable</Filter>
+    </ClCompile>
+    <ClCompile Include="Line.cpp">
+      <Filter>D3DCore\Source Files\Drawable\DebugGraphs</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugSphere.cpp">
+      <Filter>D3DCore\Source Files\Drawable\DebugGraphs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -311,6 +323,15 @@
     <ClInclude Include="CollisionGeometry.h">
       <Filter>D3DCore\Header\Drawable</Filter>
     </ClInclude>
+    <ClInclude Include="CtrlCeomerty.h">
+      <Filter>D3DCore\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Line.h">
+      <Filter>D3DCore\Header\Drawable\DebugGraphs</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugSphere.h">
+      <Filter>D3DCore\Header\Drawable\DebugGraphs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX12Learn.rc">
@@ -354,6 +375,12 @@
       <Filter>Shader\CG_Shader</Filter>
     </FxCompile>
     <FxCompile Include="CollisionGeomertyPS.hlsl">
+      <Filter>Shader\CG_Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="DebugSphereVS.hlsl">
+      <Filter>Shader\CG_Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="DebugSpherePS.hlsl">
       <Filter>Shader\CG_Shader</Filter>
     </FxCompile>
   </ItemGroup>

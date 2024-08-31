@@ -15,6 +15,7 @@ public:
 	void Translate(DirectX::XMFLOAT3 translation) noexcept;
 	void IncreaseTravelSpeed();
 	void DecreaseTravelSpeed();
+	FTransform GetTransform()const;
 private:
 	bool EnableRollRotate = false;
 	FTransform transform;

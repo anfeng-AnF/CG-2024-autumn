@@ -135,6 +135,11 @@ void Camera::DecreaseTravelSpeed()
 	travelSpeed -= travelSpeed > 1.0f ? 1.0f : 0.1f;
 }
 
+FTransform Camera::GetTransform()const
+{
+	return transform;
+}
+
 
 
 

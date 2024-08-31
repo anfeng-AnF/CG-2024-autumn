@@ -8,13 +8,12 @@
 class Sphere
 {
 public:
-	static IndexedTriangleList MakeTesselated(Dvtx::VertexLayout layout, int latDiv, int longDiv)
+	static IndexedTriangleList MakeTesselated(Dvtx::VertexLayout layout, int latDiv, int longDiv, float radius = 1.0f)
 	{
 		namespace dx = DirectX;
 		assert( latDiv >= 3 );
 		assert( longDiv >= 3 );
 
-		constexpr float radius = 1.0f;
 		const auto base = dx::XMVectorSet( 0.0f,0.0f,radius,0.0f );
 		const float lattitudeAngle = PI / latDiv;
 		const float longitudeAngle = 2.0f * PI / longDiv;
@@ -99,13 +98,13 @@ public:
 
 		return { std::move(vb),std::move(indices) };
 	}
-	static IndexedTriangleList Make(std::optional<Dvtx::VertexLayout> layout = std::nullopt)
+	static IndexedTriangleList Make(float r = 1.0f,std::optional<Dvtx::VertexLayout> layout = std::nullopt)
 	{
 		using Element = Dvtx::VertexLayout::ElementType;
 		if (!layout)
 		{
 			layout = Dvtx::VertexLayout{}.Append(Element::Position3D);
 		}
-		return MakeTesselated(std::move(*layout), 12, 24);
+		return MakeTesselated(std::move(*layout), 12, 24,r);
 	}
 };

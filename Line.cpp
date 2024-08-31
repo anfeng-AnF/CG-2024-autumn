@@ -1,0 +1,36 @@
+#include "Line.h"
+#include "BindableCommon.h"
+
+Line::Line(Graphics& gfx, DirectX::XMFLOAT3 begin, DirectX::XMFLOAT3 end,DirectX::XMFLOAT3 color)
+{
+	using Dvtx::VertexLayout;
+	using namespace Bind;
+	Dvtx::VertexBuffer vbf(Dvtx::VertexLayout{}
+		.Append(VertexLayout::Position3D)
+		.Append(VertexLayout::Float3Color)
+	);
+	std::vector<uint16_t> indices = { 0,1 };
+	vbf.EmplaceBack(begin, color);
+	vbf.EmplaceBack(end, color);
+	static int id = 0;
+	AddBind(VertexBuffer::Resolve(gfx, "Line"+std::to_string(id++), vbf));
+
+	AddBind(IndexBuffer::Resolve(gfx, "Line", indices));
+
+	AddBind(PixelShader::Resolve(gfx, "AxisPS.cso"));
+
+	auto pvs = VertexShader::Resolve(gfx, "AxisVS.cso");
+	auto pvsbc = pvs->GetBytecode();
+	AddBind(std::move(pvs));
+
+	AddBind(InputLayout::Resolve(gfx, vbf.GetLayout(), pvsbc));
+
+	AddBind(Topology::Resolve(gfx, D3D_PRIMITIVE_TOPOLOGY_LINELIST));
+
+	AddBind(std::make_shared<TransformCbuf>(gfx, *this));
+}
+
+DirectX::XMMATRIX Line::GetTransformXM() const noexcept
+{
+	return DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f);
+}

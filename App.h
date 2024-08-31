@@ -7,7 +7,7 @@
 #include "Axis.h"
 #include "Mesh.h"
 #include <set>
-
+#include "CtrlCeomerty.h"
 
 
 
@@ -34,7 +34,7 @@ private:
 	float speed_factor = 1.0f;
 	Camera cam;	
 	PointLight light;	
-	Model wall1{ wnd.Gfx(),"Models\\cube.fbx" };
+	CtrlCeomerty ctrl;
 	Model wall{ wnd.Gfx(),"Models\\RockWall\\RockWall.fbx" };
 	Model nano{ wnd.Gfx(),"Models\\Lantern\\Lantern_Fixed1.fbx" };
 	Axis axis{ wnd.Gfx() };

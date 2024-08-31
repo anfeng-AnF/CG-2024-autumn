@@ -6,7 +6,7 @@
 #include "GDIPlusManager.h"
 #include "Vertex.h"
 #include "VertexBuffer.h"
-
+#include "Sphere.h"
 GDIPlusManager gdipm;
 namespace dx = DirectX;
 
@@ -14,10 +14,14 @@ namespace dx = DirectX;
 App::App(UINT width, UINT height) 
 	:
 	wnd(width, height, L"¸ÊÓê"), 
-	width(width), height(height), light(wnd.Gfx())
+	width(width), height(height), light(wnd.Gfx()),
+	ctrl(&cam,wnd.Gfx())
 {
 	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, height/ (float)width, 0.5f, 100000));
 	wnd.DisableCursor();
+	auto a=Sphere::Make(10.0f);
+
+	ctrl.AddGeomerty(wnd.Gfx(), a.vertices, a.indices);
 }
 int App::Go()
 {
@@ -107,6 +111,14 @@ void App::DoFrame()
 	}
 	while (const auto delta = wnd.mouse.Read())
 	{
+		if (delta->GetType() == Mouse::Event::Type::LPress) 
+		{
+			std::pair<int,int>pos=delta->GetPos();
+			std::ostringstream oss;
+			oss << "Position: (" << pos.first << ", " << pos.second << ")"<<std::endl;
+			OutputDebugStringA(oss.str().c_str());
+			ctrl.TraceByLine(pos.first,pos.second,width,height);
+		}
 		if (wnd.CursorEnabled())break;
 		if (delta->GetType() == Mouse::Event::Type::WheelDown)
 		{
@@ -117,7 +129,7 @@ void App::DoFrame()
 			cam.IncreaseTravelSpeed();
 		}
 	}
-
+	ctrl.Draw();
 	// imgui windows
 	cam.SpawnControlWindow();
 	light.SpawnControlWindow();
