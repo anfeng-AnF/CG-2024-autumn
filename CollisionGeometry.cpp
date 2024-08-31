@@ -128,8 +128,13 @@ void CollisionGeomerty::SetColor(DirectX::XMFLOAT3 Color) noexcept
 void CollisionGeomerty::Bind(Graphics& gfx) noexcept
 {
     DirectX::XMFLOAT3 dataCopy;
-    if (Selected)dataCopy = { 1.2f * color.x,1.2f * color.y,1.2f * color.z, };
+    if (Selected)dataCopy = { 0.8f * color.x,0.8f * color.y,0.8f * color.z, };
     else dataCopy = color;
     pCBufColor.Update(gfx, { dataCopy,0.0f });
     pCBufColor.Bind(gfx);
+}
+
+void CollisionGeomerty::SetSelect(bool IsSelected) noexcept
+{
+    Selected = IsSelected;
 }

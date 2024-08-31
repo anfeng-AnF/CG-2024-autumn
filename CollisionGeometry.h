@@ -24,8 +24,8 @@ public:
 	void SetPos(DirectX::XMFLOAT3 pos) noexcept;
 	void SetColor(DirectX::XMFLOAT3 Color) noexcept;
 	void Bind(Graphics& gfx)noexcept;
+	void SetSelect(bool IsSelected)noexcept;
 public:
-
 
 private:
 	bool Selected=false;

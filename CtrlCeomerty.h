@@ -9,19 +9,27 @@
 
 class CtrlCeomerty
 {
+    using pGeoPair = std::pair<std::shared_ptr<CollisionGeomerty>, std::vector<CollisionGeomerty::CollisionRes>>*;
 public:
 	CtrlCeomerty(Camera* cam,Graphics&gfx);
 	void ChangeCamera(Camera* newCam);
-	//CollisionGeomerty* TraceByLineRecentGeo(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector);
     void Draw();
-	void TraceByLine(int click_x, int click_y,const int windowWidth, const int windowHeight);
     void AddGeomerty(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
+    void SelectGeomerty(int click_x, int click_y, const int windowWidth, const int windowHeight);
+
+
+
 private:
+    pGeoPair TraceByLineNearestGeo();
+	void TraceByLine(int click_x, int click_y,const int windowWidth, const int windowHeight);
 	std::vector<std::shared_ptr<CollisionGeomerty>> Geomertys;
 	const Camera* CurrentCamera;
 	std::vector<std::pair<std::shared_ptr<CollisionGeomerty>, std::vector<CollisionGeomerty::CollisionRes>>> hitRes;
     std::vector<std::unique_ptr<Drawable>> DebugGraphs;
     Graphics& gfx;
+    pGeoPair NearestGeo, FarthestGeo;
+
+    std::unordered_map<std::shared_ptr<CollisionGeomerty>*,bool>selectedGeomertys;
 };
 
 
@@ -35,10 +43,28 @@ inline void CtrlCeomerty::ChangeCamera(Camera* newCam)
 	CurrentCamera = newCam;
 }
 
+inline CtrlCeomerty::pGeoPair CtrlCeomerty::TraceByLineNearestGeo()
+{
+    std::pair<std::shared_ptr<CollisionGeomerty>, std::vector<CollisionGeomerty::CollisionRes>>* NearestGeo=nullptr;
+    float min = D3D11_FLOAT32_MAX;
+    for (auto& hit: hitRes) {
+        for (auto& hitVal : hit.second) {
+            if (min > hitVal.hitDistance) {
+                min = hitVal.hitDistance;
+                NearestGeo = &hit;
+            }
+        }
+    }
+    return NearestGeo;
+}
+
 inline void CtrlCeomerty::Draw()
 {
     for (const auto& obj : Geomertys) {
         obj->Draw(gfx);
+        if (auto a = static_cast<CollisionGeomerty*>(obj.get())) {
+            a->Bind(gfx);
+        }
     }
     for (const auto& obj : DebugGraphs) {
         obj->Draw(gfx);
@@ -89,4 +115,19 @@ inline void CtrlCeomerty::TraceByLine(int click_x, int click_y,const int windowW
 inline void CtrlCeomerty::AddGeomerty(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos)
 {
     Geomertys.push_back(std::make_shared<CollisionGeomerty>(gfx,_vertexBuffer,_indices,_pos));
+}
+
+inline void CtrlCeomerty::SelectGeomerty(int click_x, int click_y, const int windowWidth, const int windowHeight)
+{
+    TraceByLine(click_x, click_y, windowWidth, windowHeight);
+    NearestGeo = TraceByLineNearestGeo();
+    if (selectedGeomertys[&NearestGeo->first]) {
+        selectedGeomertys[&NearestGeo->first] = false;
+        NearestGeo->first->SetSelect(false);
+    }
+    else
+    {
+        selectedGeomertys[&NearestGeo->first] = true;
+        NearestGeo->first->SetSelect(true);
+    }
 }

@@ -19,8 +19,8 @@ App::App(UINT width, UINT height)
 {
 	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, height/ (float)width, 0.5f, 100000));
 	wnd.DisableCursor();
-	auto a=Sphere::Make(10.0f);
 
+	auto a=Sphere::Make(10.0f);
 	ctrl.AddGeomerty(wnd.Gfx(), a.vertices, a.indices);
 }
 int App::Go()
@@ -117,7 +117,7 @@ void App::DoFrame()
 			std::ostringstream oss;
 			oss << "Position: (" << pos.first << ", " << pos.second << ")"<<std::endl;
 			OutputDebugStringA(oss.str().c_str());
-			ctrl.TraceByLine(pos.first,pos.second,width,height);
+			ctrl.SelectGeomerty(pos.first,pos.second,width,height);
 		}
 		if (wnd.CursorEnabled())break;
 		if (delta->GetType() == Mouse::Event::Type::WheelDown)
