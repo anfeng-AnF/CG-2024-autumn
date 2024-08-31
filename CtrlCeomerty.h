@@ -8,7 +8,7 @@
 #include "DebugSphere.h"
 #include "ArrowComponent.h"
 #include "Window.h"
-
+#include <thread>
 class CtrlGeomerty
 {
     using pGeoPair = std::pair<std::shared_ptr<CollisionGeomerty>, std::vector<CollisionGeomerty::CollisionRes>>*;
@@ -131,6 +131,7 @@ inline void CtrlGeomerty::move(Window& wnd)
     {
         x,y,z
     }moveStatue;
+    moveStatue = x;
     bool onMove = true;
     while (onMove)
     {
@@ -173,7 +174,15 @@ inline bool CtrlGeomerty::SelectGeomerty(int click_x, int click_y, const int win
     TraceByLine(click_x, click_y, windowWidth, windowHeight);
     pGeoPair pNearestGeo = TraceByLineNearestGeo();
 
-    if (!pNearestGeo)return false;
+    if (!pNearestGeo) {
+        for (auto& geo : Geomertys) {
+            if (geo.second) {
+                geo.first->SetSelect(false);
+                geo.second = false;
+            }
+        }
+        return false;
+    }
     if (Geomertys[pNearestGeo->first]) {
         Geomertys[pNearestGeo->first] = false;
         pNearestGeo->first->SetSelect(false);
@@ -190,6 +199,7 @@ inline bool CtrlGeomerty::SelectGeomerty(int click_x, int click_y, const int win
 
 inline void CtrlGeomerty::TransformGeomerty(Window& wnd)
 {
+
     enum transformStatue
     {
         Selecting,
@@ -219,6 +229,7 @@ inline void CtrlGeomerty::TransformGeomerty(Window& wnd)
             case Selecting:
                 break;
             case Move:
+                move(wnd);
                 break;
             case Scale:
                 break;

@@ -8,7 +8,7 @@
 #include "Mesh.h"
 #include <set>
 #include "CtrlCeomerty.h"
-
+#include "ThreadPool.h"
 
 
 class App
@@ -22,9 +22,10 @@ public:
 private:
 	void DoFrame();
 	void ShowImguiDemoWindow();
-
+	int RenderThread();
 private:	
 	bool showDemoWindow = false;
+	ThreadPool threadPool;
 	ImguiManager imgui;
 	Window wnd;
 	ChiliTimer timer;

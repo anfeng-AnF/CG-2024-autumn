@@ -11,11 +11,12 @@ GDIPlusManager gdipm;
 namespace dx = DirectX;
 
 
-App::App(UINT width, UINT height) 
+App::App(UINT width, UINT height)
 	:
-	wnd(width, height, L"∏ ”Í"), 
+	wnd(width, height, L"∏ ”Í"),
 	width(width), height(height), light(wnd.Gfx()),
-	ctrl(&cam,wnd.Gfx())
+	ctrl(&cam, wnd.Gfx()),
+	threadPool(10)
 {
 	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, height/ (float)width, 0.5f, 100000));
 	wnd.DisableCursor();
@@ -119,7 +120,9 @@ void App::DoFrame()
 			std::ostringstream oss;
 			oss << "Position: (" << pos.first << ", " << pos.second << ")"<<std::endl;
 			OutputDebugStringA(oss.str().c_str());
-			ctrl.SelectGeomerty(pos.first,pos.second,width,height);
+			if (ctrl.SelectGeomerty(pos.first, pos.second, width, height)) {
+				//ctrl.TransformGeomerty(wnd);
+			}
 		}
 		if (wnd.CursorEnabled())break;
 		if (delta->GetType() == Mouse::Event::Type::WheelDown)
@@ -150,5 +153,7 @@ void App::ShowImguiDemoWindow()
 		ImGui::ShowDemoWindow(&showDemoWindow);
 	}
 }
+
+
 
 
