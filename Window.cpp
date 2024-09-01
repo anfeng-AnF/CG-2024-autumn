@@ -364,6 +364,7 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 			HideCursor();
 		}
 		// stifle this mouse message if imgui wants to capture
+		if (imio.WantCaptureMouse)break;
 
 		const POINTS pt = MAKEPOINTS(lParam);
 		mouse.OnLeftPressed(pt.x, pt.y);
@@ -372,6 +373,7 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 	case WM_RBUTTONDOWN:
 	{
 		// stifle this mouse message if imgui wants to capture
+		if (imio.WantCaptureMouse)break;
 
 		const POINTS pt = MAKEPOINTS(lParam);
 		mouse.OnRightPressed(pt.x, pt.y);
@@ -380,6 +382,7 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 	case WM_LBUTTONUP:
 	{
 		// stifle this mouse message if imgui wants to capture
+		if (imio.WantCaptureMouse)break;
 
 		const POINTS pt = MAKEPOINTS(lParam);
 		mouse.OnLeftReleased(pt.x, pt.y);
@@ -394,6 +397,8 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 	case WM_RBUTTONUP:
 	{
 		// stifle this mouse message if imgui wants to capture
+		if (imio.WantCaptureMouse)break;
+
 		const POINTS pt = MAKEPOINTS(lParam);
 		mouse.OnRightReleased(pt.x, pt.y);
 		// release mouse if outside of window
@@ -407,6 +412,8 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 	case WM_MOUSEWHEEL:
 	{
 		// stifle this mouse message if imgui wants to capture
+		if (imio.WantCaptureMouse)break;
+
 		const POINTS pt = MAKEPOINTS(lParam);
 		const int delta = GET_WHEEL_DELTA_WPARAM(wParam);
 		mouse.OnWheelDelta(pt.x, pt.y, delta);

@@ -10,7 +10,6 @@
 #include "CtrlCeomerty.h"
 #include "ThreadPool.h"
 
-
 class App
 {
 public:
@@ -22,8 +21,9 @@ public:
 private:
 	void DoFrame();
 	void ShowImguiDemoWindow();
-	int RenderThread();
+
 private:	
+	bool isPerspective = false;
 	bool showDemoWindow = false;
 	ThreadPool threadPool;
 	ImguiManager imgui;

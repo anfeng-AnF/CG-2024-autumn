@@ -16,6 +16,9 @@ public:
 	void IncreaseTravelSpeed();
 	void DecreaseTravelSpeed();
 	FTransform GetTransform()const;
+	XMFLOAT3 GetForwardVector()const noexcept;
+	XMFLOAT3 GetRightVector()const noexcept;
+	XMFLOAT3 GetUpVector()const noexcept;
 private:
 	bool EnableRollRotate = false;
 	FTransform transform;

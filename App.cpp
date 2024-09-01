@@ -10,6 +10,8 @@
 GDIPlusManager gdipm;
 namespace dx = DirectX;
 
+#define Perspective XMMatrixPerspectiveLH(1.0f, height / (float)width, 0.5f, 100000)
+#define Orthographic XMMatrixOrthographicLH(30.0f, 30.0f* height / (float)width, 0.1f, 100000)
 
 App::App(UINT width, UINT height)
 	:
@@ -18,7 +20,7 @@ App::App(UINT width, UINT height)
 	ctrl(&cam, wnd.Gfx()),
 	threadPool(10)
 {
-	wnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, height/ (float)width, 0.5f, 100000));
+	wnd.Gfx().SetProjection(Orthographic);
 	wnd.DisableCursor();
 
 	auto a=Sphere::Make(4.0f);
@@ -45,6 +47,16 @@ App::~App()
 
 void App::DoFrame()
 {
+	//first set Projection matrix
+	if (isPerspective) {
+		wnd.Gfx().SetProjection(Perspective);
+	}
+	else
+	{
+		wnd.Gfx().SetProjection(Orthographic);
+	}
+
+
 	const auto dt = timer.Mark() * speed_factor;
 	wnd.Gfx().BeginFrame(0.07f, 0.0f, 0.12f);
 	wnd.Gfx().SetCamera(cam.GetMatrix());
@@ -55,24 +67,22 @@ void App::DoFrame()
 	light.Draw(wnd.Gfx());
 	axis.Draw(wnd.Gfx());
 
-	while (const auto e = wnd.Kbd.ReadKey())
-	{
-		if (e->IsPress() && e->GetCode() == VK_MENU)
+
+		if (!wnd.mouse.RightIsPressed())
 		{
 			wnd.EnableCursor();
 			wnd.mouse.DisableRaw();
 		}
-		else if (e->IsRelease() && e->GetCode() == VK_MENU)
+		else
 		{
 			wnd.DisableCursor();
 			wnd.mouse.EnableRaw();
 		}
-		
-	}
+
 
 	if (!wnd.CursorEnabled())
 	{
-		if (wnd.Kbd.KeyIsPressed('W'))
+		if (wnd.Kbd.KeyIsPressed('W') && isPerspective)
 		{
 			cam.Translate({ dt,0.0f,0.0f });
 		}
@@ -80,7 +90,7 @@ void App::DoFrame()
 		{
 			cam.Translate({ 0.0f,-dt,0.0f });
 		}
-		if (wnd.Kbd.KeyIsPressed('S'))
+		if (wnd.Kbd.KeyIsPressed('S') && isPerspective)
 		{
 			cam.Translate({ -dt,0.0f,0.0f });
 		}
@@ -120,7 +130,7 @@ void App::DoFrame()
 			std::ostringstream oss;
 			oss << "Position: (" << pos.first << ", " << pos.second << ")"<<std::endl;
 			OutputDebugStringA(oss.str().c_str());
-			if (ctrl.SelectGeomerty(pos.first, pos.second, width, height)) {
+			if (ctrl.SelectGeomerty(pos.first, pos.second, width, height,isPerspective)) {
 				//ctrl.TransformGeomerty(wnd);
 			}
 		}
@@ -136,6 +146,10 @@ void App::DoFrame()
 	}
 	ctrl.Draw();
 	// imgui windows
+	ImGui::Begin("Menu");
+	ImGui::Checkbox("Use Orthographic", &isPerspective);
+	ctrl.TransformGeomerty(wnd);
+	ImGui::End();
 	cam.SpawnControlWindow();
 	light.SpawnControlWindow();
 	ShowImguiDemoWindow();

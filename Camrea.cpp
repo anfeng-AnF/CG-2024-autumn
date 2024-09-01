@@ -140,6 +140,33 @@ FTransform Camera::GetTransform()const
 	return transform;
 }
 
+XMFLOAT3 Camera::GetForwardVector()const noexcept
+{
+	XMFLOAT3 forwadrVector;
+    DirectX::XMStoreFloat3(&forwadrVector,XMVector3TransformNormal(
+		FTransform::ForwardVector,
+		XMMatrixRotationQuaternion(transform.rotation)));
+	return forwadrVector;
+}
+
+XMFLOAT3 Camera::GetRightVector() const noexcept
+{
+	XMFLOAT3 rightVector;
+	DirectX::XMStoreFloat3(&rightVector,XMVector3TransformNormal(
+		FTransform::RightVector,
+		XMMatrixRotationQuaternion(transform.rotation)));
+	return rightVector;
+}
+
+XMFLOAT3 Camera::GetUpVector() const noexcept
+{
+	XMFLOAT3 UpVector;
+	DirectX::XMStoreFloat3(&UpVector, XMVector3TransformNormal(
+		FTransform::UpVector,
+		XMMatrixRotationQuaternion(transform.rotation)));
+	return UpVector;
+}
+
 
 
 
