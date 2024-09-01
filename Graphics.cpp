@@ -8,6 +8,9 @@ namespace wrl = Microsoft::WRL;
 
 Graphics::Graphics(HWND hWnd, int width, int height)
 {
+	UINT SMAACount = 4u;
+	UINT Quality = 0u;
+
 	DXGI_SWAP_CHAIN_DESC sd = {};
 	sd.BufferDesc.Width = width;
 	sd.BufferDesc.Height = height;
@@ -16,8 +19,8 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 	sd.BufferDesc.RefreshRate.Denominator = 0;
 	sd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 	sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	sd.SampleDesc.Count = 1;
-	sd.SampleDesc.Quality = 0;
+	sd.SampleDesc.Count = SMAACount;
+	sd.SampleDesc.Quality = Quality;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	sd.BufferCount = 1;
 	sd.OutputWindow = hWnd;
@@ -47,9 +50,14 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 	);
 
 	// gain access to texture subresource in swap chain (back buffer)
+	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+	rtvDesc.Format = sd.BufferDesc.Format;
+	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS; // 确保使用多重采样视图
+	rtvDesc.Texture2D.MipSlice = 0;
+
 	wrl::ComPtr<ID3D11Resource> pBackBuffer;
 	pSwap->GetBuffer(0, __uuidof(ID3D11Resource), &pBackBuffer);
-	pDevice->CreateRenderTargetView(pBackBuffer.Get(), nullptr, &pTarget);
+	pDevice->CreateRenderTargetView(pBackBuffer.Get(), &rtvDesc, &pTarget);
 
 	// create depth stensil state
 	D3D11_DEPTH_STENCIL_DESC dsDesc = {};
@@ -70,8 +78,8 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 	descDepth.MipLevels = 1u;
 	descDepth.ArraySize = 1u;
 	descDepth.Format = DXGI_FORMAT_D32_FLOAT;
-	descDepth.SampleDesc.Count = 1u;
-	descDepth.SampleDesc.Quality = 0u;
+	descDepth.SampleDesc.Count = SMAACount;
+	descDepth.SampleDesc.Quality = Quality;
 	descDepth.Usage = D3D11_USAGE_DEFAULT;
 	descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	pDevice->CreateTexture2D(&descDepth, nullptr, &pDepthStencil);
@@ -79,7 +87,7 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 	// create view of depth stensil texture
 	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
 	descDSV.Format = DXGI_FORMAT_D32_FLOAT;
-	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
 	descDSV.Texture2D.MipSlice = 0u;
 	pDevice->CreateDepthStencilView(
 		pDepthStencil.Get(), &descDSV, &pDSV
