@@ -35,6 +35,8 @@ private:
     UINT16 selectedGeoNum = 0;
     FTransform deltaTransform;
     XMFLOAT3 DeltaRotationEuler;
+    XMFLOAT3 color = { -1.0f,-1.0f,-1.0f };
+
 private:
 };
 
@@ -137,9 +139,10 @@ inline void CtrlGeomerty::AddGeomerty(Graphics& gfx, Dvtx::VertexBuffer& _vertex
 
 inline bool CtrlGeomerty::SelectGeomerty(int click_x, int click_y, const int windowWidth, const int windowHeight,bool isPerspective)
 {
-    //everytime we select,whither selected or not ,we renew old geo transform,and reset deltaTransform
+    //everytime we select,whither selected or not ,we renew old geo transform,and reset deltaTransform and other Attribute
     deltaTransform = FTransform{};
     DeltaRotationEuler = { 0.0f,0.0f,0.0f };
+    color = { -1.0f,-1.0f,-1.0f };
     for (auto& val : vSelectedGeomertys) {
         val.second = val.first->GetTransform();
     }
@@ -199,6 +202,8 @@ inline void CtrlGeomerty::TransformGeomerty(Window& wnd)
     ImGui::SliderFloat("r X", &DeltaRotationEuler.x, -180.0f, 180.0f);
     ImGui::SliderFloat("r Y", &DeltaRotationEuler.y, -180.0f, 180.0f);
     ImGui::SliderFloat("r Z", &DeltaRotationEuler.z, -180.0f, 180.0f);
+    ImGui::Text("Color");
+    ImGui::ColorEdit3("RGB",&color.x);
     ImGui::EndChild();
     deltaTransform.rotation = XMQuaternionRotationRollPitchYaw(DeltaRotationEuler.x, DeltaRotationEuler.y, DeltaRotationEuler.z);
     auto a = vSelectedGeomertys.size();
@@ -209,6 +214,9 @@ inline void CtrlGeomerty::TransformGeomerty(Window& wnd)
             XMQuaternionMultiply(val.second.rotation,deltaTransform.rotation)
             };
         val.first->SetTransform(newTransform);
+        if (color.x != -1.0f) {
+            val.first->SetColor(color);
+        }
     }
 }
 
