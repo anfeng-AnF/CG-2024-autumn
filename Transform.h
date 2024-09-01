@@ -13,19 +13,21 @@ public:
         rotation(XMQuaternionIdentity()),
         scale(XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f))
     {}
-
+    FTransform(DirectX::XMFLOAT3 _pos)
+        : position({ _pos.x,_pos.y,_pos.z,0.0f }),
+        rotation(XMQuaternionIdentity()),
+        scale(XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f))
+    {}
+    FTransform(DirectX::XMVECTOR _pos, DirectX::XMVECTOR _scale, DirectX::XMVECTOR _rotation):
+        position(_pos),
+        scale(_scale),
+        rotation(_rotation)
+    {}
     // 获取变换矩阵
     XMMATRIX GetMatrix() const {
-        // 计算缩放矩阵
         XMMATRIX scaleMatrix = XMMatrixScalingFromVector(scale);
-
-        // 计算旋转矩阵
         XMMATRIX rotationMatrix = XMMatrixRotationQuaternion(rotation);
-
-        // 计算平移矩阵
         XMMATRIX translationMatrix = XMMatrixTranslationFromVector(position);
-
-        // 组合矩阵
         return scaleMatrix * rotationMatrix * translationMatrix;
     }
 

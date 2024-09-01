@@ -3,7 +3,7 @@
 CollisionGeomerty::CollisionGeomerty(Graphics& gfx, Dvtx::VertexBuffer &_vertexBuffer, std::vector<uint16_t> _indices,DirectX::XMFLOAT3 _pos):
     vertexBuffer(_vertexBuffer),
     indices(_indices),
-    pos(_pos),
+    transform(_pos),
     pCBufColor(gfx,3)
 {
     using namespace Bind;
@@ -32,7 +32,7 @@ CollisionGeomerty::CollisionGeomerty(Graphics& gfx, Dvtx::VertexBuffer &_vertexB
 
 DirectX::XMMATRIX CollisionGeomerty::GetTransformXM() const noexcept
 {
-    return DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
+    return transform.GetMatrix();
 }
 
 std::string getSubStr(const char* begin, size_t length) {
@@ -64,7 +64,8 @@ std::vector<CollisionGeomerty::CollisionRes> CollisionGeomerty::TraceByLine(Dire
     dx::XMVECTOR v0, v1, v2;
     const dx::XMVECTOR lineBeginV = { lineBeginPos.x ,lineBeginPos.y,lineBeginPos.z,0.0f };
     const dx::XMVECTOR lineDirection = dx::XMVector3Normalize({ lineVector.x,lineVector.y,lineVector.z,0.0f });
-
+    XMFLOAT3 pos;
+    XMStoreFloat3(&pos, transform.position);
     for (UINT32 i = 0; i < indicesSize; i+=3) {
         //get a triangle 3 points world pos
         p0 = *reinterpret_cast<DirectX::XMFLOAT3*>(getSubStr(data + indices[i] * layoutSize + offset, sizeof(DirectX::XMFLOAT3)).data());
@@ -117,12 +118,12 @@ std::vector<CollisionGeomerty::CollisionRes> CollisionGeomerty::TraceByLine(Dire
 
 void CollisionGeomerty::SetPos(DirectX::XMFLOAT3 pos) noexcept
 {
-    this->pos = pos;
+    transform.position = {pos.x,pos.y,pos.z,0.0f};
 }
 
 DirectX::XMFLOAT3 CollisionGeomerty::GetPos() noexcept
 {
-    return pos;
+    return {XMVectorGetX(transform.position),XMVectorGetY(transform.position) ,XMVectorGetZ(transform.position) };
 }
 
 void CollisionGeomerty::SetColor(DirectX::XMFLOAT3 Color) noexcept
@@ -142,4 +143,14 @@ void CollisionGeomerty::Bind(Graphics& gfx) noexcept
 void CollisionGeomerty::SetSelect(bool IsSelected) noexcept
 {
     Selected = IsSelected;
+}
+
+FTransform CollisionGeomerty::GetTransform()
+{
+    return transform;
+}
+
+void CollisionGeomerty::SetTransform(FTransform& transform)
+{
+    this->transform = transform;
 }

@@ -30,9 +30,11 @@ private:
     Graphics& gfx;
 
     std::shared_ptr<ArrowComponent> pArrowComponent;
-    std::unordered_map<std::shared_ptr<CollisionGeomerty>,bool>Geomertys;
-    UINT16 selectedGeo = 0;
+    std::unordered_map<std::shared_ptr<CollisionGeomerty>, bool>Geomertys;
+    std::unordered_map<std::shared_ptr<CollisionGeomerty>,FTransform>vSelectedGeomertys; //selected geo and pervious transform
+    UINT16 selectedGeoNum = 0;
     FTransform deltaTransform;
+    XMFLOAT3 DeltaRotationEuler;
 private:
 };
 
@@ -135,14 +137,24 @@ inline void CtrlGeomerty::AddGeomerty(Graphics& gfx, Dvtx::VertexBuffer& _vertex
 
 inline bool CtrlGeomerty::SelectGeomerty(int click_x, int click_y, const int windowWidth, const int windowHeight,bool isPerspective)
 {
+    //everytime we select,whither selected or not ,we renew old geo transform,and reset deltaTransform
+    deltaTransform = FTransform{};
+    DeltaRotationEuler = { 0.0f,0.0f,0.0f };
+    for (auto& val : vSelectedGeomertys) {
+        val.second = val.first->GetTransform();
+    }
+
+
     TraceByLine(click_x, click_y, windowWidth, windowHeight, isPerspective);
     pGeoPair pNearestGeo = TraceByLineNearestGeo();
 
     if (!pNearestGeo) {
+        vSelectedGeomertys.clear();
         for (auto& geo : Geomertys) {
             if (geo.second) {
                 geo.first->SetSelect(false);
                 geo.second = false;
+                selectedGeoNum--;
             }
         }
         return false;
@@ -150,23 +162,31 @@ inline bool CtrlGeomerty::SelectGeomerty(int click_x, int click_y, const int win
     if (Geomertys[pNearestGeo->first]) {
         Geomertys[pNearestGeo->first] = false;
         pNearestGeo->first->SetSelect(false);
-        selectedGeo--;
+        selectedGeoNum--;
+        vSelectedGeomertys.erase(pNearestGeo->first);
     }
     else
     {
         Geomertys[pNearestGeo->first] = true;
         pNearestGeo->first->SetSelect(true);
-        selectedGeo++;
+        selectedGeoNum++;
+        auto a=vSelectedGeomertys.find(pNearestGeo->first);
+        vSelectedGeomertys[pNearestGeo->first]=pNearestGeo->first->GetTransform();
     }
     return true;
 }
 
 inline void CtrlGeomerty::TransformGeomerty(Window& wnd)
 {
-    XMFLOAT3 rotationEuler;
+    std::ostringstream oss;
+    for (auto& val : vSelectedGeomertys) {
 
-    ImGui::BeginDisabled(selectedGeo == 0);
+    }
     ImGui::BeginChild("transform", { 0,0 });
+    if (selectedGeoNum == 0) {
+        ImGui::EndChild();
+        return;
+    }
     ImGui::Text("Position");
     ImGui::SliderFloat("p X", &reinterpret_cast<float*>(&deltaTransform.position)[0], -100.0f, 100.0f);
     ImGui::SliderFloat("p Y", &reinterpret_cast<float*>(&deltaTransform.position)[1], -100.0f, 100.0f);
@@ -176,13 +196,19 @@ inline void CtrlGeomerty::TransformGeomerty(Window& wnd)
     ImGui::SliderFloat("s Y", &reinterpret_cast<float*>(&deltaTransform.scale)[1], -10.0f, 100.0f);
     ImGui::SliderFloat("s Z", &reinterpret_cast<float*>(&deltaTransform.scale)[2], -10.0f, 100.0f);
     ImGui::Text("Rotation");
-    ImGui::SliderFloat("r X", &rotationEuler.x, -180.0f, 180.0f);
-    ImGui::SliderFloat("r Y", &rotationEuler.y, -180.0f, 180.0f);
-    ImGui::SliderFloat("r Z", &rotationEuler.z, -180.0f, 180.0f);
+    ImGui::SliderFloat("r X", &DeltaRotationEuler.x, -180.0f, 180.0f);
+    ImGui::SliderFloat("r Y", &DeltaRotationEuler.y, -180.0f, 180.0f);
+    ImGui::SliderFloat("r Z", &DeltaRotationEuler.z, -180.0f, 180.0f);
     ImGui::EndChild();
-    ImGui::EndDisabled();
-
-    //apply rotation;
-    deltaTransform.rotation = XMQuaternionMultiply(deltaTransform.rotation, XMQuaternionRotationRollPitchYaw(rotationEuler.x, rotationEuler.y, rotationEuler.z));
+    deltaTransform.rotation = XMQuaternionRotationRollPitchYaw(DeltaRotationEuler.x, DeltaRotationEuler.y, DeltaRotationEuler.z);
+    auto a = vSelectedGeomertys.size();
+    for (auto& val : vSelectedGeomertys) {
+        FTransform newTransform = {
+            XMVectorAdd(val.second.position,deltaTransform.position),
+            XMVectorMultiply(val.second.scale,deltaTransform.scale),
+            XMQuaternionMultiply(val.second.rotation,deltaTransform.rotation)
+            };
+        val.first->SetTransform(newTransform);
+    }
 }
 

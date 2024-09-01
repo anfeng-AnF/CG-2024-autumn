@@ -2,6 +2,7 @@
 #include "Drawable.h"
 #include "BindableCommon.h"
 #include "Vertex.h"
+#include "Transform.h"
 #include <optional>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -27,11 +28,12 @@ public:
 	void SetColor(DirectX::XMFLOAT3 Color) noexcept;
 	void Bind(Graphics& gfx)noexcept;
 	void SetSelect(bool IsSelected)noexcept;
+	FTransform GetTransform();
+	void SetTransform(FTransform&transform);
 public:
 
 private:
 	bool Selected=false;
-	DirectX::XMFLOAT3 pos;
 	Dvtx::VertexBuffer vertexBuffer;
 	std::vector<uint16_t> indices;
 	DirectX::XMFLOAT3 color = { 1.0f,1.0f,0.0f };
@@ -41,4 +43,5 @@ private:
 		float padding;
 	};
 	Bind::PixelConstantBuffer<Color> pCBufColor;
+	FTransform transform;
 };
