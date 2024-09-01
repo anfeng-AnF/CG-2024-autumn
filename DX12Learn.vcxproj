@@ -180,7 +180,7 @@
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="InputLayout.cpp" />
     <ClCompile Include="Keyboard.cpp" />
-    <ClCompile Include="Line.cpp" />
+    <ClCompile Include="DebugLine.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="PixelShader.cpp" />
@@ -234,7 +234,7 @@
     <ClInclude Include="IndexedTriangleList.h" />
     <ClInclude Include="InputLayout.h" />
     <ClInclude Include="Keyboard.h" />
-    <ClInclude Include="Line.h" />
+    <ClInclude Include="DebugLine.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="PixelShader.h" />
@@ -304,6 +304,18 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="DebugSphereVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="LinePS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="LineVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>

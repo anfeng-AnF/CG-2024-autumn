@@ -3,10 +3,10 @@
 #include "BindableCommon.h"
 #include "Vertex.h"
 
-class Line:public Drawable
+class DebugLine:public Drawable
 {
 public:
-	Line(Graphics&gfx,DirectX::XMFLOAT3 begin, DirectX::XMFLOAT3 end,DirectX::XMFLOAT3 color);
+	DebugLine(Graphics&gfx,DirectX::XMFLOAT3 begin, DirectX::XMFLOAT3 end,DirectX::XMFLOAT3 color);
 
 private:
 

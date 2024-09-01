@@ -4,7 +4,7 @@
 #include "CollisionGeometry.h"
 #include "Camera.h"
 #include "map"
-#include "Line.h"
+#include "DebugLine.h"
 #include "DebugSphere.h"
 #include "ArrowComponent.h"
 #include "Window.h"
@@ -119,7 +119,7 @@ inline void CtrlGeomerty::TraceByLine(int click_x, int click_y,const int windowW
 #ifdef _DEBUG
     //create debug line
     XMFLOAT3 rayFarPoint = {10000*rayDirection.x,10000 * rayDirection.y ,10000 * rayDirection.z };
-    DebugGraphs.push_back(std::make_unique<Line>(gfx, rayOrigin, rayFarPoint, XMFLOAT3{ 1.0f,0.0f,0.0f }));
+    DebugGraphs.push_back(std::make_unique<DebugLine>(gfx, rayOrigin, rayFarPoint, XMFLOAT3{ 1.0f,0.0f,0.0f }));
 #endif // _DEBUG
     this->hitRes.clear();
     for (auto& obj : Geomertys) {

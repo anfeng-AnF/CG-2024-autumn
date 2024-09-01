@@ -1,7 +1,7 @@
-#include "Line.h"
+#include "DebugLine.h"
 #include "BindableCommon.h"
 
-Line::Line(Graphics& gfx, DirectX::XMFLOAT3 begin, DirectX::XMFLOAT3 end,DirectX::XMFLOAT3 color)
+DebugLine::DebugLine(Graphics& gfx, DirectX::XMFLOAT3 begin, DirectX::XMFLOAT3 end,DirectX::XMFLOAT3 color)
 {
 	using Dvtx::VertexLayout;
 	using namespace Bind;
@@ -30,7 +30,7 @@ Line::Line(Graphics& gfx, DirectX::XMFLOAT3 begin, DirectX::XMFLOAT3 end,DirectX
 	AddBind(std::make_shared<TransformCbuf>(gfx, *this));
 }
 
-DirectX::XMMATRIX Line::GetTransformXM() const noexcept
+DirectX::XMMATRIX DebugLine::GetTransformXM() const noexcept
 {
 	return DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f);
 }

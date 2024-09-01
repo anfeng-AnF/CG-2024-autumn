@@ -21,18 +21,19 @@ public:
 	};
 	CollisionGeomerty(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos={0.0f,0.0f,0.0f});
 	DirectX::XMMATRIX GetTransformXM() const noexcept override;
-	std::vector<CollisionRes> TraceByLine(DirectX::XMFLOAT3 lineBeginPos,DirectX::XMFLOAT3 lineVector);
+	virtual std::vector<CollisionRes> TraceByLine(DirectX::XMFLOAT3 lineBeginPos,DirectX::XMFLOAT3 lineVector);
 	
 	void SetPos(DirectX::XMFLOAT3 pos) noexcept;
 	DirectX::XMFLOAT3 GetPos() noexcept;
 	void SetColor(DirectX::XMFLOAT3 Color) noexcept;
-	void Bind(Graphics& gfx)noexcept;
 	void SetSelect(bool IsSelected)noexcept;
 	FTransform GetTransform();
 	void SetTransform(FTransform&transform);
+
+	virtual void Bind(Graphics& gfx)noexcept;
 public:
 
-private:
+protected:
 	bool Selected=false;
 	Dvtx::VertexBuffer vertexBuffer;
 	std::vector<uint16_t> indices;
@@ -44,4 +45,19 @@ private:
 	};
 	Bind::PixelConstantBuffer<Color> pCBufColor;
 	FTransform transform;
+};
+
+
+class Line:public CollisionGeomerty
+{
+public:
+	Line(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f },int lineWidth = 1);
+	void Bind(Graphics& gfx)noexcept override;
+	virtual std::vector<CollisionRes> TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector) override;
+
+private:
+
+private:
+	int lineWidth;
+	bool ShowCollision = false;
 };

@@ -7,8 +7,8 @@ CollisionGeomerty::CollisionGeomerty(Graphics& gfx, Dvtx::VertexBuffer &_vertexB
     pCBufColor(gfx,3)
 {
     using namespace Bind;
-    AddBind(VertexBuffer::Resolve(gfx, " CollisionGeomerty", vertexBuffer));
-    AddBind(IndexBuffer::Resolve(gfx, " CollisionGeomerty", indices));
+    AddBind(VertexBuffer::Resolve(gfx, "CollisionGeomerty", vertexBuffer));
+    AddBind(IndexBuffer::Resolve(gfx, "CollisionGeomerty", indices));
     AddBind(Bind::PixelShader::Resolve(gfx, "CollisionGeomertyPS.cso"));
     
     auto pvs = Bind::VertexShader::Resolve(gfx, "CollisionGeomertyVS.cso");
@@ -47,10 +47,11 @@ std::string getSubStr(const char* begin, size_t length) {
 std::vector<CollisionGeomerty::CollisionRes> CollisionGeomerty::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector)
 {
     namespace dx=DirectX;
+
     std::vector<CollisionRes> result;
     UINT32 indicesSize = indices.size();
-    DirectX::XMFLOAT3 p0, p1, p2;
     auto data = vertexBuffer.GetData();
+
     //cacularte data size
     const auto layout = vertexBuffer.GetLayout().GetD3DLayout();
     const auto layoutSize = vertexBuffer.GetLayout().Size();
@@ -61,11 +62,13 @@ std::vector<CollisionGeomerty::CollisionRes> CollisionGeomerty::TraceByLine(Dire
             break;
         }
     }
-    dx::XMVECTOR v0, v1, v2;
     const dx::XMVECTOR lineBeginV = { lineBeginPos.x ,lineBeginPos.y,lineBeginPos.z,0.0f };
     const dx::XMVECTOR lineDirection = dx::XMVector3Normalize({ lineVector.x,lineVector.y,lineVector.z,0.0f });
     XMFLOAT3 pos;
     XMStoreFloat3(&pos, transform.position);
+
+    DirectX::XMFLOAT3 p0, p1, p2;
+    dx::XMVECTOR v0, v1, v2;
     for (UINT32 i = 0; i < indicesSize; i+=3) {
         //get a triangle 3 points world pos
         p0 = *reinterpret_cast<DirectX::XMFLOAT3*>(getSubStr(data + indices[i] * layoutSize + offset, sizeof(DirectX::XMFLOAT3)).data());
@@ -154,3 +157,114 @@ void CollisionGeomerty::SetTransform(FTransform& transform)
 {
     this->transform = transform;
 }
+
+
+
+Line::Line(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos, int lineWidth)
+    :
+    CollisionGeomerty(gfx,_vertexBuffer,_indices,_pos),
+    lineWidth(lineWidth)
+{
+    using namespace Bind;
+    AddBind(VertexBuffer::Resolve(gfx, "LineCollisionGeomerty", vertexBuffer));
+    AddBind(IndexBuffer::Resolve(gfx, "LineCollisionGeomerty", indices));
+    AddBind(Bind::PixelShader::Resolve(gfx, "LinePS.cso"));
+
+    auto pvs = Bind::VertexShader::Resolve(gfx, "LineVS.cso");
+    auto pvsb = pvs->GetBytecode();
+    AddBind(std::move(pvs));
+
+    AddBind(Bind::InputLayout::Resolve(gfx, vertexBuffer.GetLayout(), pvsb));
+
+    AddBind(Bind::Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_LINELIST));
+
+    struct PSColorConstant
+    {
+        DirectX::XMFLOAT3 color;
+        float padding;
+    } colorConst;
+    colorConst.color = this->color;
+    AddBind(PixelConstantBuffer<PSColorConstant>::Resolve(gfx, colorConst));
+
+    AddBind(std::make_shared<TransformCbuf>(gfx, *this));
+}
+
+void Line::Bind(Graphics& gfx) noexcept
+{
+}
+
+std::vector<CollisionGeomerty::CollisionRes> Line::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector)
+{
+    namespace dx = DirectX;
+
+    std::vector<CollisionRes> result;
+    UINT32 indicesSize = indices.size();
+    auto data = vertexBuffer.GetData();
+
+    //cacularte data size
+    const auto layout = vertexBuffer.GetLayout().GetD3DLayout();
+    const auto layoutSize = vertexBuffer.GetLayout().Size();
+    UINT32 offset = 0;
+    for (const auto& type : layout) {
+        if (type.SemanticName == Dvtx::VertexLayout::Map<Dvtx::VertexLayout::Position3D>::semantic) {
+            offset = type.AlignedByteOffset;
+            break;
+        }
+    }
+    const dx::XMVECTOR lineBeginV = { lineBeginPos.x ,lineBeginPos.y,lineBeginPos.z,0.0f };
+    const dx::XMVECTOR lineDirection = dx::XMVector3Normalize({ lineVector.x,lineVector.y,lineVector.z,0.0f });
+    XMFLOAT3 pos;
+    XMStoreFloat3(&pos, transform.position);
+
+    DirectX::XMFLOAT3 p0, p1;
+    dx::XMVECTOR v0, v1;
+
+    for (UINT32 i = 0; i < indicesSize; i += 2) {
+        //get a line 2 points world pos
+        p0 = *reinterpret_cast<DirectX::XMFLOAT3*>(getSubStr(data + indices[i] * layoutSize + offset, sizeof(DirectX::XMFLOAT3)).data());
+        p1 = *reinterpret_cast<DirectX::XMFLOAT3*>(getSubStr(data + indices[i + 1] * layoutSize + offset, sizeof(DirectX::XMFLOAT3)).data());
+        v0 = { p0.x + pos.x,p0.y + pos.y,p0.z + pos.z,0.0f };
+        v1 = { p1.x + pos.x,p1.y + pos.y,p1.z + pos.z,0.0f };
+
+        dx::XMVECTOR rayOrigin = dx::XMLoadFloat3(&lineBeginPos);
+        dx::XMVECTOR rayDir = dx::XMLoadFloat3(&lineVector);
+        dx::XMVECTOR segmentDir = v1 - v0;
+        dx::XMVECTOR originToSegment = rayOrigin - v0;
+
+        float a = dx::XMVector3Dot(segmentDir, segmentDir).m128_f32[0];
+        float b = dx::XMVector3Dot(segmentDir, rayDir).m128_f32[0];
+        float c = dx::XMVector3Dot(rayDir, rayDir).m128_f32[0];
+        float d = dx::XMVector3Dot(segmentDir, originToSegment).m128_f32[0];
+        float e = dx::XMVector3Dot(rayDir, originToSegment).m128_f32[0];
+
+        float D = a * c - b * b;
+
+        float t = (a * e - b * d) / D;
+        float s = (b * e - c * d) / D;
+
+        dx::XMVECTOR pointOnRay = rayOrigin + t * rayDir;
+        dx::XMVECTOR pointOnSegment = v0 + s * segmentDir;
+
+        dx::XMVECTOR diff = pointOnRay - pointOnSegment;
+        float distance = dx::XMVector3Length(diff).m128_f32[0];
+
+        //hitted line?
+        float minDistance=0;
+        if (distance < minDistance) {
+            result.push_back({
+                {
+                    dx::XMVectorGetX(pointOnRay),
+                    dx::XMVectorGetY(pointOnRay),
+                    dx::XMVectorGetZ(pointOnRay),
+                },
+                {
+                    dx::XMVectorGetX(pointOnSegment),
+                    dx::XMVectorGetY(pointOnSegment),
+                    dx::XMVectorGetZ(pointOnSegment),
+                },{indices[i],indices[i + 1],UINT16_MAX},t
+                });
+        }
+    }
+    return std::vector<CollisionRes>();
+}
+
