@@ -35,7 +35,7 @@ public:
 
 protected:
 	bool Selected=false;
-	Dvtx::VertexBuffer vertexBuffer;
+	std::unique_ptr<Dvtx::VertexBuffer> vertexBuffer;
 	std::vector<uint16_t> indices;
 	DirectX::XMFLOAT3 color = { 1.0f,1.0f,0.0f };
 	struct Color
@@ -69,13 +69,5 @@ class TriangelGeo:public CollisionGeomerty
 public:
 	TriangelGeo(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
 	void Bind(Graphics& gfx)noexcept override;
-	void Draw(Graphics& gfx)const noexcept override;
-};
-
-class Arrow :public CollisionGeomerty
-{
-public:
-	Arrow(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
-	static std::shared_ptr<Arrow> ArrowConstruceHelper(Graphics&gfx,std::string filePath="Models\\arrow\\Position.fbx");
 	void Draw(Graphics& gfx)const noexcept override;
 };

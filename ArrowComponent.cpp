@@ -28,9 +28,19 @@ ArrowComponent::ArrowComponent(Graphics& gfx, std::string filePath,float _loadSc
 	pRoot = ParseNode(nextId, *pScene->mRootNode);
 }
 
-void ArrowComponent::Draw(Graphics& gfx) const
+void ArrowComponent::Draw(Graphics& gfx) const noexcept
 {
 	pRoot->Draw(gfx, transform.GetMatrix());
+}
+
+std::vector<CollisionGeomerty::CollisionRes> ArrowComponent::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector)
+{
+	for (auto& mesh : this->meshPtrs) {
+		vertexBuffer = std::move(mesh->vertexBuffer);
+		CollisionGeomerty::TraceByLine(lineBeginPos, lineVector);
+		mesh->vertexBuffer=std::move(vertexBuffer);
+	}
+	return std::vector<CollisionRes>();
 }
 
 std::unique_ptr<cMesh> ArrowComponent::ParseMesh(Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials)

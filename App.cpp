@@ -25,9 +25,9 @@ App::App(UINT width, UINT height)
 	wnd.DisableCursor();
 
 	auto a=Sphere::Make(4.0f);
-	//ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices));
-	//ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices,DirectX::XMFLOAT3{ 10.0f,0.0f,0.0f }));
-	//ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices,DirectX::XMFLOAT3{ 0.0f,10.0f,0.0f }));
+	ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices));
+	ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices,DirectX::XMFLOAT3{ 10.0f,0.0f,0.0f }));
+	ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices,DirectX::XMFLOAT3{ 0.0f,10.0f,0.0f }));
 
 	Dvtx::VertexBuffer vbuf(Dvtx::VertexLayout{}.Append(Dvtx::VertexLayout::Position3D));
 	vbuf.EmplaceBack(DirectX::XMFLOAT3{ 100.0f,0.0f,100.0f });
@@ -55,7 +55,6 @@ App::App(UINT width, UINT height)
 	}
 	ind.resize(numSegments * 2);
 	ctrl.AddGeomerty(std::make_shared<Line>(wnd.Gfx(), vbufLine, ind));
-	//ctrl.AddGeomerty(Arrow::ArrowConstruceHelper(wnd.Gfx()));
 }
 int App::Go()
 {
@@ -177,6 +176,9 @@ void App::DoFrame()
 	// imgui windows
 	ImGui::Begin("Menu");
 	ImGui::Checkbox("Use Perspective", &isPerspective);
+	const char* proj = "current: Perspective";
+	if (!isPerspective)proj = "current: Orthographic";
+	ImGui::Text(proj);
 	ctrl.TransformGeomerty(wnd);
 	ImGui::End();
 	cam.SpawnControlWindow();

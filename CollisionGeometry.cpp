@@ -2,7 +2,7 @@
 
 
 CollisionGeomerty::CollisionGeomerty(Graphics& gfx, Dvtx::VertexBuffer &_vertexBuffer, std::vector<uint16_t> _indices,DirectX::XMFLOAT3 _pos):
-    vertexBuffer(_vertexBuffer),
+    vertexBuffer(std::make_unique<Dvtx::VertexBuffer>(_vertexBuffer)),
     indices(_indices),
     transform(_pos),
     pCBufColor(gfx,3)
@@ -30,11 +30,11 @@ std::vector<CollisionGeomerty::CollisionRes> CollisionGeomerty::TraceByLine(Dire
 
     std::vector<CollisionRes> result;
     UINT32 indicesSize = indices.size();
-    auto data = vertexBuffer.GetData();
+    auto data = vertexBuffer->GetData();
 
     //cacularte data size
-    const auto layout = vertexBuffer.GetLayout().GetD3DLayout();
-    const auto layoutSize = vertexBuffer.GetLayout().Size();
+    const auto layout = vertexBuffer->GetLayout().GetD3DLayout();
+    const auto layoutSize = vertexBuffer->GetLayout().Size();
     UINT32 offset = 0;
     for (const auto& type : layout) {
         if (type.SemanticName == Dvtx::VertexLayout::Map<Dvtx::VertexLayout::Position3D>::semantic) {
@@ -150,7 +150,7 @@ Line::Line(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_
     lineWidth(lineWidth)
 {
     using namespace Bind;
-    AddBind(VertexBuffer::Resolve(gfx, "LineCollisionGeomerty", vertexBuffer));
+    AddBind(VertexBuffer::Resolve(gfx, "LineCollisionGeomerty", *vertexBuffer));
     AddBind(IndexBuffer::Resolve(gfx, "LineCollisionGeomerty", indices));
     AddBind(Bind::PixelShader::Resolve(gfx, "LinePS.cso"));
 
@@ -158,7 +158,7 @@ Line::Line(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_
     auto pvsb = pvs->GetBytecode();
     AddBind(std::move(pvs));
 
-    AddBind(Bind::InputLayout::Resolve(gfx, vertexBuffer.GetLayout(), pvsb));
+    AddBind(Bind::InputLayout::Resolve(gfx, vertexBuffer->GetLayout(), pvsb));
 
     AddBind(Bind::Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_LINELIST));
 
@@ -188,11 +188,11 @@ std::vector<CollisionGeomerty::CollisionRes> Line::TraceByLine(DirectX::XMFLOAT3
 
     std::vector<CollisionRes> result;
     UINT32 indicesSize = indices.size();
-    auto data = vertexBuffer.GetData();
+    auto data = vertexBuffer->GetData();
 
     //cacularte data size
-    const auto layout = vertexBuffer.GetLayout().GetD3DLayout();
-    const auto layoutSize = vertexBuffer.GetLayout().Size();
+    const auto layout = vertexBuffer->GetLayout().GetD3DLayout();
+    const auto layoutSize = vertexBuffer->GetLayout().Size();
     UINT32 offset = 0;
     for (const auto& type : layout) {
         if (type.SemanticName == Dvtx::VertexLayout::Map<Dvtx::VertexLayout::Position3D>::semantic) {
@@ -272,7 +272,7 @@ TriangelGeo::TriangelGeo(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::
     CollisionGeomerty(gfx,_vertexBuffer,_indices,_pos)
 {
     using namespace Bind;
-    AddBind(VertexBuffer::Resolve(gfx, "CollisionGeomerty", vertexBuffer));
+    AddBind(VertexBuffer::Resolve(gfx, "CollisionGeomerty", *vertexBuffer));
     AddBind(IndexBuffer::Resolve(gfx, "CollisionGeomerty", indices));
     AddBind(Bind::PixelShader::Resolve(gfx, "CollisionGeomertyPS.cso"));
 
@@ -280,7 +280,7 @@ TriangelGeo::TriangelGeo(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::
     auto pvsb = pvs->GetBytecode();
     AddBind(std::move(pvs));
 
-    AddBind(Bind::InputLayout::Resolve(gfx, vertexBuffer.GetLayout(), pvsb));
+    AddBind(Bind::InputLayout::Resolve(gfx, vertexBuffer->GetLayout(), pvsb));
 
     AddBind(Bind::Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 
@@ -313,91 +313,3 @@ void TriangelGeo::Draw(Graphics& gfx) const noexcept
     gfx.DrawIndexed(pIndexBuffer->GetCount());
 }
 
-Arrow::Arrow(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos)
-    :CollisionGeomerty(gfx,_vertexBuffer,_indices,_pos)
-{
-    using namespace Bind;
-    AddBind(VertexBuffer::Resolve(gfx, "Arrow", vertexBuffer));
-    AddBind(IndexBuffer::Resolve(gfx, "Arrow", indices));
-    AddBind(Bind::PixelShader::Resolve(gfx, "ArrowPS.cso"));
-
-    auto pvs = Bind::VertexShader::Resolve(gfx, "ArrowVS.cso");
-    auto pvsb = pvs->GetBytecode();
-    AddBind(std::move(pvs));
-    auto a = vertexBuffer.GetLayout().GetD3DLayout();
-    AddBind(Bind::InputLayout::Resolve(gfx, vertexBuffer.GetLayout(), pvsb));
-
-    AddBind(Bind::Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
-
-    struct PSColorConstant
-    {
-        DirectX::XMFLOAT3 color;
-        float padding;
-    } colorConst;
-    colorConst.color = this->color;
-    AddBind(PixelConstantBuffer<PSColorConstant>::Resolve(gfx, colorConst));
-
-    AddBind(std::make_shared<TransformCbuf>(gfx, *this));
-}
-
-std::shared_ptr<Arrow> Arrow::ArrowConstruceHelper(Graphics& gfx, std::string filePath)
-{
-    Assimp::Importer imp;
-    const auto pScene = imp.ReadFile(filePath.c_str(),
-        aiProcess_Triangulate |
-        aiProcess_JoinIdenticalVertices |
-        aiProcess_ConvertToLeftHanded
-    );
-    assert(pScene && "pScene is nullptr. Can't open file.");
-
-    auto Material = pScene->mMaterials;
-        Dvtx::VertexBuffer vBuf(
-            Dvtx::VertexLayout{}
-            .Append(Dvtx::VertexLayout::Position3D)
-            .Append(Dvtx::VertexLayout::Float3Color)
-        );
-
-    std::vector<uint16_t> ind;
-
-    auto numV = 0;
-    for (int j = 0; j < 1; j++) {
-        auto mesh = pScene->mMeshes[0];
-        auto mMaterial = Material[mesh->mMaterialIndex];
-
-        OutputDebugStringA(mMaterial->GetName().C_Str());
-        aiColor3D acolor;
-        if (mMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, acolor) != AI_SUCCESS) {
-            acolor = { 1.0f,1.0f,1.0f };
-        }
-
-        for (int i = 0; i < mesh->mNumVertices; i++) { 
-            vBuf.EmplaceBack(
-                *reinterpret_cast<XMFLOAT3*>(&mesh->mVertices[i]),
-                *reinterpret_cast<XMFLOAT3*>(&acolor)
-            );
-        }
-
-        ind.reserve(mesh->mNumFaces * 3+ind.size());
-        for (unsigned int i = 0; i < mesh->mNumFaces; i++)
-        {
-            const auto& face = mesh->mFaces[i];
-            assert(face.mNumIndices == 3);
-            ind.push_back(face.mIndices[0]+numV);
-            ind.push_back(face.mIndices[1]+numV);
-            ind.push_back(face.mIndices[2]+numV);
-        }
-        auto a=vBuf.Size();
-        numV += mesh->mNumVertices;
-
-    }
-    return std::make_shared<Arrow>(gfx, vBuf, ind);
-}
-
-void Arrow::Draw(Graphics& gfx) const noexcept
-{
-    for (auto& b : binds)
-    {
-        b->Bind(gfx);
-    }
-    gfx.DrawIndexed(pIndexBuffer->GetCount());
-}
