@@ -89,7 +89,6 @@ void App::DoFrame()
 	wnd.Gfx().BeginFrame(0.07f, 0.0f, 0.12f);
 	wnd.Gfx().SetCamera(cam.GetMatrix());
 	light.Bind(wnd.Gfx(), cam.GetMatrix());
-	arrow.Draw(wnd.Gfx());
 	//nano.Draw(wnd.Gfx());
 	//wall.Draw(wnd.Gfx());
 	light.Draw(wnd.Gfx());
@@ -173,6 +172,8 @@ void App::DoFrame()
 		}
 	}
 	ctrl.Draw();
+	arrow.Draw(wnd.Gfx());
+
 	// imgui windows
 	ImGui::Begin("Menu");
 	ImGui::Checkbox("Use Perspective", &isPerspective);

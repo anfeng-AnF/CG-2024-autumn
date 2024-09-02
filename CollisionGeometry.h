@@ -19,6 +19,7 @@ public:
 		uint16_t hitTriangleIndices[3];
 		float hitDistance;
 	};
+	CollisionGeomerty(Graphics& gfx):pCBufColor(gfx) {};
 	CollisionGeomerty(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
 	DirectX::XMMATRIX GetTransformXM() const noexcept override;
 	virtual std::vector<CollisionRes> TraceByLine(DirectX::XMFLOAT3 lineBeginPos,DirectX::XMFLOAT3 lineVector);

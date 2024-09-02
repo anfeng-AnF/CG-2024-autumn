@@ -165,6 +165,7 @@
     <ClCompile Include="ChiliTimer.cpp" />
     <ClCompile Include="CollisionGeometry.cpp" />
     <ClCompile Include="DebugSphere.cpp" />
+    <ClCompile Include="DepthStencilState.cpp" />
     <ClCompile Include="Drawable.cpp" />
     <ClCompile Include="DxgiInfoManager.cpp" />
     <ClCompile Include="GDIPlusManager.cpp" />
@@ -216,6 +217,7 @@
     <ClInclude Include="CtrlCeomerty.h" />
     <ClInclude Include="BasicGeomerty.h" />
     <ClInclude Include="DebugSphere.h" />
+    <ClInclude Include="DepthStencilState.h" />
     <ClInclude Include="Drawable.h" />
     <ClInclude Include="DxgiInfoManager.h" />
     <ClInclude Include="GDIPlusManager.h" />
@@ -239,6 +241,7 @@
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="PixelShader.h" />
     <ClInclude Include="PointLight.h" />
+    <ClInclude Include="RasterizerState.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Sampler.h" />
     <ClInclude Include="SolidSphere.h" />

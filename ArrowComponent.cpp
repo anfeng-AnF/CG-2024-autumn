@@ -9,7 +9,9 @@ cMesh::cMesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>> bindPtr
 {
 }
 
-ArrowComponent::ArrowComponent(Graphics& gfx, std::string filePath,float _loadScale):loadScale(_loadScale)
+ArrowComponent::ArrowComponent(Graphics& gfx, std::string filePath,float _loadScale)
+	:loadScale(_loadScale),
+	CollisionGeomerty(gfx)
 {
     Assimp::Importer imp;
     const auto pScene = imp.ReadFile(filePath.c_str(),
@@ -28,9 +30,14 @@ ArrowComponent::ArrowComponent(Graphics& gfx, std::string filePath,float _loadSc
 	pRoot = ParseNode(nextId, *pScene->mRootNode);
 }
 
+
 void ArrowComponent::Draw(Graphics& gfx) const noexcept
 {
+
+	auto depth = Bind::DepthStencilState(gfx);
+	depth.Bind(gfx);
 	pRoot->Draw(gfx, transform.GetMatrix());
+	depth.UnBind(gfx);
 }
 
 std::vector<CollisionGeomerty::CollisionRes> ArrowComponent::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector)
@@ -48,6 +55,11 @@ std::unique_ptr<cMesh> ArrowComponent::ParseMesh(Graphics& gfx, const aiMesh& me
 	using namespace Bind;
 	namespace dx = DirectX;
 	using Dvtx::VertexLayout;
+
+
+	OutputDebugStringA(mesh.mName.C_Str());
+	OutputDebugStringA("\n");
+
 	aiColor3D acolor;
 	if (pMaterials[mesh.mMaterialIndex]->Get(AI_MATKEY_COLOR_DIFFUSE, acolor) != AI_SUCCESS) {
 		acolor = { 1.0f,1.0f,1.0f };

@@ -186,6 +186,9 @@
     <ClCompile Include="ArrowComponent.cpp">
       <Filter>D3DCore\Source Files\Drawable\DebugGraphs</Filter>
     </ClCompile>
+    <ClCompile Include="DepthStencilState.cpp">
+      <Filter>D3DCore\Source Files\BIndable</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChiliWin.h">
@@ -346,6 +349,12 @@
     </ClInclude>
     <ClInclude Include="ThreadPool.h">
       <Filter>Base\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DepthStencilState.h">
+      <Filter>D3DCore\Header\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="RasterizerState.h">
+      <Filter>D3DCore\Header\Bindable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

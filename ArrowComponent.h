@@ -9,6 +9,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include "Transform.h"
+#include "imguiManager.h"
 
 using namespace DirectX;
 
