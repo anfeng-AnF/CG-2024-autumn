@@ -7,7 +7,7 @@ cbuffer CBuf
 struct VSout
 {
     float4 pos : SV_Position;
-    float4 color : Color;
+    float4 color : Color4;
 };
 
 VSout main(float3 pos : Position,float3 color:Color)

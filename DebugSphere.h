@@ -6,7 +6,7 @@
 class DebugSphere :public Drawable
 {
 public:
-	DebugSphere(Graphics& gfx, DirectX::XMFLOAT3 color,DirectX::XMFLOAT3 pos, float r = 1.0f);
+	DebugSphere(Graphics& gfx, DirectX::XMFLOAT3 color,DirectX::XMFLOAT3 pos, float r = 0.3f);
 
 private:
 	DirectX::XMFLOAT3 pos;

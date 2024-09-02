@@ -8,7 +8,7 @@ DebugSphere::DebugSphere(Graphics& gfx, DirectX::XMFLOAT3 color, DirectX::XMFLOA
 {
 	using namespace Bind;
 
-	auto model = Sphere::Make(1.0f);
+	auto model = Sphere::Make(r);
 
 
 	static int id = 0;

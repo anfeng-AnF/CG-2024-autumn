@@ -125,10 +125,11 @@ inline void CtrlGeomerty::TraceByLine(int click_x, int click_y,const int windowW
     this->hitRes.clear();
     for (auto& obj : Geomertys) {
         auto hitResult = obj.first->TraceByLine(rayOrigin, rayDirection);
+
         if (hitResult.size() == 0)continue;
         this->hitRes.push_back({ obj.first,hitResult });
         for (auto& val : hitResult) {
-            this->DebugGraphs.push_back(std::make_unique<DebugSphere>(gfx, XMFLOAT3{ 0.0f,0.0f,1.0f }, val.pos));
+            this->DebugGraphs.push_back(std::make_unique<DebugSphere>(gfx, XMFLOAT3{ 0.0f,0.0f,1.0f }, val.pos,0.05f));
         }
     }
 }
@@ -189,13 +190,14 @@ inline void CtrlGeomerty::TransformGeomerty(Window& wnd)
 {
     std::ostringstream oss;
     for (auto& val : vSelectedGeomertys) {
-
+        oss << typeid(*val.first.get()).name() << std::endl;
     }
     ImGui::BeginChild("transform", { 0,0 });
     if (selectedGeoNum == 0) {
         ImGui::EndChild();
         return;
     }
+    ImGui::Text(oss.str().c_str());
     ImGui::Text("Position");
     ImGui::SliderFloat("p X", &reinterpret_cast<float*>(&deltaTransform.position)[0], -100.0f, 100.0f);
     ImGui::SliderFloat("p Y", &reinterpret_cast<float*>(&deltaTransform.position)[1], -100.0f, 100.0f);

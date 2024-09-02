@@ -1,9 +1,9 @@
-cbuffer CBuf
+cbuffer CBuf : register(b3)
 {
-    float scale;
+    float4 color1;
 };
 
-float4 main(float4 color:Color) : SV_Target
+float4 main(float4 color:Color4) : SV_Target
 {
-    return float4(color.rgb * scale, color.a);
+    return color;
 }

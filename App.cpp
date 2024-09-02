@@ -35,7 +35,7 @@ App::App(UINT width, UINT height)
 	vbuf.EmplaceBack(DirectX::XMFLOAT3{ 100.0f,0.0f,-100.0f });
 	std::vector<uint16_t> ind = { 3,0,1,3,1,2 };
 
-	ctrl.AddGeomerty(wnd.Gfx(),vbuf,ind);
+	//ctrl.AddGeomerty(wnd.Gfx(),vbuf,ind);
 
 	Dvtx::VertexBuffer vbufLine(Dvtx::VertexLayout{}.Append(Dvtx::VertexLayout::Position3D));
 	float radius = 1.0f; // Ô²»¡µÄ°ë¾¶
@@ -54,6 +54,7 @@ App::App(UINT width, UINT height)
 	}
 	ind.resize(numSegments * 2);
 	ctrl.AddGeomerty(std::make_shared<Line>(wnd.Gfx(), vbufLine, ind));
+	ctrl.AddGeomerty(Arrow::ArrowConstruceHelper(wnd.Gfx()));
 }
 int App::Go()
 {

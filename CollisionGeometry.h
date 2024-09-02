@@ -19,7 +19,7 @@ public:
 		uint16_t hitTriangleIndices[3];
 		float hitDistance;
 	};
-	CollisionGeomerty(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos={0.0f,0.0f,0.0f});
+	CollisionGeomerty(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
 	DirectX::XMMATRIX GetTransformXM() const noexcept override;
 	virtual std::vector<CollisionRes> TraceByLine(DirectX::XMFLOAT3 lineBeginPos,DirectX::XMFLOAT3 lineVector);
 	
@@ -69,5 +69,13 @@ class TriangelGeo:public CollisionGeomerty
 public:
 	TriangelGeo(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
 	void Bind(Graphics& gfx)noexcept override;
+	void Draw(Graphics& gfx)const noexcept override;
+};
+
+class Arrow :public CollisionGeomerty
+{
+public:
+	Arrow(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
+	static std::shared_ptr<Arrow> ArrowConstruceHelper(Graphics&gfx,std::string filePath="Models\\arrow\\arrow.fbx");
 	void Draw(Graphics& gfx)const noexcept override;
 };
