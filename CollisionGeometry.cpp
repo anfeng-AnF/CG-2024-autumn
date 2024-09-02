@@ -348,9 +348,9 @@ std::shared_ptr<Arrow> Arrow::ArrowConstruceHelper(Graphics& gfx, std::string fi
         {0.0f,0.0f,1.0f}
     };
     DirectX::XMMATRIX RotateMatrix[] = {
-        DirectX::XMMatrixRotationRollPitchYaw(0.0f, 0.0f, 0.0f),
-        DirectX::XMMatrixRotationRollPitchYaw(0.0f,DirectX::XM_PIDIV2, 0.0f),
-        DirectX::XMMatrixRotationRollPitchYaw(0.0f,0.0f,DirectX::XM_PIDIV2),
+        DirectX::XMMatrixRotationY(3 * DirectX::XM_PIDIV2),//get x+ dir
+        DirectX::XMMatrixRotationX(DirectX::XM_PIDIV2),//get y+ dir
+        DirectX::XMMatrixRotationX(DirectX::XM_PI),//get z+ dir
     };
     Assimp::Importer imp;
     const auto pScene = imp.ReadFile(filePath.c_str(),
@@ -366,25 +366,34 @@ std::shared_ptr<Arrow> Arrow::ArrowConstruceHelper(Graphics& gfx, std::string fi
         .Append(Dvtx::VertexLayout::Position3D)
         .Append(Dvtx::VertexLayout::Float3Color)
     );
-    for (int i = 0; i < mesh->mNumVertices; i++) {
-        vBuf.EmplaceBack(
-            *reinterpret_cast<XMFLOAT3*>(&mesh->mVertices[i]),
-            *reinterpret_cast<XMFLOAT3*>(&color[2])
-        );
-    }
+    std::vector<uint16_t> ind;
+    for (int j = 0; j < 3; j++) {
+        for (int i = 0; i < mesh->mNumVertices; i++) {
+            auto vec = DirectX::XMVector3Transform({ mesh->mVertices[i].x,mesh->mVertices[i].y,mesh->mVertices[i].z,0.0f }, RotateMatrix[j]);
 
-    std::vector<unsigned short> indices;
-    indices.reserve(mesh->mNumFaces * 3);
+            vBuf.EmplaceBack(
+                XMFLOAT3{ DirectX::XMVectorGetX(vec),DirectX::XMVectorGetY(vec), DirectX::XMVectorGetZ(vec), },
+                *reinterpret_cast<XMFLOAT3*>(&color[j])
+            );
+        }
+
+    }
+    ind.reserve(mesh->mNumFaces * 3 * 3);
     for (unsigned int i = 0; i < mesh->mNumFaces; i++)
     {
         const auto& face = mesh->mFaces[i];
         assert(face.mNumIndices == 3);
-        indices.push_back(face.mIndices[0]);
-        indices.push_back(face.mIndices[1]);
-        indices.push_back(face.mIndices[2]);
+        ind.push_back(face.mIndices[0]);
+        ind.push_back(face.mIndices[1]);
+        ind.push_back(face.mIndices[2]);
+        ind.push_back(face.mIndices[0] + mesh->mNumVertices);
+        ind.push_back(face.mIndices[1] + mesh->mNumVertices);
+        ind.push_back(face.mIndices[2] + mesh->mNumVertices);
+        ind.push_back(face.mIndices[0] + mesh->mNumVertices * 2);
+        ind.push_back(face.mIndices[1] + mesh->mNumVertices * 2);
+        ind.push_back(face.mIndices[2] + mesh->mNumVertices * 2);
     }
-
-    return std::make_shared<Arrow>(gfx,vBuf,indices);
+    return std::make_shared<Arrow>(gfx, vBuf, ind);
 }
 
 void Arrow::Draw(Graphics& gfx) const noexcept

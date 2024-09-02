@@ -3,7 +3,13 @@ cbuffer CBuf : register(b3)
     float4 color1;
 };
 
-float4 main(float4 color:Color4) : SV_Target
+struct PSIn
 {
-    return color;
+    float4 pos : SV_Position;
+    float4 color : COLOR;
+};
+
+float4 main(PSIn p) : SV_Target
+{
+    return p.color;
 }
