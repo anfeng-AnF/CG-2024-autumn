@@ -342,56 +342,53 @@ Arrow::Arrow(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint1
 
 std::shared_ptr<Arrow> Arrow::ArrowConstruceHelper(Graphics& gfx, std::string filePath)
 {
-    DirectX::XMFLOAT3 color[] = {
-        {1.0f,0.0f,0.0f},
-        {0.0f,1.0f,0.0f},
-        {0.0f,0.0f,1.0f}
-    };
-    DirectX::XMMATRIX RotateMatrix[] = {
-        DirectX::XMMatrixRotationY(3 * DirectX::XM_PIDIV2),//get x+ dir
-        DirectX::XMMatrixRotationX(DirectX::XM_PIDIV2),//get y+ dir
-        DirectX::XMMatrixRotationX(DirectX::XM_PI),//get z+ dir
-    };
     Assimp::Importer imp;
     const auto pScene = imp.ReadFile(filePath.c_str(),
         aiProcess_Triangulate |
         aiProcess_JoinIdenticalVertices |
         aiProcess_ConvertToLeftHanded
     );
-    assert(pScene != nullptr);
-    pScene->mNumMeshes;
-    auto mesh = pScene->mMeshes[0];
-    Dvtx::VertexBuffer vBuf(
-        Dvtx::VertexLayout{}
-        .Append(Dvtx::VertexLayout::Position3D)
-        .Append(Dvtx::VertexLayout::Float3Color)
-    );
-    std::vector<uint16_t> ind;
-    for (int j = 0; j < 3; j++) {
-        for (int i = 0; i < mesh->mNumVertices; i++) {
-            auto vec = DirectX::XMVector3Transform({ mesh->mVertices[i].x,mesh->mVertices[i].y,mesh->mVertices[i].z,0.0f }, RotateMatrix[j]);
+    assert(pScene && "pScene is nullptr. Can't open file.");
 
+    auto Material = pScene->mMaterials;
+        Dvtx::VertexBuffer vBuf(
+            Dvtx::VertexLayout{}
+            .Append(Dvtx::VertexLayout::Position3D)
+            .Append(Dvtx::VertexLayout::Float3Color)
+        );
+
+    std::vector<uint16_t> ind;
+
+    auto numV = 0;
+    for (int j = 0; j < 1; j++) {
+        auto mesh = pScene->mMeshes[0];
+        auto mMaterial = Material[mesh->mMaterialIndex];
+
+        OutputDebugStringA(mMaterial->GetName().C_Str());
+        aiColor3D acolor;
+        if (mMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, acolor) != AI_SUCCESS) {
+            acolor = { 1.0f,1.0f,1.0f };
+        }
+
+        for (int i = 0; i < mesh->mNumVertices; i++) { 
             vBuf.EmplaceBack(
-                XMFLOAT3{ DirectX::XMVectorGetX(vec),DirectX::XMVectorGetY(vec), DirectX::XMVectorGetZ(vec), },
-                *reinterpret_cast<XMFLOAT3*>(&color[j])
+                *reinterpret_cast<XMFLOAT3*>(&mesh->mVertices[i]),
+                *reinterpret_cast<XMFLOAT3*>(&acolor)
             );
         }
 
-    }
-    ind.reserve(mesh->mNumFaces * 3 * 3);
-    for (unsigned int i = 0; i < mesh->mNumFaces; i++)
-    {
-        const auto& face = mesh->mFaces[i];
-        assert(face.mNumIndices == 3);
-        ind.push_back(face.mIndices[0]);
-        ind.push_back(face.mIndices[1]);
-        ind.push_back(face.mIndices[2]);
-        ind.push_back(face.mIndices[0] + mesh->mNumVertices);
-        ind.push_back(face.mIndices[1] + mesh->mNumVertices);
-        ind.push_back(face.mIndices[2] + mesh->mNumVertices);
-        ind.push_back(face.mIndices[0] + mesh->mNumVertices * 2);
-        ind.push_back(face.mIndices[1] + mesh->mNumVertices * 2);
-        ind.push_back(face.mIndices[2] + mesh->mNumVertices * 2);
+        ind.reserve(mesh->mNumFaces * 3+ind.size());
+        for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+        {
+            const auto& face = mesh->mFaces[i];
+            assert(face.mNumIndices == 3);
+            ind.push_back(face.mIndices[0]+numV);
+            ind.push_back(face.mIndices[1]+numV);
+            ind.push_back(face.mIndices[2]+numV);
+        }
+        auto a=vBuf.Size();
+        numV += mesh->mNumVertices;
+
     }
     return std::make_shared<Arrow>(gfx, vBuf, ind);
 }

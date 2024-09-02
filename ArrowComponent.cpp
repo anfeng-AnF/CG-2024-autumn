@@ -1,66 +1,78 @@
 #include "ArrowComponent.h"
 
-ArrowComponent::ArrowComponent(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos)
+ArrowComponent::ArrowComponent(Graphics& gfx, std::string filePath)
 {
-	using namespace Bind;
-	AddBind(VertexBuffer::Resolve(gfx, "Arrow", _vertexBuffer));
-	AddBind(IndexBuffer::Resolve(gfx, "Arrow", _indices));
-	AddBind(Bind::PixelShader::Resolve(gfx, "ArrowPS.cso"));
+    Assimp::Importer imp;
+    const auto pScene = imp.ReadFile(filePath.c_str(),
+        aiProcess_Triangulate |
+        aiProcess_JoinIdenticalVertices |
+        aiProcess_ConvertToLeftHanded
+    );
+    assert(pScene && "pScene is nullptr. Can't open file.");
 
-	auto pvs = Bind::VertexShader::Resolve(gfx, "ArrowVS.cso");
-	auto pvsb = pvs->GetBytecode();
-	AddBind(std::move(pvs));
+    auto Material = pScene->mMaterials;
 
-	AddBind(Bind::InputLayout::Resolve(gfx, _vertexBuffer.GetLayout(), pvsb));
+    for (int i = 0; i < pScene->mNumMeshes; i++) {
+        this->ParseMesh(gfx, *pScene->mMeshes[i], pScene->mMaterials);
+    }
 
-	AddBind(Bind::Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
-
-	struct PSColorConstant
-	{
-		alignas(16) float scale;
-	} colorScale;
-	AddBind(PixelConstantBuffer<PSColorConstant>::Resolve(gfx, colorScale));
-
-	AddBind(std::make_shared<TransformCbuf>(gfx, *this));
 }
 
-std::shared_ptr<ArrowComponent> ArrowComponent::ConstructHelper(Graphics& gfx, XMFLOAT3 color, DirectX::XMFLOAT3 _pos)
+std::unique_ptr<Mesh> ArrowComponent::ParseMesh(Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials)
 {
-	std::string fileName = "Models\\arrow\\arrow.fbx";
-	Assimp::Importer imp;
-	const auto pScene = imp.ReadFile(fileName.c_str(),
-		aiProcess_Triangulate |
-		aiProcess_JoinIdenticalVertices |
-		aiProcess_ConvertToLeftHanded
-	);
-	pScene->mNumMeshes;
-	auto mesh = pScene->mMeshes[0];
-	Dvtx::VertexBuffer vBuf(
-		Dvtx::VertexLayout{}
-		.Append(Dvtx::VertexLayout::Position3D)
-		.Append(Dvtx::VertexLayout::Position3D)
-	);
-	for (int i = 0; i < mesh->mNumVertices; i++) {
-		vBuf.EmplaceBack(
-			*reinterpret_cast<XMFLOAT3*>(&mesh->mVertices[i]),
-			*reinterpret_cast<XMFLOAT3*>(&color)
+	using namespace Bind;
+	namespace dx = DirectX;
+	using Dvtx::VertexLayout;
+	aiColor3D acolor;
+	if (pMaterials[mesh.mMaterialIndex]->Get(AI_MATKEY_COLOR_DIFFUSE, acolor) != AI_SUCCESS) {
+		acolor = { 1.0f,1.0f,1.0f };
+	}
+	Dvtx::VertexBuffer vbuf(std::move(
+		VertexLayout{}
+		.Append(VertexLayout::Position3D)
+		.Append(VertexLayout::Float3Color)
+	));
+
+	for (unsigned int i = 0; i < mesh.mNumVertices; i++)
+	{
+		vbuf.EmplaceBack(
+			*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mVertices[i]),
+			*reinterpret_cast<dx::XMFLOAT3*>(&acolor)
 		);
 	}
 
 	std::vector<unsigned short> indices;
-	indices.reserve(mesh->mNumFaces * 3);
-	for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+	indices.reserve(mesh.mNumFaces * 3);
+	for (unsigned int i = 0; i < mesh.mNumFaces; i++)
 	{
-		const auto& face = mesh->mFaces[i];
+		const auto& face = mesh.mFaces[i];
 		assert(face.mNumIndices == 3);
 		indices.push_back(face.mIndices[0]);
 		indices.push_back(face.mIndices[1]);
 		indices.push_back(face.mIndices[2]);
 	}
-	return std::make_shared<ArrowComponent>(gfx, vBuf, indices, _pos);
-}
+	std::vector<std::shared_ptr<Bindable>> bindablePtrs;
+	const char* name = mesh.mName.C_Str();
+	bindablePtrs.push_back(VertexBuffer::Resolve(gfx, name, vbuf));
+	bindablePtrs.push_back(IndexBuffer::Resolve(gfx, name, indices));
+	bindablePtrs.push_back(Bind::PixelShader::Resolve(gfx, "ArrowPS.cso"));
 
-DirectX::XMMATRIX ArrowComponent::GetTransformXM() const noexcept
-{
-	return DirectX::XMMATRIX();
+	auto pvs = Bind::VertexShader::Resolve(gfx, "ArrowVS.cso");
+	auto pvsb = pvs->GetBytecode();
+	bindablePtrs.push_back(std::move(pvs));
+	auto a = vbuf.GetLayout().GetD3DLayout();
+	bindablePtrs.push_back(Bind::InputLayout::Resolve(gfx, vbuf.GetLayout(), pvsb));
+
+	bindablePtrs.push_back(Bind::Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+
+	struct PSColorConstant
+	{
+		DirectX::XMFLOAT3 color;
+		float padding;
+	} colorConst;
+	bindablePtrs.push_back(PixelConstantBuffer<PSColorConstant>::Resolve(gfx, colorConst));
+
+	bindablePtrs.push_back(std::make_shared<TransformCbuf>(gfx, *this));
+
+    return std::make_unique<Mesh>(gfx, std::move(bindablePtrs));
 }

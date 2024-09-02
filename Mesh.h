@@ -16,6 +16,8 @@ public:
 	DirectX::XMMATRIX GetTransformXM() const noexcept override;
 private:
 	mutable DirectX::XMFLOAT4X4 transform;
+	std::shared_ptr<Dvtx::VertexBuffer> vbuf;
+	std::vector<uint16_t> indices;
 };
 
 class Node

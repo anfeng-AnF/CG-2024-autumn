@@ -76,6 +76,6 @@ class Arrow :public CollisionGeomerty
 {
 public:
 	Arrow(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
-	static std::shared_ptr<Arrow> ArrowConstruceHelper(Graphics&gfx,std::string filePath="Models\\arrow\\arrow.fbx");
+	static std::shared_ptr<Arrow> ArrowConstruceHelper(Graphics&gfx,std::string filePath="Models\\arrow\\Position.fbx");
 	void Draw(Graphics& gfx)const noexcept override;
 };

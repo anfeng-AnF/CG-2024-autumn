@@ -3,6 +3,7 @@
 #include "BindableCommon.h"
 #include "CollisionGeometry.h"
 #include "Vertex.h"
+#include "Mesh.h"
 #include <optional>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -10,15 +11,17 @@
 #include "Transform.h"
 
 using namespace DirectX;
-class ArrowComponent:public Drawable
+class ArrowComponent
 {
 public:
-	ArrowComponent(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
-	static std::shared_ptr<ArrowComponent> ConstructHelper(Graphics&gfx, XMFLOAT3 color, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
+	ArrowComponent(Graphics& gfx,std::string filePath);
+
+private:
+	std::unique_ptr<Mesh> ParseMesh(Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials);
+	std::unique_ptr<Node> ParseNode(int& nextId, const aiNode& node) noexcept;
 
 private:
 	FTransform transform;
-
-	// Í¨¹ý Drawable ¼Ì³Ð
-	DirectX::XMMATRIX GetTransformXM() const noexcept override;
+	std::unique_ptr<Node> pRoot;
+	std::vector<std::unique_ptr<Mesh>> meshPtrs;
 };
