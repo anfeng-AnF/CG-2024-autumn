@@ -21,7 +21,7 @@ App::App(UINT width, UINT height)
 	threadPool(10),
 	arrow(wnd.Gfx(),"Models\\arrow\\Position.fbx")
 {
-	wnd.Gfx().SetProjection(Orthographic);
+	wnd.Gfx().SetProjection(Perspective);
 	wnd.DisableCursor();
 
 	auto a=Sphere::Make(4.0f);
@@ -176,7 +176,7 @@ void App::DoFrame()
 	ctrl.Draw();
 	// imgui windows
 	ImGui::Begin("Menu");
-	ImGui::Checkbox("Use Orthographic", &isPerspective);
+	ImGui::Checkbox("Use Perspective", &isPerspective);
 	ctrl.TransformGeomerty(wnd);
 	ImGui::End();
 	cam.SpawnControlWindow();

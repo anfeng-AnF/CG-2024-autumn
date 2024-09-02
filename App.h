@@ -23,7 +23,7 @@ private:
 	void ShowImguiDemoWindow();
 
 private:	
-	bool isPerspective = false;
+	bool isPerspective = true;
 	bool showDemoWindow = false;
 	ThreadPool threadPool;
 	ImguiManager imgui;
