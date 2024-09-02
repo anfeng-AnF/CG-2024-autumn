@@ -11,17 +11,31 @@
 #include "Transform.h"
 
 using namespace DirectX;
+
+class cMesh:public Mesh
+{
+public:
+	cMesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>> bindPtrs,
+		Dvtx::VertexBuffer vbuf, std::vector<uint16_t> indices);
+
+private:
+	std::unique_ptr<Dvtx::VertexBuffer> vertexBuffer;
+	std::vector<uint16_t> indices;
+};
+
 class ArrowComponent
 {
 public:
-	ArrowComponent(Graphics& gfx,std::string filePath);
+	ArrowComponent(Graphics& gfx,std::string filePath,float _loadScale=0.01);
+	void Draw(Graphics& gfx) const;
 
 private:
-	std::unique_ptr<Mesh> ParseMesh(Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials);
+	std::unique_ptr<cMesh> ParseMesh(Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials);
 	std::unique_ptr<Node> ParseNode(int& nextId, const aiNode& node) noexcept;
 
 private:
+	const float loadScale;
 	FTransform transform;
 	std::unique_ptr<Node> pRoot;
-	std::vector<std::unique_ptr<Mesh>> meshPtrs;
+	std::vector<std::unique_ptr<cMesh>> meshPtrs;
 };

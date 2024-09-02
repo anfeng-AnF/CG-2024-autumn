@@ -14,10 +14,8 @@ public:
 	Mesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>> bindPtrs);
 	void Draw(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const;
 	DirectX::XMMATRIX GetTransformXM() const noexcept override;
-private:
+protected:
 	mutable DirectX::XMFLOAT4X4 transform;
-	std::shared_ptr<Dvtx::VertexBuffer> vbuf;
-	std::vector<uint16_t> indices;
 };
 
 class Node
@@ -29,10 +27,10 @@ public:
 	void Draw(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const;
 	void SetAppliedTransform(DirectX::FXMMATRIX transform) noexcept;
 	int GetId() const noexcept;
-private:
 	void AddChild(std::unique_ptr<Node> pChild);
+protected:
 	void ShowTree(std::optional<int>& selectedIndex, Node*& pSelectedNode) const noexcept;
-private:
+protected:
 	std::string name;
 	int id;
 	std::vector<std::unique_ptr<Node>> childPtrs;

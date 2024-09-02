@@ -1,6 +1,15 @@
 #include "ArrowComponent.h"
 
-ArrowComponent::ArrowComponent(Graphics& gfx, std::string filePath)
+cMesh::cMesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>> bindPtrs,
+	Dvtx::VertexBuffer vbuf, std::vector<uint16_t> indices)
+	:
+	Mesh(gfx,std::move(bindPtrs)),
+	vertexBuffer(std::make_unique<Dvtx::VertexBuffer>(vbuf)),
+	indices(std::move(indices))
+{
+}
+
+ArrowComponent::ArrowComponent(Graphics& gfx, std::string filePath,float _loadScale):loadScale(_loadScale)
 {
     Assimp::Importer imp;
     const auto pScene = imp.ReadFile(filePath.c_str(),
@@ -13,12 +22,18 @@ ArrowComponent::ArrowComponent(Graphics& gfx, std::string filePath)
     auto Material = pScene->mMaterials;
 
     for (int i = 0; i < pScene->mNumMeshes; i++) {
-        this->ParseMesh(gfx, *pScene->mMeshes[i], pScene->mMaterials);
+		meshPtrs.push_back(this->ParseMesh(gfx, *pScene->mMeshes[i], pScene->mMaterials));
     }
-
+	int nextId = 0;
+	pRoot = ParseNode(nextId, *pScene->mRootNode);
 }
 
-std::unique_ptr<Mesh> ArrowComponent::ParseMesh(Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials)
+void ArrowComponent::Draw(Graphics& gfx) const
+{
+	pRoot->Draw(gfx, transform.GetMatrix());
+}
+
+std::unique_ptr<cMesh> ArrowComponent::ParseMesh(Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials)
 {
 	using namespace Bind;
 	namespace dx = DirectX;
@@ -35,8 +50,9 @@ std::unique_ptr<Mesh> ArrowComponent::ParseMesh(Graphics& gfx, const aiMesh& mes
 
 	for (unsigned int i = 0; i < mesh.mNumVertices; i++)
 	{
+		float float3[] = { mesh.mVertices[i].x * loadScale,mesh.mVertices[i].y * loadScale,mesh.mVertices[i].z * loadScale };
 		vbuf.EmplaceBack(
-			*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mVertices[i]),
+			*reinterpret_cast<dx::XMFLOAT3*>(float3),
 			*reinterpret_cast<dx::XMFLOAT3*>(&acolor)
 		);
 	}
@@ -72,7 +88,30 @@ std::unique_ptr<Mesh> ArrowComponent::ParseMesh(Graphics& gfx, const aiMesh& mes
 	} colorConst;
 	bindablePtrs.push_back(PixelConstantBuffer<PSColorConstant>::Resolve(gfx, colorConst));
 
-	bindablePtrs.push_back(std::make_shared<TransformCbuf>(gfx, *this));
+    return std::make_unique<cMesh>(gfx, std::move(bindablePtrs),std::move(vbuf),indices);
+}
 
-    return std::make_unique<Mesh>(gfx, std::move(bindablePtrs));
+std::unique_ptr<Node> ArrowComponent::ParseNode(int& nextId, const aiNode& node) noexcept
+{
+
+	namespace dx = DirectX;
+	const auto transform = dx::XMMatrixTranspose(dx::XMLoadFloat4x4(
+		reinterpret_cast<const dx::XMFLOAT4X4*>(&node.mTransformation)
+	));
+
+	std::vector<Mesh*> curMeshPtrs;
+	curMeshPtrs.reserve(node.mNumMeshes);
+	for (size_t i = 0; i < node.mNumMeshes; i++)
+	{
+		const auto meshIdx = node.mMeshes[i];
+		curMeshPtrs.push_back(meshPtrs.at(meshIdx).get());
+	}
+
+	auto pNode = std::make_unique<Node>(nextId++, node.mName.C_Str(), std::move(curMeshPtrs), transform);
+	for (size_t i = 0; i < node.mNumChildren; i++)
+	{
+		pNode->AddChild(ParseNode(nextId, *node.mChildren[i]));
+	}
+
+	return pNode;
 }

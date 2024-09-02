@@ -18,7 +18,8 @@ App::App(UINT width, UINT height)
 	wnd(width, height, L"∏ ”Í"),
 	width(width), height(height), light(wnd.Gfx()),
 	ctrl(&cam, wnd.Gfx()),
-	threadPool(10)
+	threadPool(10),
+	arrow(wnd.Gfx(),"Models\\arrow\\Position.fbx")
 {
 	wnd.Gfx().SetProjection(Orthographic);
 	wnd.DisableCursor();
@@ -54,7 +55,7 @@ App::App(UINT width, UINT height)
 	}
 	ind.resize(numSegments * 2);
 	ctrl.AddGeomerty(std::make_shared<Line>(wnd.Gfx(), vbufLine, ind));
-	ctrl.AddGeomerty(Arrow::ArrowConstruceHelper(wnd.Gfx()));
+	//ctrl.AddGeomerty(Arrow::ArrowConstruceHelper(wnd.Gfx()));
 }
 int App::Go()
 {
@@ -89,7 +90,7 @@ void App::DoFrame()
 	wnd.Gfx().BeginFrame(0.07f, 0.0f, 0.12f);
 	wnd.Gfx().SetCamera(cam.GetMatrix());
 	light.Bind(wnd.Gfx(), cam.GetMatrix());
-
+	arrow.Draw(wnd.Gfx());
 	//nano.Draw(wnd.Gfx());
 	//wall.Draw(wnd.Gfx());
 	light.Draw(wnd.Gfx());
