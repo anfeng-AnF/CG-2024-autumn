@@ -29,7 +29,7 @@ public:
 	void SetSelect(bool IsSelected)noexcept;
 	FTransform GetTransform();
 	void SetTransform(FTransform&transform);
-
+	void Draw(Graphics& gfx)const noexcept override;
 	virtual void Bind(Graphics& gfx)noexcept;
 public:
 
@@ -54,10 +54,20 @@ public:
 	Line(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f },int lineWidth = 1);
 	void Bind(Graphics& gfx)noexcept override;
 	virtual std::vector<CollisionRes> TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector) override;
+	void Draw(Graphics& gfx)const noexcept override;
 
 private:
 
 private:
 	int lineWidth;
 	bool ShowCollision = false;
+};
+
+
+class TriangelGeo:public CollisionGeomerty
+{
+public:
+	TriangelGeo(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
+	void Bind(Graphics& gfx)noexcept override;
+	void Draw(Graphics& gfx)const noexcept override;
 };

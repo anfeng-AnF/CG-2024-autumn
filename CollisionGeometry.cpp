@@ -6,28 +6,7 @@ CollisionGeomerty::CollisionGeomerty(Graphics& gfx, Dvtx::VertexBuffer &_vertexB
     transform(_pos),
     pCBufColor(gfx,3)
 {
-    using namespace Bind;
-    AddBind(VertexBuffer::Resolve(gfx, "CollisionGeomerty", vertexBuffer));
-    AddBind(IndexBuffer::Resolve(gfx, "CollisionGeomerty", indices));
-    AddBind(Bind::PixelShader::Resolve(gfx, "CollisionGeomertyPS.cso"));
-    
-    auto pvs = Bind::VertexShader::Resolve(gfx, "CollisionGeomertyVS.cso");
-    auto pvsb = pvs->GetBytecode();
-    AddBind(std::move(pvs));
 
-    AddBind(Bind::InputLayout::Resolve(gfx, vertexBuffer.GetLayout(), pvsb));
-
-    AddBind(Bind::Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
-
-    struct PSColorConstant
-    {
-        DirectX::XMFLOAT3 color;
-        float padding;
-    } colorConst;
-    colorConst.color = this->color;
-    AddBind(PixelConstantBuffer<PSColorConstant>::Resolve(gfx, colorConst));
-
-    AddBind(std::make_shared<TransformCbuf>(gfx, *this));
 }
 
 DirectX::XMMATRIX CollisionGeomerty::GetTransformXM() const noexcept
@@ -158,6 +137,10 @@ void CollisionGeomerty::SetTransform(FTransform& transform)
     this->transform = transform;
 }
 
+void CollisionGeomerty::Draw(Graphics& gfx) const noexcept
+{
+}
+
 
 
 Line::Line(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos, int lineWidth)
@@ -268,3 +251,57 @@ std::vector<CollisionGeomerty::CollisionRes> Line::TraceByLine(DirectX::XMFLOAT3
     return std::vector<CollisionRes>();
 }
 
+void Line::Draw(Graphics& gfx) const noexcept
+{
+    for (auto& b : binds)
+    {
+        b->Bind(gfx);
+    }
+    gfx.DrawIndexed(pIndexBuffer->GetCount());
+}
+
+TriangelGeo::TriangelGeo(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos)
+    :
+    CollisionGeomerty(gfx,_vertexBuffer,_indices,_pos)
+{
+    using namespace Bind;
+    AddBind(VertexBuffer::Resolve(gfx, "CollisionGeomerty", vertexBuffer));
+    AddBind(IndexBuffer::Resolve(gfx, "CollisionGeomerty", indices));
+    AddBind(Bind::PixelShader::Resolve(gfx, "CollisionGeomertyPS.cso"));
+
+    auto pvs = Bind::VertexShader::Resolve(gfx, "CollisionGeomertyVS.cso");
+    auto pvsb = pvs->GetBytecode();
+    AddBind(std::move(pvs));
+
+    AddBind(Bind::InputLayout::Resolve(gfx, vertexBuffer.GetLayout(), pvsb));
+
+    AddBind(Bind::Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+
+    struct PSColorConstant
+    {
+        DirectX::XMFLOAT3 color;
+        float padding;
+    } colorConst;
+    colorConst.color = this->color;
+    AddBind(PixelConstantBuffer<PSColorConstant>::Resolve(gfx, colorConst));
+
+    AddBind(std::make_shared<TransformCbuf>(gfx, *this));
+}
+
+void TriangelGeo::Bind(Graphics& gfx) noexcept
+{
+    DirectX::XMFLOAT3 dataCopy;
+    if (Selected)dataCopy = { 0.8f * color.x,0.8f * color.y,0.8f * color.z, };
+    else dataCopy = color;
+    pCBufColor.Update(gfx, { dataCopy,0.0f });
+    pCBufColor.Bind(gfx);
+}
+
+void TriangelGeo::Draw(Graphics& gfx) const noexcept
+{
+    for (auto& b : binds)
+    {
+        b->Bind(gfx);
+    }
+    gfx.DrawIndexed(pIndexBuffer->GetCount());
+}

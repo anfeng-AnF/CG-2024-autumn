@@ -32,7 +32,7 @@ int CALLBACK WinMain(
 {
 	try
 	{
-		return App(2560,1440).Go();
+		return App(1080,720).Go();
 	}
 	catch (const std::exception& e)
 	{

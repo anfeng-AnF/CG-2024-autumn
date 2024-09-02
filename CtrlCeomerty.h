@@ -17,6 +17,7 @@ public:
 	void ChangeCamera(Camera* newCam);
     void Draw();
     void AddGeomerty(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
+    void AddGeomerty(std::shared_ptr<CollisionGeomerty> Geo);
     bool SelectGeomerty(int click_x, int click_y, const int windowWidth, const int windowHeight, bool isPerspective=true);
     void TransformGeomerty(Window&wnd);
 
@@ -135,6 +136,11 @@ inline void CtrlGeomerty::TraceByLine(int click_x, int click_y,const int windowW
 inline void CtrlGeomerty::AddGeomerty(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos)
 {
     Geomertys[std::make_shared<CollisionGeomerty>(gfx, _vertexBuffer, _indices, _pos)] = false;
+}
+
+inline void CtrlGeomerty::AddGeomerty(std::shared_ptr<CollisionGeomerty> Geo)
+{
+    Geomertys[std::move(Geo)] = false;
 }
 
 inline bool CtrlGeomerty::SelectGeomerty(int click_x, int click_y, const int windowWidth, const int windowHeight,bool isPerspective)

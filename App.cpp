@@ -24,9 +24,36 @@ App::App(UINT width, UINT height)
 	wnd.DisableCursor();
 
 	auto a=Sphere::Make(4.0f);
-	ctrl.AddGeomerty(wnd.Gfx(), a.vertices, a.indices);
-	ctrl.AddGeomerty(wnd.Gfx(), a.vertices, a.indices,{10.0f,0.0f,0.0f});
-	ctrl.AddGeomerty(wnd.Gfx(), a.vertices, a.indices, { 0.0f,10.0f,0.0f });
+	//ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices));
+	//ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices,DirectX::XMFLOAT3{ 10.0f,0.0f,0.0f }));
+	//ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices,DirectX::XMFLOAT3{ 0.0f,10.0f,0.0f }));
+
+	Dvtx::VertexBuffer vbuf(Dvtx::VertexLayout{}.Append(Dvtx::VertexLayout::Position3D));
+	vbuf.EmplaceBack(DirectX::XMFLOAT3{ 100.0f,0.0f,100.0f });
+	vbuf.EmplaceBack(DirectX::XMFLOAT3{ -100.0f,0.0f,100.0f });
+	vbuf.EmplaceBack(DirectX::XMFLOAT3{ -100.0f,0.0f,-100.0f });
+	vbuf.EmplaceBack(DirectX::XMFLOAT3{ 100.0f,0.0f,-100.0f });
+	std::vector<uint16_t> ind = { 3,0,1,3,1,2 };
+
+	ctrl.AddGeomerty(wnd.Gfx(),vbuf,ind);
+
+	Dvtx::VertexBuffer vbufLine(Dvtx::VertexLayout{}.Append(Dvtx::VertexLayout::Position3D));
+	float radius = 1.0f; // 圆弧的半径
+	float startAngle = 0.0f; // 起始角度（弧度制）
+	float endAngle = DirectX::XM_PI * 2; // 终止角度（弧度制），这里是90度
+	int numSegments = 20; // 圆弧分割成的段数
+	ind.clear();
+	for (int i = 0; i <= numSegments; ++i)
+	{
+		float theta = startAngle + (endAngle - startAngle) * (i / static_cast<float>(numSegments));
+		float x = radius * cosf(theta);
+		float z = radius * sinf(theta);
+		vbufLine.EmplaceBack(DirectX::XMFLOAT3(x, 0.0f, z)); // 假设Y轴为0，即XZ平面上的圆弧
+		ind.push_back(i);
+		ind.push_back(i+1);
+	}
+	ind.resize(numSegments * 2);
+	ctrl.AddGeomerty(std::make_shared<Line>(wnd.Gfx(), vbufLine, ind));
 }
 int App::Go()
 {

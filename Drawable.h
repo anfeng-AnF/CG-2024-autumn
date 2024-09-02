@@ -35,6 +35,6 @@ protected:
 	void AddBind(std::shared_ptr<Bind::Bindable> bind);
 
 	std::vector<std::shared_ptr<Bind::Bindable>> binds;
-private:
 	const class Bind::IndexBuffer* pIndexBuffer = nullptr;
+private:
 };
