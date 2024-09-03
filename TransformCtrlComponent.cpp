@@ -43,7 +43,7 @@ TransformCtrlComponent::TransformCtrlComponent(Graphics& gfx, std::string filePa
 
 void TransformCtrlComponent::Draw(Graphics& gfx) const noexcept
 {
-	auto depth = Bind::DepthStencilState(gfx);
+	//auto depth = Bind::DepthStencilState(gfx);
 	//depth.Bind(gfx);
 	pRoot->Draw(gfx, transform.GetMatrix());
 	//depth.UnBind(gfx);

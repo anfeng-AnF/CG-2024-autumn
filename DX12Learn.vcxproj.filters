@@ -189,6 +189,9 @@
     <ClCompile Include="TransformCtrlComponent.cpp">
       <Filter>D3DCore\Source Files\Drawable</Filter>
     </ClCompile>
+    <ClCompile Include="CtrlCeomerty.cpp">
+      <Filter>D3DCore\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChiliWin.h">
