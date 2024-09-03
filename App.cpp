@@ -18,16 +18,15 @@ App::App(UINT width, UINT height)
 	wnd(width, height, L"∏ ”Í"),
 	width(width), height(height), light(wnd.Gfx()),
 	ctrl(&cam, wnd.Gfx()),
-	threadPool(10),
-	arrow(wnd.Gfx(),"Models\\arrow\\Position.fbx")
+	threadPool(10)
 {
 	wnd.Gfx().SetProjection(Perspective);
 	wnd.DisableCursor();
 
 	auto a=Sphere::Make(4.0f);
-	ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices));
-	ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices,DirectX::XMFLOAT3{ 10.0f,0.0f,0.0f }));
-	ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices,DirectX::XMFLOAT3{ 0.0f,10.0f,0.0f }));
+	//ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices));
+	//ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices,DirectX::XMFLOAT3{ 10.0f,0.0f,0.0f }));
+	//ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices,DirectX::XMFLOAT3{ 0.0f,10.0f,0.0f }));
 
 	Dvtx::VertexBuffer vbuf(Dvtx::VertexLayout{}.Append(Dvtx::VertexLayout::Position3D));
 	vbuf.EmplaceBack(DirectX::XMFLOAT3{ 100.0f,0.0f,100.0f });
@@ -172,7 +171,6 @@ void App::DoFrame()
 		}
 	}
 	ctrl.Draw();
-	arrow.Draw(wnd.Gfx());
 
 	// imgui windows
 	ImGui::Begin("Menu");

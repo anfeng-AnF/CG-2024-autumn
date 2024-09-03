@@ -28,6 +28,9 @@ public:
 	void SetAppliedTransform(DirectX::FXMMATRIX transform) noexcept;
 	int GetId() const noexcept;
 	void AddChild(std::unique_ptr<Node> pChild);
+	std::vector<std::unique_ptr<Node>>& GetChild() noexcept;
+	std::vector<Mesh*>& GetMeshPtrs()noexcept;
+	DirectX::XMMATRIX GetTransform()noexcept;
 protected:
 	void ShowTree(std::optional<int>& selectedIndex, Node*& pSelectedNode) const noexcept;
 protected:

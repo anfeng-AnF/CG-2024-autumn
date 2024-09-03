@@ -24,13 +24,13 @@ std::string getSubStr(const char* begin, size_t length) {
     return ret;
 }
 
-std::vector<CollisionGeomerty::CollisionRes> CollisionGeomerty::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector)
+std::vector<CollisionGeomerty::CollisionRes> CollisionGeomerty::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix)
 {
     namespace dx=DirectX;
 
-    std::vector<CollisionRes> result;
     UINT32 indicesSize = indices.size();
     auto data = vertexBuffer->GetData();
+    std::vector<CollisionRes> result;
 
     //cacularte data size
     const auto layout = vertexBuffer->GetLayout().GetD3DLayout();
@@ -44,8 +44,6 @@ std::vector<CollisionGeomerty::CollisionRes> CollisionGeomerty::TraceByLine(Dire
     }
     const dx::XMVECTOR lineBeginV = { lineBeginPos.x ,lineBeginPos.y,lineBeginPos.z,0.0f };
     const dx::XMVECTOR lineDirection = dx::XMVector3Normalize({ lineVector.x,lineVector.y,lineVector.z,0.0f });
-    XMFLOAT3 pos;
-    XMStoreFloat3(&pos, transform.position);
 
     DirectX::XMFLOAT3 p0, p1, p2;
     dx::XMVECTOR v0, v1, v2;
@@ -54,9 +52,13 @@ std::vector<CollisionGeomerty::CollisionRes> CollisionGeomerty::TraceByLine(Dire
         p0 = *reinterpret_cast<DirectX::XMFLOAT3*>(getSubStr(data + indices[i] * layoutSize + offset, sizeof(DirectX::XMFLOAT3)).data());
         p1 = *reinterpret_cast<DirectX::XMFLOAT3*>(getSubStr(data + indices[i+1] * layoutSize + offset, sizeof(DirectX::XMFLOAT3)).data());
         p2 = *reinterpret_cast<DirectX::XMFLOAT3*>(getSubStr(data + indices[i+2] * layoutSize + offset, sizeof(DirectX::XMFLOAT3)).data());
-        v0 = { p0.x+pos.x,p0.y+pos.y,p0.z+pos.z,0.0f };
-        v1 = { p1.x+pos.x,p1.y+pos.y,p1.z+pos.z,0.0f };
-        v2 = { p2.x+pos.x,p2.y+pos.y,p2.z+pos.z,0.0f };
+        v0 = { p0.x,p0.y,p0.z,1.0f };
+        v1 = { p1.x,p1.y,p1.z,1.0f };
+        v2 = { p2.x,p2.y,p2.z,1.0f };
+        v0 = DirectX::XMVector3Transform(v0, transformMatrix);
+        v1 = DirectX::XMVector3Transform(v1, transformMatrix);
+        v2 = DirectX::XMVector3Transform(v2, transformMatrix);
+
 
         dx::XMVECTOR edge1 = dx::XMVectorSubtract(v1, v0);
         dx::XMVECTOR edge2 = dx::XMVectorSubtract(v2, v0);
@@ -182,7 +184,7 @@ void Line::Bind(Graphics& gfx) noexcept
     pCBufColor.Bind(gfx);
 }
 
-std::vector<CollisionGeomerty::CollisionRes> Line::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector)
+std::vector<CollisionGeomerty::CollisionRes> Line::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix)
 {
     namespace dx = DirectX;
 

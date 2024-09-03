@@ -183,11 +183,11 @@
     <ClCompile Include="DebugSphere.cpp">
       <Filter>D3DCore\Source Files\Drawable\DebugGraphs</Filter>
     </ClCompile>
-    <ClCompile Include="ArrowComponent.cpp">
-      <Filter>D3DCore\Source Files\Drawable\DebugGraphs</Filter>
-    </ClCompile>
     <ClCompile Include="DepthStencilState.cpp">
       <Filter>D3DCore\Source Files\BIndable</Filter>
+    </ClCompile>
+    <ClCompile Include="TransformCtrlComponent.cpp">
+      <Filter>D3DCore\Source Files\Drawable</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -344,9 +344,6 @@
     <ClInclude Include="BasicGeomerty.h">
       <Filter>D3DCore\Header\Drawable\SpawnBasicGeomerty</Filter>
     </ClInclude>
-    <ClInclude Include="ArrowComponent.h">
-      <Filter>D3DCore\Header\Drawable\DebugGraphs</Filter>
-    </ClInclude>
     <ClInclude Include="ThreadPool.h">
       <Filter>Base\头文件</Filter>
     </ClInclude>
@@ -355,6 +352,9 @@
     </ClInclude>
     <ClInclude Include="RasterizerState.h">
       <Filter>D3DCore\Header\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformCtrlComponent.h">
+      <Filter>D3DCore\Header\Drawable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

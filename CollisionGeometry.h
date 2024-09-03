@@ -22,7 +22,8 @@ public:
 	CollisionGeomerty(Graphics& gfx):pCBufColor(gfx) {};
 	CollisionGeomerty(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
 	DirectX::XMMATRIX GetTransformXM() const noexcept override;
-	virtual std::vector<CollisionRes> TraceByLine(DirectX::XMFLOAT3 lineBeginPos,DirectX::XMFLOAT3 lineVector);
+	virtual std::vector<CollisionRes> TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix = XMMatrixIdentity());
+
 	
 	void SetPos(DirectX::XMFLOAT3 pos) noexcept;
 	DirectX::XMFLOAT3 GetPos() noexcept;
@@ -54,7 +55,7 @@ class Line:public CollisionGeomerty
 public:
 	Line(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f },int lineWidth = 1);
 	void Bind(Graphics& gfx)noexcept override;
-	virtual std::vector<CollisionRes> TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector) override;
+	virtual std::vector<CollisionRes> TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix = XMMatrixIdentity()) override;
 	void Draw(Graphics& gfx)const noexcept override;
 
 private:

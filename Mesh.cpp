@@ -3,7 +3,6 @@
 #include "Surface.h"
 #include <unordered_map>
 #include <sstream>
-
 namespace dx = DirectX;
 
 // Mesh
@@ -47,6 +46,7 @@ void Node::Draw(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const
 		dx::XMLoadFloat4x4(&appliedTransform) *
 		dx::XMLoadFloat4x4(&transform) *
 		accumulatedTransform;
+
 	for (const auto pm : meshPtrs)
 	{
 		pm->Draw(gfx, built);
@@ -61,6 +61,22 @@ void Node::AddChild(std::unique_ptr<Node> pChild)
 {
 	assert(pChild);
 	childPtrs.push_back(std::move(pChild));
+}
+
+std::vector<std::unique_ptr<Node>>& Node::GetChild() noexcept
+{
+	return this->childPtrs;
+}
+
+std::vector<Mesh*>& Node::GetMeshPtrs() noexcept
+{
+	return this->meshPtrs;
+}
+
+DirectX::XMMATRIX Node::GetTransform() noexcept
+{
+	return dx::XMLoadFloat4x4(&appliedTransform) *
+		dx::XMLoadFloat4x4(&transform);
 }
 
 void Node::ShowTree(std::optional<int>& selectedIndex, Node*& pSelectedNode) const noexcept

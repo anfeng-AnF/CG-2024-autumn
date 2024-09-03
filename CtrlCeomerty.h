@@ -6,7 +6,7 @@
 #include "map"
 #include "DebugLine.h"
 #include "DebugSphere.h"
-#include "ArrowComponent.h"
+#include "TransformCtrlComponent.h"
 #include "Window.h"
 #include <thread>
 class CtrlGeomerty
@@ -30,7 +30,7 @@ private:
     std::vector<std::unique_ptr<Drawable>> DebugGraphs;
     Graphics& gfx;
 
-    std::shared_ptr<ArrowComponent> pArrowComponent;
+    std::shared_ptr<TransformCtrlComponent> pArrowComponent;
     std::unordered_map<std::shared_ptr<CollisionGeomerty>, bool>Geomertys;
     std::unordered_map<std::shared_ptr<CollisionGeomerty>,FTransform>vSelectedGeomertys; //selected geo and pervious transform
     UINT16 selectedGeoNum = 0;
@@ -42,10 +42,12 @@ private:
 };
 
 
-inline CtrlGeomerty::CtrlGeomerty(Camera* cam, Graphics& gfx):CurrentCamera(cam),gfx(gfx)
+inline CtrlGeomerty::CtrlGeomerty(Camera* cam, Graphics& gfx)
+    :
+    CurrentCamera(cam),
+    gfx(gfx)
 {
-
-    //pArrowComponent = ArrowComponent::ConstructHelper(gfx, { 1.0f,0.0f,0.0f });
+    pArrowComponent = std::make_unique<TransformCtrlComponent>(gfx,"Models\\Component\\Scale.fbx");
 }
 
 inline void CtrlGeomerty::ChangeCamera(Camera* newCam)
@@ -76,11 +78,9 @@ inline void CtrlGeomerty::Draw()
         }
         obj.first->Draw(gfx);
     }
+    pArrowComponent->Draw(gfx);
     for (const auto& obj : DebugGraphs) {
         obj->Draw(gfx);
-    }
-    if (pArrowComponent) {
-        pArrowComponent->Draw(gfx);
     }
 }
 
@@ -117,19 +117,28 @@ inline void CtrlGeomerty::TraceByLine(int click_x, int click_y,const int windowW
         rayDirection = CurrentCamera->GetForwardVector();
         XMStoreFloat3(&rayOrigin, CurrentCamera->GetTransform().position);
     }
+
 #ifdef _DEBUG
     //create debug line
     XMFLOAT3 rayFarPoint = {10000*rayDirection.x,10000 * rayDirection.y ,10000 * rayDirection.z };
     DebugGraphs.push_back(std::make_unique<DebugLine>(gfx, rayOrigin, rayFarPoint, XMFLOAT3{ 1.0f,0.0f,0.0f }));
 #endif // _DEBUG
+    auto ArrowComponentHit = pArrowComponent->TraceByLineGetNearestMesh(rayOrigin, rayDirection);
+    if (ArrowComponentHit.second) {
+        this->DebugGraphs.push_back(std::make_unique<DebugSphere>(gfx, XMFLOAT3{ 0.0f,0.0f,1.0f }, ArrowComponentHit.first.pos, 0.05f));
+        return;
+    }
+
     this->hitRes.clear();
     for (auto& obj : Geomertys) {
-        auto hitResult = obj.first->TraceByLine(rayOrigin, rayDirection);
+        auto hitResult = obj.first->TraceByLine(rayOrigin, rayDirection,obj.first->GetTransformXM());
 
         if (hitResult.size() == 0)continue;
         this->hitRes.push_back({ obj.first,hitResult });
         for (auto& val : hitResult) {
-            this->DebugGraphs.push_back(std::make_unique<DebugSphere>(gfx, XMFLOAT3{ 0.0f,0.0f,1.0f }, val.pos,0.05f));
+#ifdef _DEBUG
+            this->DebugGraphs.push_back(std::make_unique<DebugSphere>(gfx, XMFLOAT3{ 0.0f,0.0f,1.0f }, val.pos, 0.05f));
+#endif // _DEBUG
         }
     }
 }
