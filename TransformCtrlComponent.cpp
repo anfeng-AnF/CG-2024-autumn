@@ -59,7 +59,7 @@ std::pair<CollisionGeomerty::CollisionRes, cMesh*> TransformCtrlComponent::Trace
 		dfs(rootChild, transform.GetMatrix());
 	}
 
-	int minDistance = INT32_MAX;
+	float minDistance = D3D11_FLOAT32_MAX;
 	cMesh* nearestMesh = nullptr;
 	for (auto& hitRes : hitResults) {
 		for (auto& hitInfo : hitRes.second) {
@@ -166,54 +166,7 @@ std::unique_ptr<Node> TransformCtrlComponent::ParseNode(int& nextId, const aiNod
 void TransformCtrlComponent::dfs(std::unique_ptr<Node>& node, DirectX::XMMATRIX transform)
 {
 	XMMATRIX applyTransform = node->GetTransform()*transform;
-	if (1) {
-		//
-		std::ostringstream oss;
-		// 解析平移
-		XMFLOAT3 translation;
-		translation.x = applyTransform.r[3].m128_f32[0];
-		translation.y = applyTransform.r[3].m128_f32[1];
-		translation.z = applyTransform.r[3].m128_f32[2];
 
-		// 解析缩放
-		XMFLOAT3 scale;
-		scale.x = sqrtf(applyTransform.r[0].m128_f32[0] * applyTransform.r[0].m128_f32[0] +
-			applyTransform.r[1].m128_f32[0] * applyTransform.r[1].m128_f32[0] +
-			applyTransform.r[2].m128_f32[0] * applyTransform.r[2].m128_f32[0]);
-
-		scale.y = sqrtf(applyTransform.r[0].m128_f32[1] * applyTransform.r[0].m128_f32[1] +
-			applyTransform.r[1].m128_f32[1] * applyTransform.r[1].m128_f32[1] +
-			applyTransform.r[2].m128_f32[1] * applyTransform.r[2].m128_f32[1]);
-
-		scale.z = sqrtf(applyTransform.r[0].m128_f32[2] * applyTransform.r[0].m128_f32[2] +
-			applyTransform.r[1].m128_f32[2] * applyTransform.r[1].m128_f32[2] +
-			applyTransform.r[2].m128_f32[2] * applyTransform.r[2].m128_f32[2]);
-
-		// 解析旋转
-		XMMATRIX rotationMatrix = applyTransform;
-		rotationMatrix.r[0] = XMVectorScale(rotationMatrix.r[0], 1.0f / scale.x);
-		rotationMatrix.r[1] = XMVectorScale(rotationMatrix.r[1], 1.0f / scale.y);
-		rotationMatrix.r[2] = XMVectorScale(rotationMatrix.r[2], 1.0f / scale.z);
-
-		// 将旋转矩阵转换为欧拉角
-		XMFLOAT3 eulerAngles;
-		FTransform t;
-		t.rotation = XMQuaternionRotationMatrix(rotationMatrix);
-		eulerAngles = t.GetRotationEuler();
-		// 输出结果
-		auto& meshPtrs = node->GetMeshPtrs();
-		if(meshPtrs.size())
-		oss << dynamic_cast<cMesh*>(meshPtrs[0])->GetName() << std::endl;
-		oss << std::fixed << std::setprecision(6);
-		oss << "Translation: (" << translation.x << ", " << translation.y << ", " << translation.z << ")\n";
-		oss << "Rotation (Euler angles in radians): (" << eulerAngles.x << ", " << eulerAngles.y << ", " << eulerAngles.z << ")\n";
-		oss << "Scale: (" << scale.x << ", " << scale.y << ", " << scale.z << ")\n";
-
-		// 打印或输出 oss.str()
-		std::string result = oss.str();
-		OutputDebugStringA(result.c_str());
-		//
-	}
 	for (auto& child : node->GetChild()) {
 		dfs(child, applyTransform);
 	}
@@ -221,10 +174,9 @@ void TransformCtrlComponent::dfs(std::unique_ptr<Node>& node, DirectX::XMMATRIX 
 	for (auto& pMesh : meshPtrs) {
 		auto pCMesh = dynamic_cast<cMesh*>(pMesh);
 		if (pCMesh) {
-			auto meshTransform = applyTransform * pCMesh->GetTransformXM();
 			this->vertexBuffer = std::move(pCMesh->vertexBuffer);
 			this->indices = std::move(pCMesh->indices);
-			auto hitRes = CollisionGeomerty::TraceByLine(tlineBeginPos, tlineVector, meshTransform);
+			auto hitRes = CollisionGeomerty::TraceByLine(tlineBeginPos, tlineVector, applyTransform);
 			if (hitRes.size()) {
 				hitResults.push_back({ pCMesh,hitRes });
 			}

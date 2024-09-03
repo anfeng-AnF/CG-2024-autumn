@@ -204,8 +204,6 @@ std::vector<CollisionGeomerty::CollisionRes> Line::TraceByLine(DirectX::XMFLOAT3
     }
     const dx::XMVECTOR lineBeginV = { lineBeginPos.x ,lineBeginPos.y,lineBeginPos.z,0.0f };
     const dx::XMVECTOR lineDirection = dx::XMVector3Normalize({ lineVector.x,lineVector.y,lineVector.z,0.0f });
-    XMFLOAT3 pos;
-    XMStoreFloat3(&pos, transform.position);
 
     DirectX::XMFLOAT3 p0, p1;
     dx::XMVECTOR v0, v1;
@@ -214,8 +212,11 @@ std::vector<CollisionGeomerty::CollisionRes> Line::TraceByLine(DirectX::XMFLOAT3
         //get a line 2 points world pos
         p0 = *reinterpret_cast<DirectX::XMFLOAT3*>(getSubStr(data + indices[i] * layoutSize + offset, sizeof(DirectX::XMFLOAT3)).data());
         p1 = *reinterpret_cast<DirectX::XMFLOAT3*>(getSubStr(data + indices[i + 1] * layoutSize + offset, sizeof(DirectX::XMFLOAT3)).data());
-        v0 = { p0.x + pos.x,p0.y + pos.y,p0.z + pos.z,0.0f };
-        v1 = { p1.x + pos.x,p1.y + pos.y,p1.z + pos.z,0.0f };
+        v0 = { p0.x,p0.y,p0.z,1.0f };
+        v1 = { p1.x,p1.y,p1.z,1.0f };
+        v0 = XMVector3Transform(v0, transformMatrix);
+        v1 = XMVector3Transform(v1, transformMatrix);
+
 
         dx::XMVECTOR rayOrigin = dx::XMLoadFloat3(&lineBeginPos);
         dx::XMVECTOR rayDir = dx::XMLoadFloat3(&lineVector);
