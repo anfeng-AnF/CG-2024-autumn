@@ -7,49 +7,27 @@ using namespace DirectX;
 
 class FTransform {
 public:
-    // 默认构造函数
-    FTransform()
-        : position(XMVectorZero()),
-        rotation(XMQuaternionIdentity()),
-        scale(XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f))
-    {}
-    FTransform(DirectX::XMFLOAT3 _pos)
-        : position({ _pos.x,_pos.y,_pos.z,0.0f }),
-        rotation(XMQuaternionIdentity()),
-        scale(XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f))
-    {}
-    FTransform(DirectX::XMVECTOR _pos, DirectX::XMVECTOR _scale, DirectX::XMVECTOR _rotation):
-        position(_pos),
-        scale(_scale),
-        rotation(_rotation)
-    {}
-    FTransform(const XMMATRIX& matrix)
-    {
-        // 提取缩放、旋转和位置
-        XMVECTOR scaling, rotationQuat, translation;
-        XMMatrixDecompose(&scaling, &rotationQuat, &translation, matrix);
+    FTransform();
+    FTransform(DirectX::XMFLOAT3 _pos);
+    FTransform(DirectX::XMVECTOR _pos, DirectX::XMVECTOR _scale, DirectX::XMVECTOR _rotation);
+    FTransform(const XMMATRIX& matrix);
 
-        position = translation;
-        scale = scaling;
-        rotation = rotationQuat;
-    }
-
-    // 获取变换矩阵
-    XMMATRIX GetMatrix() const {
-        XMMATRIX scaleMatrix = XMMatrixScalingFromVector(scale);
-        XMMATRIX rotationMatrix = XMMatrixRotationQuaternion(rotation);
-        XMMATRIX translationMatrix = XMMatrixTranslationFromVector(position);
-        return scaleMatrix * rotationMatrix * translationMatrix;
-    }
+    // Get the transformation matrix
+    XMMATRIX GetMatrix() const;
 
     FTransform operator+(const FTransform& other) const;
 
     XMFLOAT3 GetRotationEuler()noexcept;
     XMVECTOR ComputeRotationQuaternion(const XMVECTOR& from, const XMVECTOR& to) noexcept;
-    static const XMVECTOR ForwardVector, RightVector, UpVector;
+
+    XMVECTOR GetForwardVector() const;
+    XMVECTOR GetRightVector() const;
+    XMVECTOR GetUpVector() const;
+
 public:
     XMVECTOR position; // 位置
     XMVECTOR rotation; // 旋转（四元数）
     XMVECTOR scale;    // 缩放
+    static const XMVECTOR ForwardVector, RightVector, UpVector;
 };
 

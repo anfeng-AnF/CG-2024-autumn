@@ -1,5 +1,43 @@
 #include "Transform.h"
 
+FTransform::FTransform()
+	: position(XMVectorZero()),
+	rotation(XMQuaternionIdentity()),
+	scale(XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f))
+{}
+
+FTransform::FTransform(DirectX::XMFLOAT3 _pos)
+	: position({ _pos.x,_pos.y,_pos.z,0.0f }),
+	rotation(XMQuaternionIdentity()),
+	scale(XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f))
+{}
+
+FTransform::FTransform(DirectX::XMVECTOR _pos, DirectX::XMVECTOR _scale, DirectX::XMVECTOR _rotation)
+	:
+	position(_pos),
+	scale(_scale),
+	rotation(_rotation)
+{}
+
+FTransform::FTransform(const XMMATRIX & matrix)
+{
+	// 提取缩放、旋转和位置
+	XMVECTOR scaling, rotationQuat, translation;
+	XMMatrixDecompose(&scaling, &rotationQuat, &translation, matrix);
+
+	position = translation;
+	scale = scaling;
+	rotation = rotationQuat;
+}
+
+XMMATRIX FTransform::GetMatrix() const
+{
+	XMMATRIX scaleMatrix = XMMatrixScalingFromVector(scale);
+	XMMATRIX rotationMatrix = XMMatrixRotationQuaternion(rotation);
+	XMMATRIX translationMatrix = XMMatrixTranslationFromVector(position);
+	return scaleMatrix * rotationMatrix * translationMatrix;
+}
+
 FTransform FTransform::operator+(const FTransform& other) const
 {
 	XMVECTOR combinedScale = XMVectorMultiply(scale, other.scale);
@@ -37,25 +75,30 @@ XMFLOAT3 FTransform::GetRotationEuler() noexcept
 
 XMVECTOR FTransform::ComputeRotationQuaternion(const XMVECTOR& from, const XMVECTOR& to) noexcept
 {
-	// 归一化两个向量
 	XMVECTOR fromNormalized = XMVector3Normalize(from);
 	XMVECTOR toNormalized = XMVector3Normalize(to);
 
-	// 计算旋转轴（叉积）
 	XMVECTOR axis = XMVector3Cross(fromNormalized, toNormalized);
-
-	// 计算旋转角度（点积）
 	float dotProduct = XMVectorGetX(XMVector3Dot(fromNormalized, toNormalized));
 	float angle = acosf(dotProduct);
-
-	// 创建旋转四元数
 	XMVECTOR rotationQuaternion = XMQuaternionRotationAxis(XMVector3Normalize(axis), angle);
-
 	return rotationQuaternion;
 }
 
+XMVECTOR FTransform::GetForwardVector() const {
+	return XMVector3Rotate(ForwardVector, rotation);
+}
 
-// 静态常量变量的定义和初始化
+XMVECTOR FTransform::GetRightVector() const {
+	return XMVector3Rotate(RightVector, rotation);
+}
+
+XMVECTOR FTransform::GetUpVector() const {
+	return XMVector3Rotate(UpVector, rotation);
+}
+
+
+//These direction vectors are the default world coordinate direction vectors in the directx coordinate system, oriented in the z+ direction
 const DirectX::XMVECTOR FTransform::ForwardVector = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 const DirectX::XMVECTOR FTransform::RightVector = DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
 const DirectX::XMVECTOR FTransform::UpVector = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);

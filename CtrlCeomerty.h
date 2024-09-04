@@ -42,17 +42,18 @@ public:
     void BeginTransform(std::pair<int, int>bTransformPosScreen, int wndWidth, int wndHeight);
     void EndTransform();
 
+    FTransform GetTransform();
+
     bool TraceByLineSelectTransformAxis(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector);
 private:
     XMMATRIX Translation(XMVECTOR delta);
     XMMATRIX Scale(XMVECTOR delta);
     XMMATRIX Rotation(XMVECTOR delta);
     XMVECTOR ScreenToWorld(std::pair<int, int>deltaPosScreen, int wndWidth, int wndHeight);
-    
 private:
-    std::unique_ptr<TransformCtrlComponent> translation;
-    std::unique_ptr<TransformCtrlComponent> scale;
-    std::unique_ptr<TransformCtrlComponent> rotation;
+    std::unique_ptr<TransformCtrlComponent> pTranslation;
+    std::unique_ptr<TransformCtrlComponent> pScale;
+    std::unique_ptr<TransformCtrlComponent> pRotation;
     Camera& cam;
     Graphics& gfx;
 

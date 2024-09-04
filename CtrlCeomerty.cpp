@@ -187,6 +187,14 @@
     ImGui::RadioButton("Translate   ", &choose, 1);
     ImGui::RadioButton("Scale       ", &choose, 2);
     ImGui::RadioButton("Rotation    ", &choose, 3);
+    FTransform a= ctrlComponent.GetTransform();
+    XMFLOAT3 forward, right, up;
+    XMStoreFloat3(&forward, a.GetForwardVector());
+    XMStoreFloat3(&right,   a.GetRightVector());
+    XMStoreFloat3(&up,      a.GetUpVector());
+    ImGui::Text("Forward Vector: %.2f, %.2f, %.2f", forward.x, forward.y, forward.z);
+    ImGui::Text("Right Vector: %.2f, %.2f, %.2f", right.x, right.y, right.z);
+    ImGui::Text("Up Vector: %.2f, %.2f, %.2f", up.x, up.y, up.z);
     ImGui::EndChild();
     switch (choose)
     {
@@ -205,7 +213,6 @@
     }
 
     deltaTransform.rotation = XMQuaternionRotationRollPitchYaw(DeltaRotationEuler.x, DeltaRotationEuler.y, DeltaRotationEuler.z);
-    auto a = vSelectedGeomertys.size();
     for (auto& val : vSelectedGeomertys) {
         FTransform newTransform = deltaTransform + val.second;
         val.first->SetTransform(newTransform);
@@ -236,9 +243,9 @@
      gfx(gfx),
      cam(cam)
  {
-     translation    = std::make_unique<TransformCtrlComponent>(gfx, posFilePath);
-     scale          = std::make_unique<TransformCtrlComponent>(gfx, scaleFilePath);
-     rotation       = std::make_unique<TransformCtrlComponent>(gfx, rotateFilePath);
+     pTranslation    = std::make_unique<TransformCtrlComponent>(gfx, posFilePath);
+     pScale          = std::make_unique<TransformCtrlComponent>(gfx, scaleFilePath);
+     pRotation       = std::make_unique<TransformCtrlComponent>(gfx, rotateFilePath);
  }
 
  void CtrlComponents::Draw(Graphics& gfx) noexcept
@@ -250,13 +257,13 @@
      case CtrlComponents::NONE:
          break;
      case CtrlComponents::ON_TRANSLATION:
-         translation->Draw(gfx);
+         pTranslation->Draw(gfx);
          break;
      case CtrlComponents::ON_SCALE:
-         scale->Draw(gfx);
+         pScale->Draw(gfx);
          break;
      case CtrlComponents::ON_ROTATION:
-         rotation->Draw(gfx);
+         pRotation->Draw(gfx);
          break;
      }
      depth.UnBind(gfx);
@@ -307,14 +314,87 @@
  XMMATRIX CtrlComponents::Translation(XMVECTOR delta)
  {
      XMMATRIX Translation;
-     FTransform componentTransform = translation->GetTransform();
-     
+     FTransform componentTransform = pTranslation->GetTransform();
 
-     return ;
+     XMVECTOR projectedDelta = XMVectorZero();
+
+     //Calculate the projection of the mouse movement on the target movement (plane, axis)
+     switch (transformAxis)
+     {
+     case CtrlComponents::NONE_AXIS:
+         break;
+
+     case CtrlComponents::X:
+         projectedDelta = XMVectorScale(componentTransform.GetRightVector(), XMVectorGetX(XMVector3Dot(delta, componentTransform.GetRightVector())));
+         break;
+
+     case CtrlComponents::Y:
+         projectedDelta = XMVectorScale(componentTransform.GetUpVector(), XMVectorGetX(XMVector3Dot(delta, componentTransform.GetUpVector())));
+         break;
+
+     case CtrlComponents::Z:
+         projectedDelta = XMVectorScale(componentTransform.GetForwardVector(), XMVectorGetX(XMVector3Dot(delta, componentTransform.GetForwardVector())));
+         break;
+
+     case CtrlComponents::XY:
+         projectedDelta = XMVectorAdd(
+             XMVectorScale(componentTransform.GetRightVector(), XMVectorGetX(XMVector3Dot(delta, componentTransform.GetRightVector()))),
+             XMVectorScale(componentTransform.GetUpVector(), XMVectorGetX(XMVector3Dot(delta, componentTransform.GetUpVector())))
+         );
+         break;
+
+     case CtrlComponents::XZ:
+         projectedDelta = XMVectorAdd(
+             XMVectorScale(componentTransform.GetRightVector(), XMVectorGetX(XMVector3Dot(delta, componentTransform.GetRightVector()))),
+             XMVectorScale(componentTransform.GetForwardVector(), XMVectorGetX(XMVector3Dot(delta, componentTransform.GetForwardVector())))
+         );
+         break;
+
+     case CtrlComponents::YZ:
+         projectedDelta = XMVectorAdd(
+             XMVectorScale(componentTransform.GetUpVector(), XMVectorGetX(XMVector3Dot(delta, componentTransform.GetUpVector()))),
+             XMVectorScale(componentTransform.GetForwardVector(), XMVectorGetX(XMVector3Dot(delta, componentTransform.GetForwardVector())))
+         );
+         break;
+
+     case CtrlComponents::XYZ:
+         projectedDelta = delta;  // 如果XYZ轴全都允许移动，那么delta就是最终的结果
+         break;
+     }
+
+     Translation = XMMatrixTranslationFromVector(projectedDelta);
+     return Translation;
  }
+
 
  XMMATRIX CtrlComponents::Scale(XMVECTOR delta)
  {
+     XMMATRIX Translation;
+     FTransform componentTransform = pTranslation->GetTransform();
+     XMVECTOR forwardVector = componentTransform.GetForwardVector();//target Z
+     XMVECTOR rightVector = componentTransform.GetRightVector();    //target X
+     XMVECTOR upVector = componentTransform.GetUpVector();          //target Y
+     XMFLOAT3 scaleFactor;
+     switch (transformAxis)
+     {
+     case CtrlComponents::NONE_AXIS:
+         break;
+     case CtrlComponents::X:
+         break;
+     case CtrlComponents::Y:
+         break;
+     case CtrlComponents::Z:
+         break;
+     case CtrlComponents::XY:
+         break;
+     case CtrlComponents::XZ:
+         break;
+     case CtrlComponents::YZ:
+         break;
+     case CtrlComponents::XYZ:
+         break;
+     }
+
      return XMMATRIX();
  }
 
@@ -347,6 +427,25 @@
      return retVector;
  }
 
+ FTransform CtrlComponents::GetTransform()
+ {
+     switch (currentStatue)
+     {
+     case CtrlComponents::NONE:
+         return FTransform();
+         break;
+     case CtrlComponents::ON_TRANSLATION:
+         return pTranslation->GetTransform();
+         break;
+     case CtrlComponents::ON_SCALE:
+         return pScale->GetTransform();
+         break;
+     case CtrlComponents::ON_ROTATION:
+         return pRotation->GetTransform();
+         break;
+     }
+ }
+
  bool CtrlComponents::TraceByLineSelectTransformAxis(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector)
  {
      std::pair<CollisionGeomerty::CollisionRes, cMesh*> hitRes;
@@ -355,13 +454,13 @@
      case CtrlComponents::NONE:
          break;
      case CtrlComponents::ON_TRANSLATION:
-         hitRes=translation->TraceByLineGetNearestMesh(lineBeginPos,lineVector);
+         hitRes=pTranslation->TraceByLineGetNearestMesh(lineBeginPos,lineVector);
          break;
      case CtrlComponents::ON_SCALE:
-         hitRes=scale->TraceByLineGetNearestMesh(lineBeginPos,lineVector);
+         hitRes=pScale->TraceByLineGetNearestMesh(lineBeginPos,lineVector);
          break;
      case CtrlComponents::ON_ROTATION:
-         hitRes=rotation->TraceByLineGetNearestMesh(lineBeginPos,lineVector);
+         hitRes=pRotation->TraceByLineGetNearestMesh(lineBeginPos,lineVector);
          break;
      }
 
