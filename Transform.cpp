@@ -30,8 +30,7 @@ FTransform::FTransform(const XMMATRIX & matrix)
 	rotation = rotationQuat;
 }
 
-XMMATRIX FTransform::GetMatrix() const
-{
+XMMATRIX FTransform::GetMatrix() const {
 	XMMATRIX scaleMatrix = XMMatrixScalingFromVector(scale);
 	XMMATRIX rotationMatrix = XMMatrixRotationQuaternion(rotation);
 	XMMATRIX translationMatrix = XMMatrixTranslationFromVector(position);
@@ -83,6 +82,18 @@ XMVECTOR FTransform::ComputeRotationQuaternion(const XMVECTOR& from, const XMVEC
 	float angle = acosf(dotProduct);
 	XMVECTOR rotationQuaternion = XMQuaternionRotationAxis(XMVector3Normalize(axis), angle);
 	return rotationQuaternion;
+}
+
+XMVECTOR FTransform::GetForwardVector() const {
+	return XMVector3Rotate(ForwardVector, rotation);
+}
+
+XMVECTOR FTransform::GetRightVector() const {
+	return XMVector3Rotate(RightVector, rotation);
+}
+
+XMVECTOR FTransform::GetUpVector() const {
+	return XMVector3Rotate(UpVector, rotation);
 }
 
 XMVECTOR FTransform::GetForwardVector() const {

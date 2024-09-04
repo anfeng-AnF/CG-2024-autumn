@@ -62,6 +62,7 @@ private:
     std::pair<int, int>beginTransformPosScreen;
     std::pair<int, int>deltaTransfeomPosScreen;
     XMVECTOR BeginPosWorld;
+    FTransform transform;
 
     bool isInitialized = false;
 };
