@@ -94,7 +94,8 @@ void App::DoFrame()
 	axis.Draw(wnd.Gfx());
 
 
-	if (!wnd.mouse.RightIsPressed())
+	static bool isUseCC;
+	if (!wnd.mouse.RightIsPressed()&&!isUseCC)
 	{
 		wnd.EnableCursor();
 		wnd.mouse.DisableRaw();
@@ -141,26 +142,30 @@ void App::DoFrame()
 	}
 
 
-
+	std::pair<int, int> lastFarmPos;
 	while (const auto delta = wnd.mouse.ReadRawDelta())
 	{
-		if (!wnd.CursorEnabled())
+		if (!wnd.CursorEnabled()&&!isUseCC)
 		{
 			cam.RotatePitchYaw((float)delta->x, (float)delta->y);
 		}
+		if (isUseCC) {
+			lastFarmPos.first += delta->x;
+			lastFarmPos.second += delta->y;
+		}
 	}
-	static bool isUseCC;
+	if (isUseCC) {
+		ctrl.OnTransformComponent(lastFarmPos,width,height);
+		std::ostringstream oss;
+		oss << lastFarmPos.first << "  " << lastFarmPos.second << std::endl;
+		OutputDebugStringA(oss.str().c_str());
+	}
 	while (const auto delta = wnd.mouse.Read())
 	{
 		if (delta->GetType() == Mouse::Event::Type::LPress)
 		{
-			if (isUseCC) {
-				//
-			}
 			std::pair<int, int>pos = delta->GetPos();
-			std::ostringstream oss;
-			oss << "Position: (" << pos.first << ", " << pos.second << ")" << std::endl;
-			OutputDebugStringA(oss.str().c_str());
+
 			if (ctrl.SelectGeomerty(pos.first, pos.second, width, height, isPerspective)) {
 				//ctrl.TransformGeomerty(wnd);
 				isUseCC = ctrl.IsUseCtrlComponent();

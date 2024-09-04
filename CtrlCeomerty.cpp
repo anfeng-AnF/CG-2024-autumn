@@ -88,7 +88,7 @@
         this->isUseCtrlComponent = true;
         return;
     }
-
+    this->isUseCtrlComponent = false;
     this->hitRes.clear();
     for (auto& obj : Geomertys) {
         auto hitResult = obj.first->TraceByLine(rayOrigin, rayDirection, obj.first->GetTransformXM());
@@ -205,7 +205,9 @@
     }
 
     deltaTransform.rotation = XMQuaternionRotationRollPitchYaw(DeltaRotationEuler.x, DeltaRotationEuler.y, DeltaRotationEuler.z);
-    auto a = vSelectedGeomertys.size();
+    if (this->isUseCtrlComponent) {
+        int a = 0;
+    }
     for (auto& val : vSelectedGeomertys) {
         FTransform newTransform = deltaTransform + val.second;
         val.first->SetTransform(newTransform);
@@ -245,6 +247,9 @@
  {
      auto depth = Bind::DepthStencilState(gfx);
      depth.Bind(gfx);
+     translation->SetTransform(transform);
+     scale->SetTransform(transform);
+     rotation->SetTransform(transform);
      switch (currentStatue)
      {
      case CtrlComponents::NONE:
@@ -274,28 +279,38 @@
      this->deltaTransfeomPosScreen.second += dTransformPosScreen.second;
      auto posWorld = this->ScreenToWorld(deltaTransfeomPosScreen, wndWidth, wndHeight);
      auto deltaPosWorld = XMVectorSubtract(posWorld, BeginPosWorld);
+
+     if (1) {
+         std::ostringstream oss;
+         oss << " " << deltaPosWorld.m128_f32[0] << " " << deltaPosWorld.m128_f32[1] << " " << deltaPosWorld.m128_f32[2] << std::endl;
+         OutputDebugStringA(oss.str().c_str());
+     }
+     XMMATRIX ret=XMMatrixIdentity();
      switch (currentStatue)
      {
      case CtrlComponents::ON_TRANSLATION:
-         Translation(deltaPosWorld);
+         ret=Translation(deltaPosWorld);
          break;
      case CtrlComponents::ON_SCALE:
-         Scale(deltaPosWorld);
+         ret=Scale(deltaPosWorld);
          break;
      case CtrlComponents::ON_ROTATION:
-         Rotation(deltaPosWorld);
+         ret=Rotation(deltaPosWorld);
          break;
      default:
          break;
      }
-     return XMMATRIX();
+     this->transform =FTransform(ret);
+     return ret;
  }
 
  void CtrlComponents::BeginTransform(std::pair<int, int> bTransformPosScreen, int wndWidth, int wndHeight)
  {
      this->beginTransformPosScreen = bTransformPosScreen;
+     this->deltaTransfeomPosScreen = bTransformPosScreen;
      this->BeginPosWorld = this->ScreenToWorld(bTransformPosScreen,wndWidth,wndHeight);
      isInitialized = true;
+
  }
 
  void CtrlComponents::EndTransform()
@@ -306,12 +321,57 @@
 
  XMMATRIX CtrlComponents::Translation(XMVECTOR delta)
  {
-     XMMATRIX Translation;
+     XMMATRIX Translation=XMMatrixIdentity();
      FTransform componentTransform = translation->GetTransform();
-     
 
-     return ;
+     XMVECTOR projectedDelta = XMVectorZero();
+     switch (transformAxis)
+     {
+     case CtrlComponents::NONE_AXIS:
+         break;
+
+     case CtrlComponents::X:
+         projectedDelta = XMVectorScale(componentTransform.GetRightVector(), XMVectorGetX(XMVector3Dot(delta, componentTransform.GetRightVector())));
+         break;
+
+     case CtrlComponents::Y:
+         projectedDelta = XMVectorScale(componentTransform.GetUpVector(), XMVectorGetX(XMVector3Dot(delta, componentTransform.GetUpVector())));
+         break;
+
+     case CtrlComponents::Z:
+         projectedDelta = XMVectorScale(componentTransform.GetForwardVector(), XMVectorGetX(XMVector3Dot(delta, componentTransform.GetForwardVector())));
+         break;
+
+     case CtrlComponents::XY:
+         projectedDelta = XMVectorAdd(
+             XMVectorScale(componentTransform.GetRightVector(), XMVectorGetX(XMVector3Dot(delta, componentTransform.GetRightVector()))),
+             XMVectorScale(componentTransform.GetUpVector(), XMVectorGetX(XMVector3Dot(delta, componentTransform.GetUpVector())))
+         );
+         break;
+
+     case CtrlComponents::XZ:
+         projectedDelta = XMVectorAdd(
+             XMVectorScale(componentTransform.GetRightVector(), XMVectorGetX(XMVector3Dot(delta, componentTransform.GetRightVector()))),
+             XMVectorScale(componentTransform.GetForwardVector(), XMVectorGetX(XMVector3Dot(delta, componentTransform.GetForwardVector())))
+         );
+         break;
+
+     case CtrlComponents::YZ:
+         projectedDelta = XMVectorAdd(
+             XMVectorScale(componentTransform.GetUpVector(), XMVectorGetX(XMVector3Dot(delta, componentTransform.GetUpVector()))),
+             XMVectorScale(componentTransform.GetForwardVector(), XMVectorGetX(XMVector3Dot(delta, componentTransform.GetForwardVector())))
+         );
+         break;
+
+     case CtrlComponents::XYZ:
+         projectedDelta = delta;
+         break;
+     }
+
+     Translation = XMMatrixTranslationFromVector(XMVectorScale(projectedDelta,10.0f));
+     return Translation;
  }
+
 
  XMMATRIX CtrlComponents::Scale(XMVECTOR delta)
  {
@@ -342,7 +402,7 @@
      XMVECTOR rayWorldSpace = XMVector3TransformCoord(rayViewSpace, invViewMatrix);
      XMVECTOR cameraPosition = invViewMatrix.r[3];
 
-     retVector = XMVectorAdd(cameraPosition, rayWorldSpace);
+     retVector = XMVectorAdd(cameraPosition,XMVector3Normalize(rayWorldSpace));
 
      return retVector;
  }

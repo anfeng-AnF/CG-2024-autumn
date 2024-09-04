@@ -1,5 +1,42 @@
 #include "Transform.h"
 
+FTransform::FTransform()
+	: position(XMVectorZero()),
+	rotation(XMQuaternionIdentity()),
+	scale(XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f))
+{}
+
+FTransform::FTransform(DirectX::XMFLOAT3 _pos)
+	: position({ _pos.x,_pos.y,_pos.z,0.0f }),
+	rotation(XMQuaternionIdentity()),
+	scale(XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f))
+{}
+
+FTransform::FTransform(DirectX::XMVECTOR _pos, DirectX::XMVECTOR _scale, DirectX::XMVECTOR _rotation)
+	:
+	position(_pos),
+	scale(_scale),
+	rotation(_rotation)
+{}
+
+FTransform::FTransform(const XMMATRIX & matrix)
+{
+	// 提取缩放、旋转和位置
+	XMVECTOR scaling, rotationQuat, translation;
+	XMMatrixDecompose(&scaling, &rotationQuat, &translation, matrix);
+
+	position = translation;
+	scale = scaling;
+	rotation = rotationQuat;
+}
+
+XMMATRIX FTransform::GetMatrix() const {
+	XMMATRIX scaleMatrix = XMMatrixScalingFromVector(scale);
+	XMMATRIX rotationMatrix = XMMatrixRotationQuaternion(rotation);
+	XMMATRIX translationMatrix = XMMatrixTranslationFromVector(position);
+	return scaleMatrix * rotationMatrix * translationMatrix;
+}
+
 FTransform FTransform::operator+(const FTransform& other) const
 {
 	XMVECTOR combinedScale = XMVectorMultiply(scale, other.scale);
@@ -52,6 +89,18 @@ XMVECTOR FTransform::ComputeRotationQuaternion(const XMVECTOR& from, const XMVEC
 	XMVECTOR rotationQuaternion = XMQuaternionRotationAxis(XMVector3Normalize(axis), angle);
 
 	return rotationQuaternion;
+}
+
+XMVECTOR FTransform::GetForwardVector() const {
+	return XMVector3Rotate(ForwardVector, rotation);
+}
+
+XMVECTOR FTransform::GetRightVector() const {
+	return XMVector3Rotate(RightVector, rotation);
+}
+
+XMVECTOR FTransform::GetUpVector() const {
+	return XMVector3Rotate(UpVector, rotation);
 }
 
 
