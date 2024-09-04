@@ -43,6 +43,9 @@ public:
     void EndTransform();
 
     FTransform GetTransform();
+    void SetTransform(FTransform trans);
+    FTransform BeginGetTransform();
+    void SetBeginTransform(FTransform trans);
 
     bool TraceByLineSelectTransformAxis(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector);
 private:
@@ -63,6 +66,7 @@ private:
     std::pair<int, int>deltaTransfeomPosScreen;
     XMVECTOR BeginPosWorld;
     FTransform transform;
+    FTransform beginTransform;
 
     bool isInitialized = false;
 };
@@ -97,6 +101,11 @@ private:
     FTransform deltaTransform;
     XMFLOAT3 DeltaRotationEuler;
     XMFLOAT3 color = { -1.0f,-1.0f,-1.0f };
+
+    // References for transformations
+    // such as multiple geometries rotating around a point
+    // rotating reference systems to translate in different directions
+    FTransform currentTransformReference;
 
     CtrlComponents ctrlComponent;
     bool isUseCtrlComponent;

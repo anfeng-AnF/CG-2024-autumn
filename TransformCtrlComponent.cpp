@@ -44,10 +44,11 @@ TransformCtrlComponent::TransformCtrlComponent(Graphics& gfx, std::string filePa
 
 void TransformCtrlComponent::Draw(Graphics& gfx) const noexcept
 {
-	//auto depth = Bind::DepthStencilState(gfx);
-	//depth.Bind(gfx);
-	pRoot->Draw(gfx, transform.GetMatrix());
-	//depth.UnBind(gfx);
+	//transform with out scale
+	FTransform trans = FTransform(transform.position, { 1.0f,1.0f,1.0f }, transform.rotation);
+	//add dynamic scale here
+
+	pRoot->Draw(gfx, trans.GetMatrix());
 }
 
 std::pair<CollisionGeomerty::CollisionRes, cMesh*> TransformCtrlComponent::TraceByLineGetNearestMesh(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector)

@@ -96,18 +96,6 @@ XMVECTOR FTransform::GetUpVector() const {
 	return XMVector3Rotate(UpVector, rotation);
 }
 
-XMVECTOR FTransform::GetForwardVector() const {
-	return XMVector3Rotate(ForwardVector, rotation);
-}
-
-XMVECTOR FTransform::GetRightVector() const {
-	return XMVector3Rotate(RightVector, rotation);
-}
-
-XMVECTOR FTransform::GetUpVector() const {
-	return XMVector3Rotate(UpVector, rotation);
-}
-
 
 //These direction vectors are the default world coordinate direction vectors in the directx coordinate system, oriented in the z+ direction
 const DirectX::XMVECTOR FTransform::ForwardVector = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);

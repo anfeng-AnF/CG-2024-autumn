@@ -88,6 +88,7 @@
         this->isUseCtrlComponent = true;
         return;
     }
+
     this->isUseCtrlComponent = false;
     this->hitRes.clear();
     for (auto& obj : Geomertys) {
@@ -211,7 +212,7 @@
         ctrlComponent.SetStatue(CtrlComponents::ON_ROTATION);
         break;
     }
-
+    ctrlComponent.SetTransform(deltaTransform);
     deltaTransform.rotation = XMQuaternionRotationRollPitchYaw(DeltaRotationEuler.x, DeltaRotationEuler.y, DeltaRotationEuler.z);
     for (auto& val : vSelectedGeomertys) {
         FTransform newTransform = deltaTransform + val.second;
@@ -252,9 +253,9 @@
  {
      auto depth = Bind::DepthStencilState(gfx);
      depth.Bind(gfx);
-     translation->SetTransform(transform);
-     scale->SetTransform(transform);
-     rotation->SetTransform(transform);
+     pTranslation->SetTransform(transform);
+     pScale->SetTransform(transform);
+     pRotation->SetTransform(transform);
      switch (currentStatue)
      {
      case CtrlComponents::NONE:
@@ -285,11 +286,6 @@
      auto posWorld = this->ScreenToWorld(deltaTransfeomPosScreen, wndWidth, wndHeight);
      auto deltaPosWorld = XMVectorSubtract(posWorld, BeginPosWorld);
 
-     if (1) {
-         std::ostringstream oss;
-         oss << " " << deltaPosWorld.m128_f32[0] << " " << deltaPosWorld.m128_f32[1] << " " << deltaPosWorld.m128_f32[2] << std::endl;
-         OutputDebugStringA(oss.str().c_str());
-     }
      XMMATRIX ret=XMMatrixIdentity();
      switch (currentStatue)
      {
@@ -305,7 +301,7 @@
      default:
          break;
      }
-     this->transform =FTransform(ret);
+     this->transform =FTransform(ret)+beginTransform;
      return ret;
  }
 
@@ -315,7 +311,6 @@
      this->deltaTransfeomPosScreen = bTransformPosScreen;
      this->BeginPosWorld = this->ScreenToWorld(bTransformPosScreen,wndWidth,wndHeight);
      isInitialized = true;
-
  }
 
  void CtrlComponents::EndTransform()
@@ -327,7 +322,7 @@
  XMMATRIX CtrlComponents::Translation(XMVECTOR delta)
  {
      XMMATRIX Translation=XMMatrixIdentity();
-     FTransform componentTransform = translation->GetTransform();
+     FTransform componentTransform = pTranslation->GetTransform();
 
      XMVECTOR projectedDelta = XMVectorZero();
      switch (transformAxis)
@@ -455,6 +450,21 @@
          return pRotation->GetTransform();
          break;
      }
+ }
+
+ void CtrlComponents::SetTransform(FTransform trans)
+ {
+     transform = trans;
+ }
+
+ FTransform CtrlComponents::BeginGetTransform()
+ {
+     return beginTransform;
+ }
+
+ void CtrlComponents::SetBeginTransform(FTransform trans)
+ {
+     beginTransform = trans;
  }
 
  bool CtrlComponents::TraceByLineSelectTransformAxis(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector)
