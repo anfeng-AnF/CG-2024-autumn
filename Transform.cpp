@@ -1,5 +1,13 @@
 #include "Transform.h"
 
+FTransform FTransform::operator+(const FTransform& other) const
+{
+	XMVECTOR combinedScale = XMVectorMultiply(scale, other.scale);
+	XMVECTOR combinedRotation = XMQuaternionMultiply(rotation, other.rotation);
+	XMVECTOR combinedPosition = position + other.position;
+	return FTransform(combinedPosition, combinedScale, combinedRotation);
+}
+
 XMFLOAT3 FTransform::GetRotationEuler() noexcept
 {
 	// 从四元数提取分量

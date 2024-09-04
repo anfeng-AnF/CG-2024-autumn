@@ -3,7 +3,8 @@
  CtrlGeomerty::CtrlGeomerty(Camera* cam, Graphics& gfx)
     :
     CurrentCamera(cam),
-    gfx(gfx)
+    gfx(gfx),
+    ctrlComponent(gfx,*cam)
 {
 }
 
@@ -38,6 +39,7 @@
     for (const auto& obj : DebugGraphs) {
         obj->Draw(gfx);
     }
+    ctrlComponent.Draw(gfx);
 }
 
  void CtrlGeomerty::TraceByLine(int click_x, int click_y, const int windowWidth, const int windowHeight, bool isPerspective)
@@ -75,10 +77,17 @@
     }
 
 #ifdef _DEBUG
-    //create debug line
+    //draw debug line
     XMFLOAT3 rayFarPoint = { 10000 * rayDirection.x,10000 * rayDirection.y ,10000 * rayDirection.z };
     DebugGraphs.push_back(std::make_unique<DebugLine>(gfx, rayOrigin, rayFarPoint, XMFLOAT3{ 1.0f,0.0f,0.0f }));
-#endif // _DEBUG
+#endif //_DEBUG
+
+    if (ctrlComponent.TraceByLineSelectTransformAxis(rayOrigin, rayDirection)) {
+        //enter to transform model
+        ctrlComponent.BeginTransform({ click_x,click_y }, windowWidth, windowHeight);
+        this->isUseCtrlComponent = true;
+        return;
+    }
 
     this->hitRes.clear();
     for (auto& obj : Geomertys) {
@@ -105,46 +114,46 @@
 }
 
  bool CtrlGeomerty::SelectGeomerty(int click_x, int click_y, const int windowWidth, const int windowHeight, bool isPerspective)
-{
-    //everytime we select,whither selected or not ,we renew old geo transform,and reset deltaTransform and other Attribute
-    deltaTransform = FTransform{};
-    DeltaRotationEuler = { 0.0f,0.0f,0.0f };
-    color = { -1.0f,-1.0f,-1.0f };
-    for (auto& val : vSelectedGeomertys) {
-        val.second = val.first->GetTransform();
-    }
+ {
+     //everytime we select,whither selected or not ,we renew old geo transform,and reset deltaTransform and other Attribute
+     deltaTransform = FTransform{};
+     DeltaRotationEuler = { 0.0f,0.0f,0.0f };
+     color = { -1.0f,-1.0f,-1.0f };
+     for (auto& val : vSelectedGeomertys) {
+         val.second = val.first->GetTransform();
+     }
 
+     TraceByLine(click_x, click_y, windowWidth, windowHeight, isPerspective);
+     if (this->isUseCtrlComponent)return true;
+     pGeoPair pNearestGeo = TraceByLineNearestGeo();
 
-    TraceByLine(click_x, click_y, windowWidth, windowHeight, isPerspective);
-    pGeoPair pNearestGeo = TraceByLineNearestGeo();
-
-    if (!pNearestGeo) {
-        vSelectedGeomertys.clear();
-        for (auto& geo : Geomertys) {
-            if (geo.second) {
-                geo.first->SetSelect(false);
-                geo.second = false;
-                selectedGeoNum--;
-            }
-        }
-        return false;
-    }
-    if (Geomertys[pNearestGeo->first]) {
-        Geomertys[pNearestGeo->first] = false;
-        pNearestGeo->first->SetSelect(false);
-        selectedGeoNum--;
-        vSelectedGeomertys.erase(pNearestGeo->first);
-    }
-    else
-    {
-        Geomertys[pNearestGeo->first] = true;
-        pNearestGeo->first->SetSelect(true);
-        selectedGeoNum++;
-        auto a = vSelectedGeomertys.find(pNearestGeo->first);
-        vSelectedGeomertys[pNearestGeo->first] = pNearestGeo->first->GetTransform();
-    }
-    return true;
-}
+     if (!pNearestGeo) {
+         vSelectedGeomertys.clear();
+         for (auto& geo : Geomertys) {
+             if (geo.second) {
+                 geo.first->SetSelect(false);
+                 geo.second = false;
+                 selectedGeoNum--;
+             }
+         }
+         return false;
+     }
+     if (Geomertys[pNearestGeo->first]) {
+         Geomertys[pNearestGeo->first] = false;
+         pNearestGeo->first->SetSelect(false);
+         selectedGeoNum--;
+         vSelectedGeomertys.erase(pNearestGeo->first);
+     }
+     else
+     {
+         Geomertys[pNearestGeo->first] = true;
+         pNearestGeo->first->SetSelect(true);
+         selectedGeoNum++;
+         auto a = vSelectedGeomertys.find(pNearestGeo->first);
+         vSelectedGeomertys[pNearestGeo->first] = pNearestGeo->first->GetTransform();
+     }
+     return true;
+ }
 
  void CtrlGeomerty::TransformGeomerty(Window& wnd)
 {
@@ -172,21 +181,55 @@
     ImGui::SliderFloat("r Z", &DeltaRotationEuler.z, -180.0f, 180.0f);
     ImGui::Text("Color");
     ImGui::ColorEdit3("RGB", &color.x);
+    ImGui::Text("--------Transform--------");
+    static int choose = 0;
+    ImGui::RadioButton("None", &choose, 0);
+    ImGui::RadioButton("Translate   ", &choose, 1);
+    ImGui::RadioButton("Scale       ", &choose, 2);
+    ImGui::RadioButton("Rotation    ", &choose, 3);
     ImGui::EndChild();
+    switch (choose)
+    {
+    case 0:
+        ctrlComponent.SetStatue(CtrlComponents::NONE);
+        break;
+    case 1:
+        ctrlComponent.SetStatue(CtrlComponents::ON_TRANSLATION);
+        break;
+    case 2:
+        ctrlComponent.SetStatue(CtrlComponents::ON_SCALE);
+        break;
+    case 3:
+        ctrlComponent.SetStatue(CtrlComponents::ON_ROTATION);
+        break;
+    }
+
     deltaTransform.rotation = XMQuaternionRotationRollPitchYaw(DeltaRotationEuler.x, DeltaRotationEuler.y, DeltaRotationEuler.z);
     auto a = vSelectedGeomertys.size();
     for (auto& val : vSelectedGeomertys) {
-        FTransform newTransform = {
-            XMVectorAdd(val.second.position,deltaTransform.position),
-            XMVectorMultiply(val.second.scale,deltaTransform.scale),
-            XMQuaternionMultiply(val.second.rotation,deltaTransform.rotation)
-        };
+        FTransform newTransform = deltaTransform + val.second;
         val.first->SetTransform(newTransform);
         if (color.x != -1.0f) {
             val.first->SetColor(color);
         }
     }
 }
+
+ void CtrlGeomerty::EndComponentTransform()
+ {
+     ctrlComponent.EndTransform();
+     this->isUseCtrlComponent = false;
+ }
+
+ bool CtrlGeomerty::IsUseCtrlComponent()
+ {
+     return isUseCtrlComponent;
+ }
+
+ void CtrlGeomerty::OnTransformComponent(std::pair<int, int> screenPos, int wndWidth, int wndHeight)
+ {
+     deltaTransform =FTransform(ctrlComponent.Transform(screenPos, wndWidth, wndHeight));
+ }
 
  CtrlComponents::CtrlComponents(Graphics& gfx,Camera&cam, std::string posFilePath, std::string scaleFilePath, std::string rotateFilePath)
      :
@@ -258,11 +301,16 @@
  void CtrlComponents::EndTransform()
  {
      isInitialized = false;
+     transformAxis = TransformAxis::NONE_AXIS;
  }
 
  XMMATRIX CtrlComponents::Translation(XMVECTOR delta)
  {
-     return XMMATRIX();
+     XMMATRIX Translation;
+     FTransform componentTransform = translation->GetTransform();
+     
+
+     return ;
  }
 
  XMMATRIX CtrlComponents::Scale(XMVECTOR delta)
@@ -299,7 +347,39 @@
      return retVector;
  }
 
- void CtrlComponents::TraceByLineSelectTransformAxis()
+ bool CtrlComponents::TraceByLineSelectTransformAxis(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector)
  {
+     std::pair<CollisionGeomerty::CollisionRes, cMesh*> hitRes;
+     switch (currentStatue)
+     {
+     case CtrlComponents::NONE:
+         break;
+     case CtrlComponents::ON_TRANSLATION:
+         hitRes=translation->TraceByLineGetNearestMesh(lineBeginPos,lineVector);
+         break;
+     case CtrlComponents::ON_SCALE:
+         hitRes=scale->TraceByLineGetNearestMesh(lineBeginPos,lineVector);
+         break;
+     case CtrlComponents::ON_ROTATION:
+         hitRes=rotation->TraceByLineGetNearestMesh(lineBeginPos,lineVector);
+         break;
+     }
+
+     if (hitRes.second) {
+         auto name=hitRes.second->GetName();
+         if (name == "X")transformAxis = X;
+         if (name == "Y")transformAxis = Y;
+         if (name == "Z")transformAxis = Z;
+         if (name == "XY")transformAxis = XY;
+         if (name == "XZ")transformAxis = XZ;
+         if (name == "YZ")transformAxis = YZ;
+         if (name == "XYZ")transformAxis = XYZ;
+
+         return true;
+     }
+     else
+     {
+         return false;
+     }
 
  }

@@ -21,7 +21,8 @@ std::string cMesh::GetName()
 
 TransformCtrlComponent::TransformCtrlComponent(Graphics& gfx, std::string filePath, float _loadScale) :
 	loadScale(_loadScale),
-	CollisionGeomerty(gfx)
+	CollisionGeomerty(gfx),
+	filePath(filePath)
 {
     Assimp::Importer imp;
     const auto pScene = imp.ReadFile(filePath.c_str(),
@@ -75,6 +76,21 @@ std::pair<CollisionGeomerty::CollisionRes, cMesh*> TransformCtrlComponent::Trace
 	return { hitResRet,nearestMesh };
 }
 
+void TransformCtrlComponent::Bind(Graphics& gfx) noexcept
+{
+
+}
+
+FTransform TransformCtrlComponent::GetTransform()
+{
+	return transform;
+}
+
+void TransformCtrlComponent::SetTransform(FTransform _transform)
+{
+	transform = _transform;
+}
+
 std::unique_ptr<cMesh> TransformCtrlComponent::ParseMesh(Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials)
 {
 	using namespace Bind;
@@ -115,7 +131,8 @@ std::unique_ptr<cMesh> TransformCtrlComponent::ParseMesh(Graphics& gfx, const ai
 		indices.push_back(face.mIndices[2]);
 	}
 	std::vector<std::shared_ptr<Bindable>> bindablePtrs;
-	const char* name = mesh.mName.C_Str();
+	std::string name = mesh.mName.C_Str();
+	name += filePath;
 	bindablePtrs.push_back(VertexBuffer::Resolve(gfx, name, vbuf));
 	bindablePtrs.push_back(IndexBuffer::Resolve(gfx, name, indices));
 	bindablePtrs.push_back(Bind::PixelShader::Resolve(gfx, "ArrowPS.cso"));

@@ -33,7 +33,9 @@ public:
 	TransformCtrlComponent(Graphics& gfx,std::string filePath,float _loadScale=0.01);
 	void Draw(Graphics& gfx) const noexcept override;
 	std::pair<CollisionRes, cMesh*> TraceByLineGetNearestMesh(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector);
-
+	void Bind(Graphics& gfx)noexcept override;
+	FTransform GetTransform();
+	void SetTransform(FTransform _transform);
 private:
 	std::unique_ptr<cMesh> ParseMesh(Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials);
 	std::unique_ptr<Node> ParseNode(int& nextId, const aiNode& node) noexcept;
@@ -48,4 +50,6 @@ private:
 	DirectX::XMFLOAT3 tlineBeginPos;
 	DirectX::XMFLOAT3 tlineVector;
 	std::vector<std::pair<cMesh*, std::vector<CollisionGeomerty::CollisionRes>>>hitResults;
+
+	std::string filePath;
 };

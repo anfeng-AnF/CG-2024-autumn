@@ -24,9 +24,9 @@ App::App(UINT width, UINT height)
 	wnd.DisableCursor();
 
 	auto a=Sphere::Make(4.0f);
-	//ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices));
-	//ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices,DirectX::XMFLOAT3{ 10.0f,0.0f,0.0f }));
-	//ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices,DirectX::XMFLOAT3{ 0.0f,10.0f,0.0f }));
+	ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices));
+	ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices,DirectX::XMFLOAT3{ 10.0f,0.0f,0.0f }));
+	ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices,DirectX::XMFLOAT3{ 0.0f,10.0f,0.0f }));
 
 	Dvtx::VertexBuffer vbuf(Dvtx::VertexLayout{}.Append(Dvtx::VertexLayout::Position3D));
 	vbuf.EmplaceBack(DirectX::XMFLOAT3{ 100.0f,0.0f,100.0f });
@@ -94,16 +94,16 @@ void App::DoFrame()
 	axis.Draw(wnd.Gfx());
 
 
-		if (!wnd.mouse.RightIsPressed())
-		{
-			wnd.EnableCursor();
-			wnd.mouse.DisableRaw();
-		}
-		else
-		{
-			wnd.DisableCursor();
-			wnd.mouse.EnableRaw();
-		}
+	if (!wnd.mouse.RightIsPressed())
+	{
+		wnd.EnableCursor();
+		wnd.mouse.DisableRaw();
+	}
+	else
+	{
+		wnd.DisableCursor();
+		wnd.mouse.EnableRaw();
+	}
 
 
 	if (!wnd.CursorEnabled())
@@ -141,6 +141,7 @@ void App::DoFrame()
 	}
 
 
+
 	while (const auto delta = wnd.mouse.ReadRawDelta())
 	{
 		if (!wnd.CursorEnabled())
@@ -148,16 +149,27 @@ void App::DoFrame()
 			cam.RotatePitchYaw((float)delta->x, (float)delta->y);
 		}
 	}
+	static bool isUseCC;
 	while (const auto delta = wnd.mouse.Read())
 	{
-		if (delta->GetType() == Mouse::Event::Type::LPress) 
+		if (delta->GetType() == Mouse::Event::Type::LPress)
 		{
-			std::pair<int,int>pos=delta->GetPos();
+			if (isUseCC) {
+				//
+			}
+			std::pair<int, int>pos = delta->GetPos();
 			std::ostringstream oss;
-			oss << "Position: (" << pos.first << ", " << pos.second << ")"<<std::endl;
+			oss << "Position: (" << pos.first << ", " << pos.second << ")" << std::endl;
 			OutputDebugStringA(oss.str().c_str());
-			if (ctrl.SelectGeomerty(pos.first, pos.second, width, height,isPerspective)) {
+			if (ctrl.SelectGeomerty(pos.first, pos.second, width, height, isPerspective)) {
 				//ctrl.TransformGeomerty(wnd);
+				isUseCC = ctrl.IsUseCtrlComponent();
+			}
+		}
+		if (delta->GetType() == Mouse::Event::Type::LRelease) {
+			if (isUseCC) {
+				ctrl.EndComponentTransform();
+				isUseCC = false;
 			}
 		}
 		if (wnd.CursorEnabled())break;

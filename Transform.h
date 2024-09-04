@@ -23,6 +23,17 @@ public:
         scale(_scale),
         rotation(_rotation)
     {}
+    FTransform(const XMMATRIX& matrix)
+    {
+        // 提取缩放、旋转和位置
+        XMVECTOR scaling, rotationQuat, translation;
+        XMMatrixDecompose(&scaling, &rotationQuat, &translation, matrix);
+
+        position = translation;
+        scale = scaling;
+        rotation = rotationQuat;
+    }
+
     // 获取变换矩阵
     XMMATRIX GetMatrix() const {
         XMMATRIX scaleMatrix = XMMatrixScalingFromVector(scale);
@@ -30,6 +41,8 @@ public:
         XMMATRIX translationMatrix = XMMatrixTranslationFromVector(position);
         return scaleMatrix * rotationMatrix * translationMatrix;
     }
+
+    FTransform operator+(const FTransform& other) const;
 
     XMFLOAT3 GetRotationEuler()noexcept;
     XMVECTOR ComputeRotationQuaternion(const XMVECTOR& from, const XMVECTOR& to) noexcept;

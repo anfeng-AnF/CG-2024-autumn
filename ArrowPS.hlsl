@@ -1,6 +1,6 @@
 cbuffer CBuf : register(b3)
 {
-    float4 color1;
+    float4 ColorScale;
 };
 
 struct PSIn
@@ -11,5 +11,5 @@ struct PSIn
 
 float4 main(PSIn p) : SV_Target
 {
-    return p.color;
+    return float4(p.color.rgb, 0.1f);
 }
