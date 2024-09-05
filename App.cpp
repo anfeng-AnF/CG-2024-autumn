@@ -140,6 +140,13 @@ void App::DoFrame()
 			cam.RotateRoll(-1.0f);
 		}
 	}
+	else
+	{
+		auto buffer = wnd.Kbd.ReadChar();
+		if (buffer.has_value()) {
+			ctrl.ChangeTransformationMethod(buffer.value());
+		}
+	}
 
 
 	std::pair<int, int> lastFarmPos;

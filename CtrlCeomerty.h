@@ -83,6 +83,8 @@ public:
     bool SelectGeomerty(int click_x, int click_y, const int windowWidth, const int windowHeight, bool isPerspective=true);
     void TransformGeomerty(Window&wnd);
 
+    void ChangeTransformationMethod(const char buffer);
+
     void EndComponentTransform();
     bool IsUseCtrlComponent();
     void OnTransformComponent(std::pair<int, int> screenPos, int wndWidth, int wndHeight);
@@ -109,6 +111,7 @@ private:
 
     CtrlComponents ctrlComponent;
     bool isUseCtrlComponent;
+    int transformationMethod = 0;
 private:
 };
 

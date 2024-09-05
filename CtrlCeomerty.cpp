@@ -140,6 +140,7 @@
                  selectedGeoNum--;
              }
          }
+         ctrlComponent.SetStatue(CtrlComponents::NONE);
          return false;
      }
 
@@ -208,11 +209,11 @@
     ImGui::Text("Color");
     ImGui::ColorEdit3("RGB", &color.x);
     ImGui::Text("--------Transform--------");
-    static int choose = 0;
-    ImGui::RadioButton("None", &choose, 0);
-    ImGui::RadioButton("Translate   ", &choose, 1);
-    ImGui::RadioButton("Scale       ", &choose, 2);
-    ImGui::RadioButton("Rotation    ", &choose, 3);
+    transformationMethod;
+    ImGui::RadioButton("None", &transformationMethod, 0);
+    ImGui::RadioButton("Translate   ", &transformationMethod, 1);
+    ImGui::RadioButton("Rotation    ", &transformationMethod, 3);
+    ImGui::RadioButton("Scale       ", &transformationMethod, 2);
     FTransform a= ctrlComponent.GetDeltaTransform();
     XMFLOAT3 forward, right, up;
     XMStoreFloat3(&forward, a.GetForwardVector());
@@ -222,7 +223,7 @@
     ImGui::Text("Right Vector: %.2f, %.2f, %.2f", right.x, right.y, right.z);
     ImGui::Text("Up Vector: %.2f, %.2f, %.2f", up.x, up.y, up.z);
     ImGui::EndChild();
-    switch (choose)
+    switch (transformationMethod)
     {
     case 0:
         ctrlComponent.SetStatue(CtrlComponents::NONE);
@@ -248,6 +249,31 @@
         }
     }
 }
+
+ void CtrlGeomerty::ChangeTransformationMethod(const char buffer)
+ {
+     switch (buffer)
+     {
+     case 'w':
+     case 'W':
+         transformationMethod = 1;  // Translation
+         break;
+     case 'e':
+     case 'E':
+         transformationMethod = 3;  // Rotation
+         break;
+     case 'r':
+     case 'R':
+         transformationMethod = 2;  // Scale
+         break;
+     case 'q':
+     case 'Q':
+         transformationMethod = 0;  // Select (None)
+         break;
+     default:
+         break;
+     }
+ }
 
  void CtrlGeomerty::EndComponentTransform()
  {
