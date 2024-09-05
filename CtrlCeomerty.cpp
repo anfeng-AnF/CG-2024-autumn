@@ -199,9 +199,9 @@
     ImGui::SliderFloat("p Y", &reinterpret_cast<float*>(&deltaTransform.position)[1], -100.0f, 100.0f);
     ImGui::SliderFloat("p Z", &reinterpret_cast<float*>(&deltaTransform.position)[2], -100.0f, 100.0f);
     ImGui::Text("Scale");
-    ImGui::SliderFloat("s X", &reinterpret_cast<float*>(&deltaTransform.scale)[0], -10.0f, 100.0f);
-    ImGui::SliderFloat("s Y", &reinterpret_cast<float*>(&deltaTransform.scale)[1], -10.0f, 100.0f);
-    ImGui::SliderFloat("s Z", &reinterpret_cast<float*>(&deltaTransform.scale)[2], -10.0f, 100.0f);
+    ImGui::SliderFloat("s X", &reinterpret_cast<float*>(&deltaTransform.scale)[0], 0.0f, 10.0f);
+    ImGui::SliderFloat("s Y", &reinterpret_cast<float*>(&deltaTransform.scale)[1], 0.0f, 10.0f);
+    ImGui::SliderFloat("s Z", &reinterpret_cast<float*>(&deltaTransform.scale)[2], 0.0f, 10.0f);
     ImGui::Text("Rotation");
     ImGui::SliderFloat("r X", &DeltaRotationEuler.x, -180.0f, 180.0f);
     ImGui::SliderFloat("r Y", &DeltaRotationEuler.y, -180.0f, 180.0f);
@@ -298,7 +298,7 @@
  {
      pTranslation    = std::make_unique<TransformCtrlComponent>(gfx, posFilePath);
      pScale          = std::make_unique<TransformCtrlComponent>(gfx, scaleFilePath);
-     pRotation       = std::make_unique<TransformCtrlComponent>(gfx, rotateFilePath);
+     pRotation       = std::make_unique<TransformCtrlComponent>(gfx, rotateFilePath,0.015f);
  }
 
  void CtrlComponents::Draw(Graphics& gfx) noexcept
@@ -425,6 +425,7 @@
  }
 
 
+#define GetScale(delta,vector) std::abs(XMVectorScale(XMVector3Dot(delta, rightVector),XMVector3Length(rightVector).m128_f32[0]).m128_f32[0])
  XMMATRIX CtrlComponents::Scale(XMVECTOR delta)
  {
      XMMATRIX Translation;
@@ -432,7 +433,50 @@
      XMVECTOR forwardVector = componentTransform.GetForwardVector();//target Z
      XMVECTOR rightVector = componentTransform.GetRightVector();    //target X
      XMVECTOR upVector = componentTransform.GetUpVector();          //target Y
-     XMFLOAT3 scaleFactor;
+     XMFLOAT3 scaleFactor = { 1.0f,1.0f,1.0f};
+     delta = XMVectorAdd(delta, forwardVector);
+     delta = XMVectorAdd(delta, rightVector);
+     delta = XMVectorAdd(delta, upVector);
+     switch (transformAxis)
+     {
+     case CtrlComponents::NONE_AXIS:
+         break;
+     case CtrlComponents::X:
+         scaleFactor.x =GetScale(delta,rightVector);
+         break;
+     case CtrlComponents::Y:
+         scaleFactor.y = GetScale(delta, upVector);
+         break;
+     case CtrlComponents::Z:
+         scaleFactor.z = GetScale(delta,forwardVector);
+         break;
+     case CtrlComponents::XY:
+         scaleFactor.x = GetScale(delta, rightVector);
+         scaleFactor.y = GetScale(delta, upVector);
+         break;
+     case CtrlComponents::XZ:
+         scaleFactor.x = GetScale(delta, rightVector);
+         scaleFactor.z = GetScale(delta, forwardVector);
+         break;
+     case CtrlComponents::YZ:
+         scaleFactor.y = GetScale(delta, upVector);
+         scaleFactor.z = GetScale(delta, forwardVector);
+         break;
+     case CtrlComponents::XYZ:
+         scaleFactor.x = GetScale(delta, rightVector);
+         scaleFactor.y = GetScale(delta, upVector);
+         scaleFactor.z = GetScale(delta, forwardVector);
+         break;
+     }
+     
+     return XMMatrixScaling(scaleFactor.x,scaleFactor.y,scaleFactor.z);
+ }
+ #undef GetScale(delta,vector) XMVectorScale(XMVector3Dot(delta, rightVector),XMVector3Length(rightVector).m128_f32[0]).m128_f32[0]
+
+
+
+ XMMATRIX CtrlComponents::Rotation(XMVECTOR delta)
+ {
      switch (transformAxis)
      {
      case CtrlComponents::NONE_AXIS:
@@ -451,13 +495,9 @@
          break;
      case CtrlComponents::XYZ:
          break;
+     default:
+         break;
      }
-
-     return XMMATRIX();
- }
-
- XMMATRIX CtrlComponents::Rotation(XMVECTOR delta)
- {
      return XMMATRIX();
  }
 

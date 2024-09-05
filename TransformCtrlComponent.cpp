@@ -57,8 +57,9 @@ std::pair<CollisionGeomerty::CollisionRes, cMesh*> TransformCtrlComponent::Trace
 	hitResults.clear();
 	tlineBeginPos = lineBeginPos;
 	tlineVector = lineVector;
+	FTransform trans = FTransform(transform.position, { 1.0f,1.0f,1.0f }, transform.rotation);
 	for (auto& rootChild : pRoot->GetChild()) {
-		dfs(rootChild, transform.GetMatrix());
+		dfs(rootChild, trans.GetMatrix());
 	}
 
 	float minDistance = D3D11_FLOAT32_MAX;
