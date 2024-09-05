@@ -86,6 +86,8 @@
         //enter to transform model
         ctrlComponent.BeginTransform({ click_x,click_y }, windowWidth, windowHeight);
         this->isUseCtrlComponent = true;
+        ctrlComponent.SetTransform(currentTransformReference);
+        ctrlComponent.SetBeginTransform(currentTransformReference);
         return;
     }
 
@@ -120,7 +122,7 @@
      deltaTransform = FTransform{};
      DeltaRotationEuler = { 0.0f,0.0f,0.0f };
      color = { -1.0f,-1.0f,-1.0f };
-     for (auto& val : vSelectedGeomertys) {
+     for (auto& val : mapSelectedGeomertys) {
          val.second = val.first->GetTransform();
      }
 
@@ -128,8 +130,9 @@
      if (this->isUseCtrlComponent)return true;
      pGeoPair pNearestGeo = TraceByLineNearestGeo();
 
+     //if none geo selected,set no selected
      if (!pNearestGeo) {
-         vSelectedGeomertys.clear();
+         mapSelectedGeomertys.clear();
          for (auto& geo : Geomertys) {
              if (geo.second) {
                  geo.first->SetSelect(false);
@@ -139,27 +142,46 @@
          }
          return false;
      }
+
      if (Geomertys[pNearestGeo->first]) {
          Geomertys[pNearestGeo->first] = false;
          pNearestGeo->first->SetSelect(false);
          selectedGeoNum--;
-         vSelectedGeomertys.erase(pNearestGeo->first);
+         mapSelectedGeomertys.erase(pNearestGeo->first);
      }
      else
      {
          Geomertys[pNearestGeo->first] = true;
          pNearestGeo->first->SetSelect(true);
          selectedGeoNum++;
-         auto a = vSelectedGeomertys.find(pNearestGeo->first);
-         vSelectedGeomertys[pNearestGeo->first] = pNearestGeo->first->GetTransform();
+         auto a = mapSelectedGeomertys.find(pNearestGeo->first);
+         mapSelectedGeomertys[pNearestGeo->first] = pNearestGeo->first->GetTransform();
      }
+
+     //if selected anything ,recaculate transfrom origin point transform
+
+     XMVECTOR pos = { 0.0f,0.0f,0.0f,0.0f };
+     for (auto& geo : this->mapSelectedGeomertys) {
+         //apply transform
+         pos = XMVectorAdd(pos, geo.second.position);
+         geo.second = geo.first->GetTransform();
+     }
+     pos = XMVectorScale(pos, 1.0f / this->mapSelectedGeomertys.size());
+     currentTransformReference.position = pos;
+     //if selected only one geo,use it's rotation 
+     if (this->mapSelectedGeomertys.size() == 1) {
+         currentTransformReference.rotation = mapSelectedGeomertys.begin()->second.rotation;
+     }
+     ctrlComponent.SetTransform(currentTransformReference);
+     ctrlComponent.SetBeginTransform(currentTransformReference);
+
      return true;
  }
 
  void CtrlGeomerty::TransformGeomerty(Window& wnd)
 {
     std::ostringstream oss;
-    for (auto& val : vSelectedGeomertys) {
+    for (auto& val : mapSelectedGeomertys) {
         oss << typeid(*val.first.get()).name() << std::endl;
     }
     ImGui::BeginChild("transform", { 0,0 });
@@ -167,6 +189,9 @@
         ImGui::EndChild();
         return;
     }
+    static bool affectOriginOnly=false;
+    ImGui::Checkbox("Affect origin only?", &affectOriginOnly);
+
     ImGui::Text(oss.str().c_str());
     ImGui::Text("Position");
     ImGui::SliderFloat("p X", &reinterpret_cast<float*>(&deltaTransform.position)[0], -100.0f, 100.0f);
@@ -188,7 +213,7 @@
     ImGui::RadioButton("Translate   ", &choose, 1);
     ImGui::RadioButton("Scale       ", &choose, 2);
     ImGui::RadioButton("Rotation    ", &choose, 3);
-    FTransform a= ctrlComponent.GetTransform();
+    FTransform a= ctrlComponent.GetDeltaTransform();
     XMFLOAT3 forward, right, up;
     XMStoreFloat3(&forward, a.GetForwardVector());
     XMStoreFloat3(&right,   a.GetRightVector());
@@ -212,9 +237,10 @@
         ctrlComponent.SetStatue(CtrlComponents::ON_ROTATION);
         break;
     }
-    ctrlComponent.SetTransform(deltaTransform);
+    currentTransformReference = deltaTransform + ctrlComponent.GetBeginTransform();
+    ctrlComponent.SetTransform(currentTransformReference);
     deltaTransform.rotation = XMQuaternionRotationRollPitchYaw(DeltaRotationEuler.x, DeltaRotationEuler.y, DeltaRotationEuler.z);
-    for (auto& val : vSelectedGeomertys) {
+    for (auto& val : mapSelectedGeomertys) {
         FTransform newTransform = deltaTransform + val.second;
         val.first->SetTransform(newTransform);
         if (color.x != -1.0f) {
@@ -301,7 +327,7 @@
      default:
          break;
      }
-     this->transform =FTransform(ret)+beginTransform;
+     //this->transform =FTransform(ret)+beginTransform;
      return ret;
  }
 
@@ -433,7 +459,7 @@
      return retVector;
  }
 
- FTransform CtrlComponents::GetTransform()
+ FTransform CtrlComponents::GetDeltaTransform()
  {
      switch (currentStatue)
      {
@@ -457,7 +483,7 @@
      transform = trans;
  }
 
- FTransform CtrlComponents::BeginGetTransform()
+ FTransform CtrlComponents::GetBeginTransform()
  {
      return beginTransform;
  }

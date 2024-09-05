@@ -42,9 +42,9 @@ public:
     void BeginTransform(std::pair<int, int>bTransformPosScreen, int wndWidth, int wndHeight);
     void EndTransform();
 
-    FTransform GetTransform();
+    FTransform GetDeltaTransform();
     void SetTransform(FTransform trans);
-    FTransform BeginGetTransform();
+    FTransform GetBeginTransform();
     void SetBeginTransform(FTransform trans);
 
     bool TraceByLineSelectTransformAxis(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector);
@@ -96,7 +96,7 @@ private:
     Graphics& gfx;
 
     std::unordered_map<std::shared_ptr<CollisionGeomerty>, bool>Geomertys;
-    std::unordered_map<std::shared_ptr<CollisionGeomerty>,FTransform>vSelectedGeomertys; //selected geo and pervious transform
+    std::unordered_map<std::shared_ptr<CollisionGeomerty>,FTransform>mapSelectedGeomertys; //selected geo and pervious transform
     UINT16 selectedGeoNum = 0;
     FTransform deltaTransform;
     XMFLOAT3 DeltaRotationEuler;
