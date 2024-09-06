@@ -48,11 +48,15 @@ public:
     void SetBeginTransform(FTransform trans);
 
     bool TraceByLineSelectTransformAxis(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector);
+
+    std::pair<XMFLOAT3, XMFLOAT3> ScreenToWorldRay(const std::pair<int, int>& screenPos,int wndWidth,int wndHeight,const XMMATRIX& viewMatrix,const XMMATRIX& projectionMatrix,bool isPerspective);
+    std::optional<XMFLOAT3> RayIntersectsPlane(const XMFLOAT3& rayOrigin, const XMFLOAT3& rayDirection, const XMVECTOR& planePointVec, const XMVECTOR& planeNormalVec);
 private:
     XMMATRIX Translation(XMVECTOR delta);
     XMMATRIX Scale(XMVECTOR delta);
-    XMMATRIX Rotation(XMVECTOR delta);
+    XMMATRIX Rotation(int wndWidth, int wndHeight);
     XMVECTOR ScreenToWorld(std::pair<int, int>deltaPosScreen, int wndWidth, int wndHeight);
+
 private:
     std::unique_ptr<TransformCtrlComponent> pTranslation;
     std::unique_ptr<TransformCtrlComponent> pScale;
@@ -69,6 +73,8 @@ private:
     FTransform beginTransform;
 
     bool isInitialized = false;
+    //for Rotation
+    XMFLOAT3 BeginRotationPosWorld;
 };
 
 class CtrlGeomerty

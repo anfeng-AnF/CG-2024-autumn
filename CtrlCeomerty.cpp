@@ -338,18 +338,20 @@
      auto posWorld = this->ScreenToWorld(deltaTransfeomPosScreen, wndWidth, wndHeight);
      auto deltaPosWorld = XMVectorSubtract(posWorld, BeginPosWorld);
 
-     XMMATRIX ret=XMMatrixIdentity();
+     XMMATRIX ret = XMMatrixIdentity();
      switch (currentStatue)
      {
      case CtrlComponents::ON_TRANSLATION:
-         ret=Translation(deltaPosWorld);
+         ret = Translation(deltaPosWorld);
          break;
      case CtrlComponents::ON_SCALE:
-         ret=Scale(deltaPosWorld);
+         ret = Scale(deltaPosWorld);
          break;
      case CtrlComponents::ON_ROTATION:
-         ret=Rotation(deltaPosWorld);
-         break;
+     {
+         ret=Rotation(wndWidth, wndHeight);
+     }
+     break;
      default:
          break;
      }
@@ -363,6 +365,37 @@
      this->deltaTransfeomPosScreen = bTransformPosScreen;
      this->BeginPosWorld = this->ScreenToWorld(bTransformPosScreen,wndWidth,wndHeight);
      isInitialized = true;
+     switch (currentStatue)
+     {
+     case CtrlComponents::NONE:
+         break;
+     case CtrlComponents::ON_TRANSLATION:
+         break;
+     case CtrlComponents::ON_SCALE:
+         break;
+     case CtrlComponents::ON_ROTATION:
+     {
+
+         auto line = ScreenToWorldRay(bTransformPosScreen, wndWidth, wndHeight, cam.GetMatrix(), gfx.GetProjection(), true);
+         switch (transformAxis)
+         {
+         case CtrlComponents::X:
+             this->BeginRotationPosWorld = this->RayIntersectsPlane(line.first, line.second, transform.position, transform.GetRightVector()).value();
+             break;
+         case CtrlComponents::Y:
+             this->BeginRotationPosWorld = this->RayIntersectsPlane(line.first, line.second, transform.position, transform.GetUpVector()).value();
+             break;
+         case CtrlComponents::Z:
+             this->BeginRotationPosWorld = this->RayIntersectsPlane(line.first, line.second, transform.position, transform.GetForwardVector()).value();
+             break;
+         default:
+             break;
+         }
+     }
+         break;
+     default:
+         break;
+     }
  }
 
  void CtrlComponents::EndTransform()
@@ -474,32 +507,63 @@
  #undef GetScale(delta,vector) XMVectorScale(XMVector3Dot(delta, rightVector),XMVector3Length(rightVector).m128_f32[0]).m128_f32[0]
 
 
+#define computeAngel(vec) curPos=this->RayIntersectsPlane(line.first, line.second, transform.position, vec).value();\
+ angel = computeRotationAngle(XMVectorSubtract(XMLoadFloat3(&BeginRotationPosWorld), transform.position), XMVectorSubtract(XMLoadFloat3(&curPos), transform.position), vec);
 
- XMMATRIX CtrlComponents::Rotation(XMVECTOR delta)
+ XMMATRIX CtrlComponents::Rotation(int wndWidth, int wndHeight)
  {
+     auto line = this->ScreenToWorldRay(
+         { deltaTransfeomPosScreen.first + this->beginTransformPosScreen.first,
+         deltaTransfeomPosScreen.second + this->beginTransformPosScreen.second }, 
+         wndWidth, wndHeight, cam.GetMatrix(), gfx.GetProjection(), true);
+
+     auto computeRotationAngle = [](const XMVECTOR fromVec, const XMVECTOR toVec,const XMVECTOR planeNormal) -> float
+         {
+             // 归一化输入向量
+             XMVECTOR normFromVec = XMVector3Normalize(fromVec);
+             XMVECTOR normToVec = XMVector3Normalize(toVec);
+
+             // 计算旋转轴（叉积）
+             XMVECTOR rotationAxis = XMVector3Cross(normFromVec, normToVec);
+
+             // 计算点积
+             float dotProduct = XMVectorGetX(XMVector3Dot(normFromVec, normToVec));
+
+             // 夹角的弧度
+             float angle = std::acos(std::clamp(dotProduct, -1.0f, 1.0f));
+
+             // 计算旋转方向的标志（正向还是负向）
+             float sign = XMVectorGetX(XMVector3Dot(rotationAxis, planeNormal));
+             if (sign < 0.0f)
+             {
+                 angle = -angle; // 如果叉积方向与法向量方向相反，旋转角度为负
+             }
+
+             return angle;
+         };
+     XMFLOAT3 curPos;
+     float angel = 0.0f;
      switch (transformAxis)
      {
-     case CtrlComponents::NONE_AXIS:
-         break;
      case CtrlComponents::X:
+         computeAngel(transform.GetRightVector());
+         return XMMatrixRotationRollPitchYaw(angel,0.0f,0.0f);
          break;
      case CtrlComponents::Y:
+         computeAngel(transform.GetUpVector());
+         return XMMatrixRotationRollPitchYaw(0.0f ,angel, 0.0f);
          break;
      case CtrlComponents::Z:
-         break;
-     case CtrlComponents::XY:
-         break;
-     case CtrlComponents::XZ:
-         break;
-     case CtrlComponents::YZ:
-         break;
-     case CtrlComponents::XYZ:
+         computeAngel(transform.GetForwardVector());
+         return XMMatrixRotationRollPitchYaw(0.0f, 0.0f, angel);
          break;
      default:
+         return XMMatrixIdentity();
          break;
      }
-     return XMMATRIX();
  }
+#undef computeAngel(vec) curPos=this->RayIntersectsPlane(line.first, line.second, transform.position, vec).value();\
+ angel = computeRotationAngle(XMVectorSubtract(XMLoadFloat3(&BeginRotationPosWorld), transform.position), XMVectorSubtract(XMLoadFloat3(&curPos), transform.position), vec);
 
  XMVECTOR CtrlComponents::ScreenToWorld(std::pair<int, int> deltaPosScreen, int wndWidth, int wndHeight)
  {
@@ -594,4 +658,76 @@
          return false;
      }
 
+ }
+
+ std::pair<XMFLOAT3, XMFLOAT3> CtrlComponents::ScreenToWorldRay(const std::pair<int, int>& screenPos, int wndWidth, int wndHeight, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, bool isPerspective)
+ {
+     XMFLOAT3 rayOrigin, rayDirection;
+
+     // 计算标准化设备坐标 (NDC)
+     float ndcX = (2.0f * screenPos.first) / wndWidth - 1.0f;
+     float ndcY = 1.0f - (2.0f * screenPos.second) / wndHeight;
+     float ndcZ = 1.0f; // 对于透视投影
+
+     // 计算反变换矩阵
+     XMMATRIX invViewMatrix = XMMatrixInverse(nullptr, viewMatrix);
+     XMMATRIX invProjMatrix = XMMatrixInverse(nullptr, projectionMatrix);
+
+     if (isPerspective) {
+         // Step 2: 将 NDC 转换为视图空间坐标
+         XMVECTOR rayNDC = XMVectorSet(ndcX, ndcY, ndcZ, 1.0f);
+         XMVECTOR rayViewSpace = XMVector3TransformCoord(rayNDC, invProjMatrix);
+
+         // Step 3: 将视图空间坐标转换为世界空间射线
+         XMVECTOR rayWorldSpace = XMVector3TransformCoord(rayViewSpace, invViewMatrix);
+
+         // 获取相机位置作为射线的起点
+         XMVECTOR cameraPosition = invViewMatrix.r[3];
+         // 透视视图
+         rayWorldSpace = XMVector3Normalize(rayWorldSpace);
+         XMStoreFloat3(&rayDirection, rayWorldSpace);
+         XMStoreFloat3(&rayOrigin, cameraPosition);
+     }
+     else {
+         // 正交投影的情况
+         rayDirection = { 0.0f, 0.0f, 1.0f }; // 正交投影下，射线方向是相机前方的方向
+         XMStoreFloat3(&rayOrigin, invViewMatrix.r[3]);
+     }
+
+     return { rayOrigin, rayDirection };
+ }
+
+ std::optional<XMFLOAT3> CtrlComponents::RayIntersectsPlane(const XMFLOAT3& rayOrigin, const XMFLOAT3& rayDirection, const XMVECTOR& planePointVec, const XMVECTOR& planeNormalVec)
+ {
+     // 将输入的浮点数向量转换为 XMVECTOR
+     XMVECTOR rayOriginVec = XMLoadFloat3(&rayOrigin);
+     XMVECTOR rayDirectionVec = XMLoadFloat3(&rayDirection);
+
+     // 计算射线方向与面法向量的点积
+     float denominator = XMVectorGetX(XMVector3Dot(rayDirectionVec, planeNormalVec));
+
+     // 如果点积接近零，则射线与面平行
+     if (std::fabs(denominator) < 1e-6f)
+     {
+         return std::nullopt; // 没有交点
+     }
+
+     // 计算射线起点到面上的点的向量
+     XMVECTOR rayToPlaneVec = planePointVec - rayOriginVec;
+
+     // 计算参数 t
+     float t = XMVectorGetX(XMVector3Dot(rayToPlaneVec, planeNormalVec)) / denominator;
+
+     // 如果 t 小于 0，则交点在射线的反向方向
+     if (t < 0.0f)
+     {
+         return std::nullopt; // 没有交点
+     }
+
+     // 计算交点位置
+     XMVECTOR intersectionVec = rayOriginVec + t * rayDirectionVec;
+     XMFLOAT3 intersectionPoint;
+     XMStoreFloat3(&intersectionPoint, intersectionVec);
+
+     return intersectionPoint; // 返回交点坐标
  }
