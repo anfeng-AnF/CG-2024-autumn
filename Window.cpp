@@ -141,6 +141,30 @@ void Window::HideCursor()noexcept
 	while (::ShowCursor(FALSE) >= 0);
 }
 
+void Window::UpdateMousePosition(int deltaX, int deltaY) noexcept{
+	POINT cursorPos;
+	GetCursorPos(&cursorPos);
+	ScreenToClient(this->hWnd, &cursorPos);
+	int newX = cursorPos.x + deltaX;
+	int newY = cursorPos.y + deltaY;
+	if (newX >= width) {
+		newX = 0;
+	}
+	else if (newX < 0) {
+		newX = width - 1;
+	}
+	if (newY >= height) {
+		newY = 0;
+	}
+	else if (newY < 0) {
+		newY = height - 1;
+	}
+	POINT newCursorPos = { newX, newY };
+	ClientToScreen(this->hWnd, &newCursorPos);
+	SetCursorPos(newCursorPos.x, newCursorPos.y);
+}
+
+
 void Window::ConfineCursor() noexcept
 {
 	RECT rect;
@@ -216,7 +240,7 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 	case WM_INPUT:
 	{
 		if (CursorEnabled()) {
-			break;
+			//break;
 		}
 		UINT size;
 		if (GetRawInputData(

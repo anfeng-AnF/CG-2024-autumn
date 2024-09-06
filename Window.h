@@ -41,6 +41,7 @@ public:
 	void EnableCursor() noexcept;
 	void DisableCursor() noexcept;
 	bool CursorEnabled() const noexcept;
+	void UpdateMousePosition(int deltaX, int deltaY) noexcept;
 
 private:
 	void ConfineCursor() noexcept;

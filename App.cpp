@@ -95,7 +95,7 @@ void App::DoFrame()
 
 
 	static bool isUseCC;
-	if (!wnd.mouse.RightIsPressed()&&!isUseCC)
+	if (!wnd.mouse.RightIsPressed()||isUseCC)
 	{
 		wnd.EnableCursor();
 		wnd.mouse.DisableRaw();
@@ -143,7 +143,7 @@ void App::DoFrame()
 	else
 	{
 		auto buffer = wnd.Kbd.ReadChar();
-		if (buffer.has_value()) {
+		if (buffer.has_value()&&wnd.CursorEnabled()) {
 			ctrl.ChangeTransformationMethod(buffer.value());
 		}
 	}
@@ -159,6 +159,7 @@ void App::DoFrame()
 		if (isUseCC) {
 			lastFarmPos.first += delta->x;
 			lastFarmPos.second += delta->y;
+			wnd.UpdateMousePosition(delta->x, delta->y);
 		}
 	}
 	if (isUseCC) {
