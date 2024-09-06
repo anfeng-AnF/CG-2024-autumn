@@ -36,7 +36,7 @@ private:
 	Camera cam;	
 	PointLight light;	
 	CtrlGeomerty ctrl;
-	//Model wall{ wnd.Gfx(),"Models\\RockWall\\RockWall.fbx" };
-	//Model nano{ wnd.Gfx(),"Models\\Lantern\\Lantern_Fixed1.fbx" };
+	Model wall{ wnd.Gfx(),"Models\\RockWall\\RockWall.fbx" };
+	Model nano{ wnd.Gfx(),"Models\\Lantern\\Lantern_Fixed1.fbx" };
 	Axis axis{ wnd.Gfx() };
 };

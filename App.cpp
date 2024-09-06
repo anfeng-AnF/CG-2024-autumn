@@ -23,10 +23,10 @@ App::App(UINT width, UINT height)
 	wnd.Gfx().SetProjection(Perspective);
 	wnd.DisableCursor();
 
-	auto a=Sphere::Make(4.0f);
-	ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices));
-	ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices,DirectX::XMFLOAT3{ 10.0f,0.0f,0.0f }));
-	ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices,DirectX::XMFLOAT3{ 0.0f,10.0f,0.0f }));
+	auto a=Sphere::Make(2.0f);
+	ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices, DirectX::XMFLOAT3{ 20.0f,0.0f,0.0f }));
+	ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices, DirectX::XMFLOAT3{ 10.0f,0.0f,0.0f }));
+	ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices, DirectX::XMFLOAT3{ 0.0f,10.0f,20.0f }));
 
 	Dvtx::VertexBuffer vbuf(Dvtx::VertexLayout{}.Append(Dvtx::VertexLayout::Position3D));
 	vbuf.EmplaceBack(DirectX::XMFLOAT3{ 100.0f,0.0f,100.0f });
@@ -88,8 +88,8 @@ void App::DoFrame()
 	wnd.Gfx().BeginFrame(0.07f, 0.0f, 0.12f);
 	wnd.Gfx().SetCamera(cam.GetMatrix());
 	light.Bind(wnd.Gfx(), cam.GetMatrix());
-	//nano.Draw(wnd.Gfx());
-	//wall.Draw(wnd.Gfx());
+	nano.Draw(wnd.Gfx());
+	wall.Draw(wnd.Gfx());
 	light.Draw(wnd.Gfx());
 	axis.Draw(wnd.Gfx());
 
@@ -208,8 +208,8 @@ void App::DoFrame()
 	cam.SpawnControlWindow();
 	light.SpawnControlWindow();
 	ShowImguiDemoWindow();
-	//nano.ShowWindow();
-	//wall.ShowWindow();
+	nano.ShowWindow();
+	wall.ShowWindow();
 
 	// present
 	wnd.Gfx().EndFrame();
