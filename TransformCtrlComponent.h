@@ -21,10 +21,16 @@ public:
 		Dvtx::VertexBuffer vbuf, std::vector<uint16_t> indices, std::string meshName);
 	void SetName(std::string& s);
 	std::string GetName();
+	void Bind(Graphics& gfx)const;
+	void Draw(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const override;
+	void SetSelect(bool IsSelect);
 private:
+	bool selected=false;
 	std::string meshName;
 	std::unique_ptr<Dvtx::VertexBuffer> vertexBuffer;
 	std::vector<uint16_t> indices;
+	XMFLOAT4 colorScale = {0.7f,0.7f,0.7f,0.7f};
+	mutable Bind::PixelConstantBuffer<XMFLOAT4> pcBufColorScale;
 };
 
 class TransformCtrlComponent:public CollisionGeomerty

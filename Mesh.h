@@ -12,7 +12,7 @@ class Mesh : public Drawable
 {
 public:
 	Mesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>> bindPtrs);
-	void Draw(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const;
+	virtual void Draw(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const;
 	DirectX::XMMATRIX GetTransformXM() const noexcept override;
 protected:
 	mutable DirectX::XMFLOAT4X4 transform;

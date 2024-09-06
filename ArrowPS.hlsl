@@ -11,5 +11,5 @@ struct PSIn
 
 float4 main(PSIn p) : SV_Target
 {
-    return float4(p.color.rgb, 0.1f);
+    return float4(p.color.rgb, 1.0f)*ColorScale;
 }

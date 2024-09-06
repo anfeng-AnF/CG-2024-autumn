@@ -402,6 +402,7 @@
  {
      isInitialized = false;
      transformAxis = TransformAxis::NONE_AXIS;
+     this->selectedCMesh->SetSelect(false);
  }
 
  XMMATRIX CtrlComponents::Translation(XMVECTOR delta)
@@ -650,7 +651,9 @@
          if (name == "XZ")transformAxis = XZ;
          if (name == "YZ")transformAxis = YZ;
          if (name == "XYZ")transformAxis = XYZ;
+         hitRes.second->SetSelect(true);
 
+         this->selectedCMesh = hitRes.second;
          return true;
      }
      else

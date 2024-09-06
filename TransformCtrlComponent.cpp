@@ -6,7 +6,8 @@ cMesh::cMesh(Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>> bindPtr
 	Mesh(gfx, std::move(bindPtrs)),
 	vertexBuffer(std::make_unique<Dvtx::VertexBuffer>(vbuf)),
 	indices(std::move(indices)),
-	meshName(meshName)
+	meshName(meshName),
+	pcBufColorScale(gfx, 3u)
 {
 }
 void cMesh::SetName(std::string& s)
@@ -17,6 +18,27 @@ void cMesh::SetName(std::string& s)
 std::string cMesh::GetName()
 {
 	return this->meshName;
+}
+
+void cMesh::Bind(Graphics& gfx)const
+{
+	DirectX::XMFLOAT4 dataCopy;
+	if (selected)dataCopy = colorScale;
+	else dataCopy = { 1.0f,1.0f,1.0f,1.0f };
+	pcBufColorScale.Update(gfx, dataCopy);
+	pcBufColorScale.Bind(gfx);
+}
+
+void cMesh::Draw(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const
+{
+	Bind(gfx);
+	DirectX::XMStoreFloat4x4(&transform, accumulatedTransform);
+	Drawable::Draw(gfx);
+}
+
+void cMesh::SetSelect(bool IsSelect)
+{
+	selected = IsSelect;
 }
 
 TransformCtrlComponent::TransformCtrlComponent(Graphics& gfx, std::string filePath, float _loadScale) :
