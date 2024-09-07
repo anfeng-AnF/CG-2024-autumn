@@ -192,6 +192,9 @@
     <ClCompile Include="CtrlCeomerty.cpp">
       <Filter>D3DCore\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GeometryShader.cpp">
+      <Filter>D3DCore\Source Files\BIndable</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChiliWin.h">
@@ -358,6 +361,9 @@
     </ClInclude>
     <ClInclude Include="TransformCtrlComponent.h">
       <Filter>D3DCore\Header\Drawable</Filter>
+    </ClInclude>
+    <ClInclude Include="GeometryShader.h">
+      <Filter>D3DCore\Header\Bindable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
