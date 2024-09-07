@@ -146,12 +146,13 @@ void CollisionGeomerty::Draw(Graphics& gfx) const noexcept
 
 
 
-Line::Line(Graphics& gfx,Camera&cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos)
+Line::Line(Graphics& gfx,Camera&cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos,bool useBasicConstruct = true)
     :
     CollisionGeomerty(gfx,_vertexBuffer,_indices,_pos),
     cam(& cam),
     gfx(gfx)
 {
+    if (!useBasicConstruct)return;
     using namespace Bind;
     AddBind(VertexBuffer::Resolve(gfx, "LineCollisionGeomerty", *vertexBuffer));
     AddBind(IndexBuffer::Resolve(gfx, "LineCollisionGeomerty", indices));
@@ -331,7 +332,7 @@ void TriangelGeo::Draw(Graphics& gfx) const noexcept
     gfx.DrawIndexed(pIndexBuffer->GetCount());
 }
 
-WidthLine::WidthLine(Graphics& gfx, Camera& cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos, int lineWidth)
+WidthLine::WidthLine(Graphics& gfx, Camera& cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos, float lineWidth)
     :
     Line(gfx,cam,_vertexBuffer,_indices,_pos),
     width(lineWidth),
@@ -358,4 +359,11 @@ void WidthLine::Bind(Graphics& gfx) noexcept
 {
     gcBuf.Update(gfx, {width,width,width,width});
     gcBuf.Bind(gfx);
+}
+
+NurbsLine::NurbsLine(Graphics& gfx, Camera& cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos, int lineWidth)
+    :
+    Line(gfx, cam, _vertexBuffer, _indices, _pos,false)
+{
+
 }

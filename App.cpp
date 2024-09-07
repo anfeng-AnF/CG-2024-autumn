@@ -13,6 +13,8 @@ namespace dx = DirectX;
 #define Perspective XMMatrixPerspectiveLH(1.0f, height / (float)width, 0.5f, 100000)
 #define Orthographic XMMatrixOrthographicLH(30.0f, 30.0f* height / (float)width, 0.1f, 100000)
 
+DWORD mainThreadId = GetCurrentThreadId();
+
 App::App(UINT width, UINT height)
 	:
 	wnd(width, height, L"∏ ”Í"),

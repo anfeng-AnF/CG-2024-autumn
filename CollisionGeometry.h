@@ -54,7 +54,7 @@ protected:
 class Line:public CollisionGeomerty
 {
 public:
-	Line(Graphics& gfx,Camera&cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
+	Line(Graphics& gfx,Camera&cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f },bool useBasicConstruct=true);
 	void Bind(Graphics& gfx)noexcept override;
 	virtual std::vector<CollisionRes> TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix = XMMatrixIdentity()) override;
 	void Draw(Graphics& gfx)const noexcept override;
@@ -69,11 +69,17 @@ private:
 class WidthLine :public Line
 {
 public:
-	WidthLine(Graphics& gfx, Camera& cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f }, int lineWidth = 1);
+	WidthLine(Graphics& gfx, Camera& cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f }, float lineWidth = 1);
 	void Draw(Graphics& gfx)const noexcept override;
 	void Bind(Graphics& gfx)noexcept override;
 	Bind::GeometryConstantBuffer<XMFLOAT4> gcBuf;
 	float width;
+};
+
+class NurbsLine :public Line
+{
+public:
+	NurbsLine(Graphics& gfx, Camera& cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f }, int lineWidth = 1);
 };
 
 class TriangelGeo:public CollisionGeomerty
