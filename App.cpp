@@ -164,9 +164,11 @@ void App::DoFrame()
 	}
 	if (isUseCC) {
 		ctrl.OnTransformComponent(lastFarmPos,width,height);
+#ifdef DEBUG
 		std::ostringstream oss;
 		oss << lastFarmPos.first << "  " << lastFarmPos.second << std::endl;
 		OutputDebugStringA(oss.str().c_str());
+#endif // DEBUG
 	}
 	while (const auto delta = wnd.mouse.Read())
 	{

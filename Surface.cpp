@@ -116,8 +116,11 @@ Surface Surface::FromFile(const std::wstring& name)
 {
 	unsigned int width = 0;
 	unsigned int height = 0;
+#ifdef DEBUG
+	OutputDebugStringA("loading texture: ");
 	OutputDebugString(name.c_str());
-	//OutputDebugStringA((LPCSTR)'\n');
+	OutputDebugStringA("\n");
+#endif // DEBUG
 
 	std::unique_ptr<Color[]> pBuffer;
 	{

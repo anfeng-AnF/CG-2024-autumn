@@ -76,6 +76,8 @@ private:
     //for Rotation
     XMFLOAT3 BeginRotationPosWorld;
     cMesh* selectedCMesh;
+
+    float BeginTransformScale = 1.0f;
 };
 
 class CtrlGeomerty
@@ -119,6 +121,7 @@ private:
     CtrlComponents ctrlComponent;
     bool isUseCtrlComponent;
     int transformationMethod = 0;
+
 
 private:
 };

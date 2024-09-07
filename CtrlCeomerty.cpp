@@ -296,9 +296,9 @@
      gfx(gfx),
      cam(cam)
  {
-     pTranslation    = std::make_unique<TransformCtrlComponent>(gfx, posFilePath);
-     pScale          = std::make_unique<TransformCtrlComponent>(gfx, scaleFilePath);
-     pRotation       = std::make_unique<TransformCtrlComponent>(gfx, rotateFilePath,0.015f);
+     pTranslation    = std::make_unique<TransformCtrlComponent>(gfx,cam, posFilePath);
+     pScale          = std::make_unique<TransformCtrlComponent>(gfx,cam, scaleFilePath);
+     pRotation       = std::make_unique<TransformCtrlComponent>(gfx,cam, rotateFilePath,0.015f);
  }
 
  void CtrlComponents::Draw(Graphics& gfx) noexcept
@@ -361,6 +361,7 @@
 
  void CtrlComponents::BeginTransform(std::pair<int, int> bTransformPosScreen, int wndWidth, int wndHeight)
  {
+
      this->beginTransformPosScreen = bTransformPosScreen;
      this->deltaTransfeomPosScreen = bTransformPosScreen;
      this->BeginPosWorld = this->ScreenToWorld(bTransformPosScreen,wndWidth,wndHeight);
@@ -370,8 +371,10 @@
      case CtrlComponents::NONE:
          break;
      case CtrlComponents::ON_TRANSLATION:
+         this->BeginTransformScale = pTranslation->GetDynamicScaling(gfx, cam);
          break;
      case CtrlComponents::ON_SCALE:
+         this->BeginTransformScale = pScale->GetDynamicScaling(gfx, cam);
          break;
      case CtrlComponents::ON_ROTATION:
      {
@@ -454,7 +457,7 @@
          break;
      }
 
-     Translation = XMMatrixTranslationFromVector(XMVectorScale(projectedDelta,10.0f));
+     Translation = XMMatrixTranslationFromVector(XMVectorScale(projectedDelta,20.0f*BeginTransformScale));
      return Translation;
  }
 

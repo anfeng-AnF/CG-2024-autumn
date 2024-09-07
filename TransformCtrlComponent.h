@@ -4,6 +4,7 @@
 #include "CollisionGeometry.h"
 #include "Vertex.h"
 #include "Mesh.h"
+#include "Camera.h"
 #include <optional>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -36,12 +37,13 @@ private:
 class TransformCtrlComponent:public CollisionGeomerty
 {
 public:
-	TransformCtrlComponent(Graphics& gfx,std::string filePath,float _loadScale=0.01);
+	TransformCtrlComponent(Graphics& gfx,Camera&cam, std::string filePath, float _loadScale = 0.01);
 	void Draw(Graphics& gfx) const noexcept override;
 	std::pair<CollisionRes, cMesh*> TraceByLineGetNearestMesh(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector);
 	void Bind(Graphics& gfx)noexcept override;
 	FTransform GetTransform();
 	void SetTransform(FTransform _transform);
+	float GetDynamicScaling(Graphics& gfx, Camera& cam)const;
 private:
 	std::unique_ptr<cMesh> ParseMesh(Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials);
 	std::unique_ptr<Node> ParseNode(int& nextId, const aiNode& node) noexcept;
@@ -58,4 +60,6 @@ private:
 	std::vector<std::pair<cMesh*, std::vector<CollisionGeomerty::CollisionRes>>>hitResults;
 
 	std::string filePath;
+	Camera* cam;
+	Graphics* gfx;
 };

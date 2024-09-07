@@ -41,10 +41,12 @@ void cMesh::SetSelect(bool IsSelect)
 	selected = IsSelect;
 }
 
-TransformCtrlComponent::TransformCtrlComponent(Graphics& gfx, std::string filePath, float _loadScale) :
+TransformCtrlComponent::TransformCtrlComponent(Graphics& gfx,Camera&cam, std::string filePath, float _loadScale) :
 	loadScale(_loadScale),
 	CollisionGeomerty(gfx),
-	filePath(filePath)
+	filePath(filePath),
+	cam(&cam),
+	gfx(&gfx)
 {
     Assimp::Importer imp;
     const auto pScene = imp.ReadFile(filePath.c_str(),
@@ -66,12 +68,17 @@ TransformCtrlComponent::TransformCtrlComponent(Graphics& gfx, std::string filePa
 
 void TransformCtrlComponent::Draw(Graphics& gfx) const noexcept
 {
-	//transform with out scale
-	FTransform trans = FTransform(transform.position, { 1.0f,1.0f,1.0f }, transform.rotation);
-	//add dynamic scale here
+	float scale = GetDynamicScaling(gfx,*cam);
 
-	pRoot->Draw(gfx, trans.GetMatrix());
+	FTransform dynamicTransform = FTransform(
+		transform.position,
+		{ scale, scale, scale },
+		transform.rotation
+	);
+
+	pRoot->Draw(gfx, dynamicTransform.GetMatrix());
 }
+
 
 std::pair<CollisionGeomerty::CollisionRes, cMesh*> TransformCtrlComponent::TraceByLineGetNearestMesh(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector)
 {
@@ -79,9 +86,17 @@ std::pair<CollisionGeomerty::CollisionRes, cMesh*> TransformCtrlComponent::Trace
 	hitResults.clear();
 	tlineBeginPos = lineBeginPos;
 	tlineVector = lineVector;
-	FTransform trans = FTransform(transform.position, { 1.0f,1.0f,1.0f }, transform.rotation);
+
+	float scale = GetDynamicScaling(*gfx,*cam);
+
+	FTransform dynamicTransform = FTransform(
+		transform.position,
+		{ scale, scale, scale },
+		transform.rotation
+	);
+
 	for (auto& rootChild : pRoot->GetChild()) {
-		dfs(rootChild, trans.GetMatrix());
+		dfs(rootChild, dynamicTransform.GetMatrix());
 	}
 
 	float minDistance = D3D11_FLOAT32_MAX;
@@ -115,15 +130,35 @@ void TransformCtrlComponent::SetTransform(FTransform _transform)
 	transform = _transform;
 }
 
+// 计算动态缩放因子
+float TransformCtrlComponent::GetDynamicScaling(Graphics& gfx, Camera& cam) const
+{
+
+	XMVECTOR objectPosition = transform.position;
+	XMMATRIX viewMatrix = cam.GetMatrix();
+	XMMATRIX projectionMatrix = gfx.GetProjection();
+	XMMATRIX viewProjectionMatrix = XMMatrixMultiply(viewMatrix, projectionMatrix);
+
+	XMVECTOR pos4 = XMVectorSetW(objectPosition, 1.0f);
+	XMVECTOR clipPos = XMVector4Transform(pos4, viewProjectionMatrix);
+
+	float depth = clipPos.m128_f32[3];
+
+	// 计算缩放因子
+	float referenceDepth = 20.0f;
+
+	return depth/ referenceDepth ;
+}
 std::unique_ptr<cMesh> TransformCtrlComponent::ParseMesh(Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials)
 {
 	using namespace Bind;
 	namespace dx = DirectX;
 	using Dvtx::VertexLayout;
 
-
+#ifdef DEBUG
 	OutputDebugStringA(mesh.mName.C_Str());
 	OutputDebugStringA("\n");
+#endif // DEBUG
 
 	aiColor3D acolor;
 	if (pMaterials[mesh.mMaterialIndex]->Get(AI_MATKEY_COLOR_DIFFUSE, acolor) != AI_SUCCESS) {
