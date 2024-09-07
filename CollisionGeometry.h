@@ -3,6 +3,7 @@
 #include "BindableCommon.h"
 #include "Vertex.h"
 #include "Transform.h"
+#include "Camera.h"
 #include <optional>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -53,7 +54,7 @@ protected:
 class Line:public CollisionGeomerty
 {
 public:
-	Line(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f },int lineWidth = 1);
+	Line(Graphics& gfx,Camera&cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f },int lineWidth = 1);
 	void Bind(Graphics& gfx)noexcept override;
 	virtual std::vector<CollisionRes> TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix = XMMatrixIdentity()) override;
 	void Draw(Graphics& gfx)const noexcept override;
@@ -63,6 +64,8 @@ private:
 private:
 	int lineWidth;
 	bool ShowCollision = false;
+	Camera* cam;
+	Graphics& gfx;
 };
 
 

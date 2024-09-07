@@ -146,10 +146,12 @@ void CollisionGeomerty::Draw(Graphics& gfx) const noexcept
 
 
 
-Line::Line(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos, int lineWidth)
+Line::Line(Graphics& gfx,Camera&cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos, int lineWidth)
     :
     CollisionGeomerty(gfx,_vertexBuffer,_indices,_pos),
-    lineWidth(lineWidth)
+    lineWidth(lineWidth),
+    cam(& cam),
+    gfx(gfx)
 {
     using namespace Bind;
     AddBind(VertexBuffer::Resolve(gfx, "LineCollisionGeomerty", *vertexBuffer));
@@ -184,7 +186,7 @@ void Line::Bind(Graphics& gfx) noexcept
     pCBufColor.Bind(gfx);
 }
 
-std::vector<CollisionGeomerty::CollisionRes> Line::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix)
+std::vector<CollisionGeomerty::CollisionRes> Line::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector,DirectX::XMMATRIX transformMatrix)
 {
     namespace dx = DirectX;
 
@@ -215,7 +217,7 @@ std::vector<CollisionGeomerty::CollisionRes> Line::TraceByLine(DirectX::XMFLOAT3
         v0 = { p0.x,p0.y,p0.z,1.0f };
         v1 = { p1.x,p1.y,p1.z,1.0f };
         v0 = XMVector3Transform(v0, transformMatrix);
-        v1 = XMVector3Transform(v1, transformMatrix);
+        v1 = XMVector3Transform(v1, transformMatrix); 
 
 
         dx::XMVECTOR rayOrigin = dx::XMLoadFloat3(&lineBeginPos);
@@ -241,9 +243,23 @@ std::vector<CollisionGeomerty::CollisionRes> Line::TraceByLine(DirectX::XMFLOAT3
         dx::XMVECTOR diff = pointOnRay - pointOnSegment;
         float distance = dx::XMVector3Length(diff).m128_f32[0];
 
-        //hitted line?
-        float minDistance=0.2f;
-        if (distance < minDistance) {
+        //hitted line? todo:use dynamic distance
+
+        XMVECTOR objectPosition = transform.position;
+        XMMATRIX viewMatrix = cam->GetMatrix();
+        XMMATRIX projectionMatrix = gfx.GetProjection();
+        XMMATRIX viewProjectionMatrix = XMMatrixMultiply(viewMatrix, projectionMatrix);
+
+        XMVECTOR pos4 = XMVectorSetW(objectPosition, 1.0f);
+        XMVECTOR clipPos = XMVector4Transform(pos4, viewProjectionMatrix);
+
+        float depth = clipPos.m128_f32[3];
+
+        // 计算缩放因子
+        float referenceDepth = 20.0f;
+        
+        float dynamicMinDistance= depth / referenceDepth;
+        if (distance < dynamicMinDistance) {
             result.push_back({
                 {
                     dx::XMVectorGetX(pointOnRay),

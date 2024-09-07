@@ -53,7 +53,7 @@ App::App(UINT width, UINT height)
 		ind.push_back(i+1);
 	}
 	ind.resize(numSegments * 2);
-	ctrl.AddGeomerty(std::make_shared<Line>(wnd.Gfx(), vbufLine, ind));
+	ctrl.AddGeomerty(std::make_shared<Line>(wnd.Gfx(),cam, vbufLine, ind));
 }
 int App::Go()
 {
@@ -88,8 +88,8 @@ void App::DoFrame()
 	wnd.Gfx().BeginFrame(0.07f, 0.0f, 0.12f);
 	wnd.Gfx().SetCamera(cam.GetMatrix());
 	light.Bind(wnd.Gfx(), cam.GetMatrix());
-	nano.Draw(wnd.Gfx());
-	wall.Draw(wnd.Gfx());
+	//Lantern.Draw(wnd.Gfx());
+	//wall.Draw(wnd.Gfx());
 	light.Draw(wnd.Gfx());
 	axis.Draw(wnd.Gfx());
 
@@ -210,8 +210,8 @@ void App::DoFrame()
 	cam.SpawnControlWindow();
 	light.SpawnControlWindow();
 	ShowImguiDemoWindow();
-	nano.ShowWindow();
-	wall.ShowWindow();
+	//Lantern.ShowWindow();
+	//wall.ShowWindow();
 
 	// present
 	wnd.Gfx().EndFrame();
