@@ -24,6 +24,11 @@ namespace Bind
 		GetContext(gfx)->GSSetShader(pGeometryShader.Get(), nullptr, 0u);
 	}
 
+	void GeometryShader::UnBind(Graphics& gfx) noexcept
+	{
+		GetContext(gfx)->GSSetShader(nullptr, nullptr, 0u);
+	}
+
 	ID3DBlob* GeometryShader::GetBytecode() const noexcept
 	{
 		return pBytecodeBlob.Get();

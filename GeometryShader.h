@@ -8,6 +8,7 @@ namespace Bind
 	public:
 		GeometryShader(Graphics& gfx, const std::string& path);
 		void Bind(Graphics& gfx) noexcept override;
+		void UnBind(Graphics& gfx)noexcept;
 		ID3DBlob* GetBytecode() const noexcept;
 		static std::shared_ptr<GeometryShader> Resolve(Graphics& gfx, const std::string& path);
 		static std::string GenerateUID(const std::string& path);

@@ -129,4 +129,47 @@ namespace Bind
 			return GenerateUID(slot);
 		}
 	};
+
+	template<typename C>
+	class GeometryConstantBuffer : public ConstantBuffer<C>
+	{
+		using ConstantBuffer<C>::pConstantBuffer;
+		using ConstantBuffer<C>::slot;
+		using Bindable::GetContext;
+
+	public:
+		using ConstantBuffer<C>::ConstantBuffer;
+
+		void Bind(Graphics& gfx) noexcept override
+		{
+			GetContext(gfx)->GSSetConstantBuffers(this->slot, 1u, pConstantBuffer.GetAddressOf());
+		}
+
+		static std::shared_ptr<GeometryConstantBuffer> Resolve(Graphics& gfx, const C& consts, UINT slot = 0)
+		{
+			return Codex::Resolve<GeometryConstantBuffer>(gfx, consts, slot);
+		}
+
+		static std::shared_ptr<GeometryConstantBuffer> Resolve(Graphics& gfx, UINT slot = 0)
+		{
+			return Codex::Resolve<GeometryConstantBuffer>(gfx, slot);
+		}
+
+		static std::string GenerateUID(const C&, UINT slot)
+		{
+			return GenerateUID(slot);
+		}
+
+		static std::string GenerateUID(UINT slot = 0)
+		{
+			using namespace std::string_literals;
+			return typeid(GeometryConstantBuffer).name() + "#"s + std::to_string(slot);
+		}
+
+		std::string GetUID() const noexcept override
+		{
+			return GenerateUID(slot);
+		}
+	};
+
 }

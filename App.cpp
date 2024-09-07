@@ -38,22 +38,34 @@ App::App(UINT width, UINT height)
 	//ctrl.AddGeomerty(wnd.Gfx(),vbuf,ind);
 
 	Dvtx::VertexBuffer vbufLine(Dvtx::VertexLayout{}.Append(Dvtx::VertexLayout::Position3D));
-	float radius = 1.0f; // 圆弧的半径
-	float startAngle = 0.0f; // 起始角度（弧度制）
-	float endAngle = DirectX::XM_PI * 2; // 终止角度（弧度制），这里是90度
-	int numSegments = 20; // 圆弧分割成的段数
+	float radius=5.0f;
+	int segmentCount=20;
+	float angleStep = DirectX::XM_2PI / segmentCount;
 	ind.clear();
-	for (int i = 0; i <= numSegments; ++i)
+	for (int i = 0; i < segmentCount; ++i)
 	{
-		float theta = startAngle + (endAngle - startAngle) * (i / static_cast<float>(numSegments));
-		float x = radius * cosf(theta);
-		float z = radius * sinf(theta);
-		vbufLine.EmplaceBack(DirectX::XMFLOAT3(x, 0.0f, z)); // 假设Y轴为0，即XZ平面上的圆弧
-		ind.push_back(i);
-		ind.push_back(i+1);
+		float angle = i * angleStep;
+
+		// 计算当前段的起点
+		float x = radius * cos(angle);
+		float y = radius * sin(angle);
+		vbufLine.EmplaceBack(DirectX::XMFLOAT3(x, y, 0.0f));
 	}
-	ind.resize(numSegments * 2);
-	ctrl.AddGeomerty(std::make_shared<Line>(wnd.Gfx(),cam, vbufLine, ind));
+
+	for (int i = 0; i < segmentCount-12; ++i)
+	{
+		int prevIndex = (i - 1 + segmentCount) % segmentCount;
+		int currIndex = i;
+		int nextIndex = (i + 1) % segmentCount;
+		int nextNextIndex = (i + 2) % segmentCount;
+
+		// 添加 4 个索引：前一个顶点，当前顶点，下一个顶点，再下一个顶点
+		ind.push_back(prevIndex);
+		ind.push_back(currIndex);
+		ind.push_back(nextIndex);
+		ind.push_back(nextNextIndex);
+	}
+	ctrl.AddGeomerty(std::make_shared<WidthLine>(wnd.Gfx(),cam, vbufLine, ind));
 }
 int App::Go()
 {

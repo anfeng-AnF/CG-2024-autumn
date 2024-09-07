@@ -428,5 +428,8 @@
     <FxCompile Include="LinePS.hlsl">
       <Filter>Shader\CG_Shader</Filter>
     </FxCompile>
+    <FxCompile Include="LineWidthGS.hlsl">
+      <Filter>Shader\CG_Shader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

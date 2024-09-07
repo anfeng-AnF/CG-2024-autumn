@@ -146,10 +146,9 @@ void CollisionGeomerty::Draw(Graphics& gfx) const noexcept
 
 
 
-Line::Line(Graphics& gfx,Camera&cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos, int lineWidth)
+Line::Line(Graphics& gfx,Camera&cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos)
     :
     CollisionGeomerty(gfx,_vertexBuffer,_indices,_pos),
-    lineWidth(lineWidth),
     cam(& cam),
     gfx(gfx)
 {
@@ -332,3 +331,29 @@ void TriangelGeo::Draw(Graphics& gfx) const noexcept
     gfx.DrawIndexed(pIndexBuffer->GetCount());
 }
 
+WidthLine::WidthLine(Graphics& gfx, Camera& cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos, int lineWidth)
+    :
+    Line(gfx,cam,_vertexBuffer,_indices,_pos),
+    width(lineWidth)
+{
+    auto it=std::find(binds.begin(), binds.end(), Bind::Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_LINELIST));
+    if(it!=binds.end())
+        *it = Bind::Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ);
+}
+
+void WidthLine::Draw(Graphics& gfx) const noexcept
+{
+    auto GS = Bind::GeometryShader::Resolve(gfx, "LineWidthGS.cso");
+    for (auto& b : binds)
+    {
+        b->Bind(gfx);
+    }
+    GS->Bind(gfx);
+    gfx.DrawIndexed(pIndexBuffer->GetCount());
+    GS->UnBind(gfx);
+}
+
+void WidthLine::Bind(Graphics& gfx) noexcept
+{
+
+}
