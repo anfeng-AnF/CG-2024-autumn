@@ -72,8 +72,7 @@ public:
 	WidthLine(Graphics& gfx, Camera& cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f }, int lineWidth = 1);
 	void Draw(Graphics& gfx)const noexcept override;
 	void Bind(Graphics& gfx)noexcept override;
-
-private:
+	Bind::GeometryConstantBuffer<XMFLOAT4> gcBuf;
 	float width;
 };
 

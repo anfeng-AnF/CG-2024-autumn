@@ -334,7 +334,8 @@ void TriangelGeo::Draw(Graphics& gfx) const noexcept
 WidthLine::WidthLine(Graphics& gfx, Camera& cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos, int lineWidth)
     :
     Line(gfx,cam,_vertexBuffer,_indices,_pos),
-    width(lineWidth)
+    width(lineWidth),
+    gcBuf(gfx)
 {
     auto it=std::find(binds.begin(), binds.end(), Bind::Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_LINELIST));
     if(it!=binds.end())
@@ -348,12 +349,13 @@ void WidthLine::Draw(Graphics& gfx) const noexcept
     {
         b->Bind(gfx);
     }
-    GS->Bind(gfx);
+    if (width > 0.02f)GS->Bind(gfx);
     gfx.DrawIndexed(pIndexBuffer->GetCount());
     GS->UnBind(gfx);
 }
 
 void WidthLine::Bind(Graphics& gfx) noexcept
 {
-
+    gcBuf.Update(gfx, {width,width,width,width});
+    gcBuf.Bind(gfx);
 }

@@ -222,6 +222,11 @@
     ImGui::Text("Forward Vector: %.2f, %.2f, %.2f", forward.x, forward.y, forward.z);
     ImGui::Text("Right Vector: %.2f, %.2f, %.2f", right.x, right.y, right.z);
     ImGui::Text("Up Vector: %.2f, %.2f, %.2f", up.x, up.y, up.z);
+    for (auto& val : mapSelectedGeomertys) {
+        if (auto wline = dynamic_cast<WidthLine*>(val.first.get())) {
+            ImGui::SliderFloat("Width", &wline->width, 0.00f, 1.5f);
+        }
+    }
     ImGui::EndChild();
     switch (transformationMethod)
     {

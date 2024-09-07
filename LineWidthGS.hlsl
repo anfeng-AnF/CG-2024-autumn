@@ -1,7 +1,6 @@
 cbuffer CBuf
 {
-    matrix modelView;
-    matrix modelViewProj;
+    float4 r;
 };
 // 输入的线段顶点
 struct VS_OUTPUT
@@ -38,18 +37,16 @@ void main(lineadj VS_OUTPUT input[4], inout TriangleStream<GS_OUTPUT> OutputStre
     // 插值当前线段的法线
     float4 normalStart = normalize(lerp(normalPrev, normalCur, 0.5));
     float4 normalEnd = normalize(lerp(normalCur, normalNext, 0.5));
-    
-    float r = 0.05f;
-    
+
     GS_OUTPUT v0;
     GS_OUTPUT v1;
     GS_OUTPUT v2;
     GS_OUTPUT v3;
     
-    v0.pos  = p0 - normalStart * r * 0.5;
-    v1.pos  = p0 + normalStart * r * 0.5;
-    v2.pos  = p1 + normalEnd * r * 0.5;
-    v3.pos  = p1 - normalEnd * r * 0.5;
+    v0.pos = p0 - normalStart * r.x * 0.5;
+    v1.pos = p0 + normalStart * r.x * 0.5;
+    v2.pos = p1 + normalEnd * r.x * 0.5;
+    v3.pos = p1 - normalEnd * r.x * 0.5;
     
     // 输出两个三角形
     OutputStream.Append(v0);
