@@ -158,7 +158,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="ComputeShader.cpp" />
     <ClCompile Include="CtrlCeomerty.cpp" />
     <ClCompile Include="GeometryShader.cpp" />
     <ClCompile Include="TransformCtrlComponent.cpp" />
@@ -205,7 +204,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
-    <ClInclude Include="ComputeShader.h" />
     <ClInclude Include="GeometryShader.h" />
     <ClInclude Include="TransformCtrlComponent.h" />
     <ClInclude Include="Axis.h" />
