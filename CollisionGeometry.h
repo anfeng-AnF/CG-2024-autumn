@@ -23,7 +23,7 @@ public:
 	CollisionGeomerty(Graphics& gfx) :pCBufColor(gfx) {};
 	CollisionGeomerty(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
 	DirectX::XMMATRIX GetTransformXM() const noexcept override;
-	virtual std::vector<CollisionRes> TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix = XMMatrixIdentity());
+	virtual std::vector<CollisionRes> TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix = XMMatrixIdentity(),float posOffset = 0.0f);
 
 	
 	void SetPos(DirectX::XMFLOAT3 pos) noexcept;
@@ -56,7 +56,7 @@ class Line:public CollisionGeomerty
 public:
 	Line(Graphics& gfx,Camera&cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
 	void Bind(Graphics& gfx)noexcept override;
-	virtual std::vector<CollisionRes> TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix = XMMatrixIdentity()) override;
+	virtual std::vector<CollisionRes> TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix = XMMatrixIdentity(),float posOffset =0.0f) override;
 	void Draw(Graphics& gfx)const noexcept override;
 
 private:
@@ -70,6 +70,7 @@ class WidthLine :public Line
 {
 public:
 	WidthLine(Graphics& gfx, Camera& cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f }, int lineWidth = 1);
+	virtual std::vector<CollisionRes> TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix = XMMatrixIdentity(), float posOffset = 0.0f) override;
 	void Draw(Graphics& gfx)const noexcept override;
 	void Bind(Graphics& gfx)noexcept override;
 	struct CbufData

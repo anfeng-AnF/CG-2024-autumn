@@ -24,7 +24,7 @@ std::string getSubStr(const char* begin, size_t length) {
     return ret;
 }
 
-std::vector<CollisionGeomerty::CollisionRes> CollisionGeomerty::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix)
+std::vector<CollisionGeomerty::CollisionRes> CollisionGeomerty::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix, float posOffset)
 {
     namespace dx=DirectX;
 
@@ -185,7 +185,7 @@ void Line::Bind(Graphics& gfx) noexcept
     pCBufColor.Bind(gfx);
 }
 
-std::vector<CollisionGeomerty::CollisionRes> Line::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector,DirectX::XMMATRIX transformMatrix)
+std::vector<CollisionGeomerty::CollisionRes> Line::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector,DirectX::XMMATRIX transformMatrix, float posOffset)
 {
     namespace dx = DirectX;
 
@@ -257,7 +257,7 @@ std::vector<CollisionGeomerty::CollisionRes> Line::TraceByLine(DirectX::XMFLOAT3
         // 计算缩放因子
         float referenceDepth = 20.0f;
         
-        float dynamicMinDistance= depth / referenceDepth;
+        float dynamicMinDistance= depth / referenceDepth+ posOffset;
         if (distance < dynamicMinDistance) {
             result.push_back({
                 {
@@ -340,6 +340,11 @@ WidthLine::WidthLine(Graphics& gfx, Camera& cam, Dvtx::VertexBuffer& _vertexBuff
     auto it=std::find(binds.begin(), binds.end(), Bind::Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_LINELIST));
     if(it!=binds.end())
         *it = Bind::Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ);
+}
+
+std::vector<CollisionGeomerty::CollisionRes> WidthLine::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix, float posOffset)
+{
+    return __super::TraceByLine(lineBeginPos,lineVector,transformMatrix,width);
 }
 
 void WidthLine::Draw(Graphics& gfx) const noexcept
