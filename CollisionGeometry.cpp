@@ -349,13 +349,18 @@ void WidthLine::Draw(Graphics& gfx) const noexcept
     {
         b->Bind(gfx);
     }
-    if (width > 0.02f)GS->Bind(gfx);
+    //if (width > 0.02f);
+    GS->Bind(gfx);
     gfx.DrawIndexed(pIndexBuffer->GetCount());
     GS->UnBind(gfx);
 }
 
 void WidthLine::Bind(Graphics& gfx) noexcept
 {
-    gcBuf.Update(gfx, {width,width,width,width});
+    CbufData data = {
+        DirectX::XMMatrixTranspose(GetTransformXM()*gfx.GetCamera() * gfx.GetProjection()),
+        width
+    };
+    gcBuf.Update(gfx, data);
     gcBuf.Bind(gfx);
 }

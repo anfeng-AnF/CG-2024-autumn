@@ -224,7 +224,7 @@
     ImGui::Text("Up Vector: %.2f, %.2f, %.2f", up.x, up.y, up.z);
     for (auto& val : mapSelectedGeomertys) {
         if (auto wline = dynamic_cast<WidthLine*>(val.first.get())) {
-            ImGui::SliderFloat("Width", &wline->width, 0.00f, 1.5f);
+            ImGui::SliderFloat("Width", &wline->width, 0.00f, 10.0f);
         }
     }
     ImGui::EndChild();

@@ -3,8 +3,14 @@ cbuffer CBuf
     matrix modelView;
     matrix modelViewProj;
 };
-
-float4 main(float3 pos : Position) : SV_Position
+struct VS_OUTPUT
 {
-    return mul(float4(pos, 1.0f), modelViewProj);
+    float4 pos : SV_POSITION;
+    float3 normal : NORMAL;
+};
+VS_OUTPUT main(float3 pos : Position)
+{
+    VS_OUTPUT vsout;
+    vsout.pos = float4(pos, 1.0f);
+    return vsout;
 }
