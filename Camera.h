@@ -1,7 +1,8 @@
 #pragma once
 #include "Graphics.h"
 #include "Transform.h"
-
+#include "InputState.h"
+#include "InputStateMachine.h"
 
 class Camera
 {
@@ -25,3 +26,19 @@ private:
 	float travelSpeed = 12.0f;
 	static constexpr float rotationSpeed = 0.004f;
 };
+//handel input
+namespace InputStateClass {
+	class CameraMove :public InputState
+	{
+	public:
+		CameraMove(Window& wnd) :InputState(wnd) {};
+
+
+		// Í¨¹ý InputState ¼Ì³Ð
+		void Enter() override;
+		void HandleKeyboardInput() override;
+		void HandleMouseInput() override;
+		void Update(float deltaTime) override;
+		void Exit() override;
+	};
+}

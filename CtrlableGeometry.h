@@ -9,6 +9,7 @@
 #include "Window.h"
 #include "DebugGraphsMannger.h"
 #include "list"
+#include "InputState.h"
 #include <thread>
 
 struct screenPos {
@@ -108,3 +109,16 @@ private:
 
 	DebugGraphsMannger& DGM = DebugGraphsMannger::GetDGMRefference();
 };
+
+
+namespace InputStateClass {
+	class UsingTransformComponent :public InputState
+	{
+		// Í¨¹ý InputState ¼Ì³Ð
+		void Enter() override;
+		void HandleKeyboardInput() override;
+		void HandleMouseInput() override;
+		void Update(float deltaTime) override;
+		void Exit() override;
+	};
+}

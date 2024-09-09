@@ -19,7 +19,7 @@ App::App(UINT width, UINT height)
 	width(width), height(height), light(wnd.Gfx()),
 	ctrl(&cam, wnd.Gfx()),
 	threadPool(10),
-	om(OperatorManager::GetInstance(wnd.mouse,wnd.Kbd,wnd))
+	om(InputStateMachine::GetInstance(wnd.mouse,wnd.Kbd,wnd))
 {
 	wnd.Gfx().SetProjection(Perspective);
 	wnd.DisableCursor();

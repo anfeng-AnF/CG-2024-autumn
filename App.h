@@ -9,7 +9,7 @@
 #include <set>
 #include "CtrlCeomerty.h"
 #include "ThreadPool.h"
-#include "OperatorManager.h"
+#include "InputStateMachine.h"
 
 class App
 {
@@ -40,5 +40,5 @@ private:
 	//Model wall{ wnd.Gfx(),"Models\\RockWall\\RockWall.fbx" };
 	//Model Lantern{ wnd.Gfx(),"Models\\Lantern\\Lantern_Fixed1.fbx" };
 	Axis axis{ wnd.Gfx() };
-	OperatorManager& om;
+	InputStateMachine& om;
 };

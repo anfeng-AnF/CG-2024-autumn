@@ -60,3 +60,23 @@ XMMATRIX ScaleComponent::GetDeltaTransform(screenPos from, screenPos to, Window&
 {
 	return XMMATRIX();
 }
+
+void InputStateClass::UsingTransformComponent::Enter()
+{
+}
+
+void InputStateClass::UsingTransformComponent::HandleKeyboardInput()
+{
+}
+
+void InputStateClass::UsingTransformComponent::HandleMouseInput()
+{
+}
+
+void InputStateClass::UsingTransformComponent::Update(float deltaTime)
+{
+}
+
+void InputStateClass::UsingTransformComponent::Exit()
+{
+}
