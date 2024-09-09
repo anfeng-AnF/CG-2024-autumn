@@ -34,7 +34,7 @@ private:
 	mutable Bind::PixelConstantBuffer<XMFLOAT4> pcBufColorScale;
 };
 
-class TransformCtrlComponent:public CollisionGeomerty
+class TransformCtrlComponent:public CollisionGeometry
 {
 public:
 	TransformCtrlComponent(Graphics& gfx,Camera&cam, std::string filePath, float _loadScale = 0.01);
@@ -57,7 +57,7 @@ private:
 	//trace by line vals
 	DirectX::XMFLOAT3 tlineBeginPos;
 	DirectX::XMFLOAT3 tlineVector;
-	std::vector<std::pair<cMesh*, std::vector<CollisionGeomerty::CollisionRes>>>hitResults;
+	std::vector<std::pair<cMesh*, std::vector<CollisionGeometry::CollisionRes>>>hitResults;
 
 	std::string filePath;
 	Camera* cam;

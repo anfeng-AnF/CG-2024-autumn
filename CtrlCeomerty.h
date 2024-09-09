@@ -82,13 +82,13 @@ private:
 
 class CtrlGeomerty
 {
-    using pGeoPair = std::pair<std::shared_ptr<CollisionGeomerty>, std::vector<CollisionGeomerty::CollisionRes>>*;
+    using pGeoPair = std::pair<std::shared_ptr<CollisionGeometry>, std::vector<CollisionGeometry::CollisionRes>>*;
 public:
 	CtrlGeomerty(Camera* cam,Graphics&gfx);
 	void ChangeCamera(Camera* newCam);//
     void Draw();
     void AddGeomerty(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
-    void AddGeomerty(std::shared_ptr<CollisionGeomerty> Geo);
+    void AddGeomerty(std::shared_ptr<CollisionGeometry> Geo);
     bool SelectGeomerty(int click_x, int click_y, const int windowWidth, const int windowHeight, bool isPerspective=true);
     void TransformGeomerty(Window&wnd);
 
@@ -102,13 +102,13 @@ private:
 	void TraceByLine(int click_x, int click_y,const int windowWidth, const int windowHeight, bool isPerspective=true);
 
 	const Camera* CurrentCamera;
-	std::vector<std::pair<std::shared_ptr<CollisionGeomerty>, std::vector<CollisionGeomerty::CollisionRes>>> hitRes;
+	std::vector<std::pair<std::shared_ptr<CollisionGeometry>, std::vector<CollisionGeometry::CollisionRes>>> hitRes;
     std::vector<std::unique_ptr<Drawable>> DebugGraphs;
     Graphics& gfx;
 
-    std::unordered_map<std::shared_ptr<CollisionGeomerty>, bool>Geomertys;
-    std::unordered_map<std::shared_ptr<CollisionGeomerty>,FTransform>mapSelectedGeomertys; //selected geo and pervious transform
-    UINT16 selectedGeoNum = 0;
+    std::unordered_map<std::shared_ptr<CollisionGeometry>, bool>Geomertys;
+    std::unordered_map<std::shared_ptr<CollisionGeometry>,FTransform>mapSelectedGeomertys; //selected geo and pervious transform
+    UINT16 selectedGeoNum = 0;//
     FTransform deltaTransform;
     XMFLOAT3 DeltaRotationEuler;
     XMFLOAT3 color = { -1.0f,-1.0f,-1.0f };

@@ -10,7 +10,7 @@
 #include <assimp/postprocess.h>
 
 
-class CollisionGeomerty :public Drawable 
+class CollisionGeometry :public Drawable 
 {
 public:
 	struct CollisionRes 
@@ -20,8 +20,8 @@ public:
 		uint16_t hitTriangleIndices[3];
 		float hitDistance;
 	};
-	CollisionGeomerty(Graphics& gfx) :pCBufColor(gfx) {};
-	CollisionGeomerty(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
+	CollisionGeometry(Graphics& gfx) :pCBufColor(gfx) {};
+	CollisionGeometry(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
 	DirectX::XMMATRIX GetTransformXM() const noexcept override;
 	virtual std::vector<CollisionRes> TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix = XMMatrixIdentity(),float posOffset = 0.0f);
 
@@ -51,7 +51,7 @@ protected:
 };
 
 
-class Line:public CollisionGeomerty
+class Line:public CollisionGeometry
 {
 public:
 	Line(Graphics& gfx,Camera&cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
@@ -82,7 +82,7 @@ public:
 	float width;
 };
 
-class TriangelGeo:public CollisionGeomerty
+class TriangelGeo:public CollisionGeometry
 {
 public:
 	TriangelGeo(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });

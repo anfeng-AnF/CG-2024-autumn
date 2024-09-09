@@ -19,8 +19,14 @@ private:
 	OperatorManager(Mouse&m,Keyboard&k,Window&w);
 	OperatorManager(const OperatorManager&) = delete;
 	OperatorManager operator=(const OperatorManager&) = delete;
+
+	void OnDefault();
+	void OnCameraMove();
+	void OnCtrlGeo();
 private:
 	Mouse& mouse;
 	Keyboard& kbd;
 	Window& wnd;
+
+	Ops currentStatue=Ops::Default;
 };

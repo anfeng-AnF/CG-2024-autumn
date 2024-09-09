@@ -15,7 +15,7 @@
 
  CtrlGeomerty::pGeoPair CtrlGeomerty::TraceByLineNearestGeo()
 {
-    std::pair<std::shared_ptr<CollisionGeomerty>, std::vector<CollisionGeomerty::CollisionRes>>* NearestGeo = nullptr;
+    std::pair<std::shared_ptr<CollisionGeometry>, std::vector<CollisionGeometry::CollisionRes>>* NearestGeo = nullptr;
     float min = D3D11_FLOAT32_MAX;
     for (auto& hit : hitRes) {
         for (auto& hitVal : hit.second) {
@@ -31,7 +31,7 @@
  void CtrlGeomerty::Draw()
 {
     for (const auto& obj : Geomertys) {
-        if (auto a = static_cast<CollisionGeomerty*>(obj.first.get())) {
+        if (auto a = static_cast<CollisionGeometry*>(obj.first.get())) {
             a->Bind(gfx);
         }
         obj.first->Draw(gfx);
@@ -108,10 +108,10 @@
 
  void CtrlGeomerty::AddGeomerty(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos)
 {
-    Geomertys[std::make_shared<CollisionGeomerty>(gfx, _vertexBuffer, _indices, _pos)] = false;
+    Geomertys[std::make_shared<CollisionGeometry>(gfx, _vertexBuffer, _indices, _pos)] = false;
 }
 
- void CtrlGeomerty::AddGeomerty(std::shared_ptr<CollisionGeomerty> Geo)
+ void CtrlGeomerty::AddGeomerty(std::shared_ptr<CollisionGeometry> Geo)
 {
     Geomertys[std::move(Geo)] = false;
 }
@@ -634,7 +634,7 @@
 
  bool CtrlComponents::TraceByLineSelectTransformAxis(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector)
  {
-     std::pair<CollisionGeomerty::CollisionRes, cMesh*> hitRes;
+     std::pair<CollisionGeometry::CollisionRes, cMesh*> hitRes;
      switch (currentStatue)
      {
      case CtrlComponents::NONE:

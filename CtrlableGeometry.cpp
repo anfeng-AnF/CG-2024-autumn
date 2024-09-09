@@ -27,7 +27,8 @@ bool TransformComponentBase::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX
 		if (res.second->GetName() =="XYZ")tAxis = XYZ;
 		DebugSphere ds(*pGfx, XMFLOAT3{ 0.7f,0.1f,0.1f }, res.first.pos);
 		DGM.AddGeo(&ds);
-
+		res.second->SetSelect(true);
+		ctrlingMesh = res.second;
 		return true;
 	}
 	else
@@ -35,6 +36,14 @@ bool TransformComponentBase::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX
 		tAxis = NONE_AXIS;
 	}
 	return false;
+}
+
+void TransformComponentBase::EndTransform()
+{
+	if (ctrlingMesh) {
+		ctrlingMesh->SetSelect(false);
+		ctrlingMesh = nullptr;
+	}
 }
 
 XMMATRIX TranslateComponent::GetDeltaTransform(screenPos from, screenPos to, Window& wnd)

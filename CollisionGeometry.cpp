@@ -1,7 +1,7 @@
 #include "CollisionGeometry.h"
 
 
-CollisionGeomerty::CollisionGeomerty(Graphics& gfx, Dvtx::VertexBuffer &_vertexBuffer, std::vector<uint16_t> _indices,DirectX::XMFLOAT3 _pos):
+CollisionGeometry::CollisionGeometry(Graphics& gfx, Dvtx::VertexBuffer &_vertexBuffer, std::vector<uint16_t> _indices,DirectX::XMFLOAT3 _pos):
     vertexBuffer(std::make_unique<Dvtx::VertexBuffer>(_vertexBuffer)),
     indices(_indices),
     transform(_pos),
@@ -10,7 +10,7 @@ CollisionGeomerty::CollisionGeomerty(Graphics& gfx, Dvtx::VertexBuffer &_vertexB
 
 }
 
-DirectX::XMMATRIX CollisionGeomerty::GetTransformXM() const noexcept
+DirectX::XMMATRIX CollisionGeometry::GetTransformXM() const noexcept
 {
     return transform.GetMatrix();
 }
@@ -24,7 +24,7 @@ std::string getSubStr(const char* begin, size_t length) {
     return ret;
 }
 
-std::vector<CollisionGeomerty::CollisionRes> CollisionGeomerty::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix, float posOffset)
+std::vector<CollisionGeometry::CollisionRes> CollisionGeometry::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix, float posOffset)
 {
     namespace dx=DirectX;
 
@@ -101,22 +101,22 @@ std::vector<CollisionGeomerty::CollisionRes> CollisionGeomerty::TraceByLine(Dire
     return result;
 }
 
-void CollisionGeomerty::SetPos(DirectX::XMFLOAT3 pos) noexcept
+void CollisionGeometry::SetPos(DirectX::XMFLOAT3 pos) noexcept
 {
     transform.position = {pos.x,pos.y,pos.z,0.0f};
 }
 
-DirectX::XMFLOAT3 CollisionGeomerty::GetPos() noexcept
+DirectX::XMFLOAT3 CollisionGeometry::GetPos() noexcept
 {
     return {XMVectorGetX(transform.position),XMVectorGetY(transform.position) ,XMVectorGetZ(transform.position) };
 }
 
-void CollisionGeomerty::SetColor(DirectX::XMFLOAT3 Color) noexcept
+void CollisionGeometry::SetColor(DirectX::XMFLOAT3 Color) noexcept
 {
     this->color = Color;
 }
 
-void CollisionGeomerty::Bind(Graphics& gfx) noexcept
+void CollisionGeometry::Bind(Graphics& gfx) noexcept
 {
     DirectX::XMFLOAT3 dataCopy;
     if (Selected)dataCopy = { 0.8f * color.x,0.8f * color.y,0.8f * color.z, };
@@ -125,22 +125,22 @@ void CollisionGeomerty::Bind(Graphics& gfx) noexcept
     pCBufColor.Bind(gfx);
 }
 
-void CollisionGeomerty::SetSelect(bool IsSelected) noexcept
+void CollisionGeometry::SetSelect(bool IsSelected) noexcept
 {
     Selected = IsSelected;
 }
 
-FTransform CollisionGeomerty::GetTransform()
+FTransform CollisionGeometry::GetTransform()
 {
     return transform;
 }
 
-void CollisionGeomerty::SetTransform(FTransform& transform)
+void CollisionGeometry::SetTransform(FTransform& transform)
 {
     this->transform = transform;
 }
 
-void CollisionGeomerty::Draw(Graphics& gfx) const noexcept
+void CollisionGeometry::Draw(Graphics& gfx) const noexcept
 {
 }
 
@@ -148,7 +148,7 @@ void CollisionGeomerty::Draw(Graphics& gfx) const noexcept
 
 Line::Line(Graphics& gfx,Camera&cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos)
     :
-    CollisionGeomerty(gfx,_vertexBuffer,_indices,_pos),
+    CollisionGeometry(gfx,_vertexBuffer,_indices,_pos),
     cam(& cam),
     gfx(gfx)
 {
@@ -185,7 +185,7 @@ void Line::Bind(Graphics& gfx) noexcept
     pCBufColor.Bind(gfx);
 }
 
-std::vector<CollisionGeomerty::CollisionRes> Line::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector,DirectX::XMMATRIX transformMatrix, float posOffset)
+std::vector<CollisionGeometry::CollisionRes> Line::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector,DirectX::XMMATRIX transformMatrix, float posOffset)
 {
     namespace dx = DirectX;
 
@@ -287,7 +287,7 @@ void Line::Draw(Graphics& gfx) const noexcept
 
 TriangelGeo::TriangelGeo(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos)
     :
-    CollisionGeomerty(gfx,_vertexBuffer,_indices,_pos)
+    CollisionGeometry(gfx,_vertexBuffer,_indices,_pos)
 {
     using namespace Bind;
     AddBind(VertexBuffer::Resolve(gfx, "CollisionGeomerty", *vertexBuffer));
@@ -342,7 +342,7 @@ WidthLine::WidthLine(Graphics& gfx, Camera& cam, Dvtx::VertexBuffer& _vertexBuff
         *it = Bind::Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ);
 }
 
-std::vector<CollisionGeomerty::CollisionRes> WidthLine::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix, float posOffset)
+std::vector<CollisionGeometry::CollisionRes> WidthLine::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix, float posOffset)
 {
     return __super::TraceByLine(lineBeginPos,lineVector,transformMatrix,width);
 }

@@ -43,7 +43,7 @@ void cMesh::SetSelect(bool IsSelect)
 
 TransformCtrlComponent::TransformCtrlComponent(Graphics& gfx,Camera&cam, std::string filePath, float _loadScale) :
 	loadScale(_loadScale),
-	CollisionGeomerty(gfx),
+	CollisionGeometry(gfx),
 	filePath(filePath),
 	cam(&cam),
 	gfx(&gfx)
@@ -80,9 +80,9 @@ void TransformCtrlComponent::Draw(Graphics& gfx) const noexcept
 }
 
 
-std::pair<CollisionGeomerty::CollisionRes, cMesh*> TransformCtrlComponent::TraceByLineGetNearestMesh(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector)
+std::pair<CollisionGeometry::CollisionRes, cMesh*> TransformCtrlComponent::TraceByLineGetNearestMesh(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector)
 {
-	CollisionGeomerty::CollisionRes hitResRet;
+	CollisionGeometry::CollisionRes hitResRet;
 	hitResults.clear();
 	tlineBeginPos = lineBeginPos;
 	tlineVector = lineVector;
@@ -252,7 +252,7 @@ void TransformCtrlComponent::dfs(std::unique_ptr<Node>& node, DirectX::XMMATRIX 
 		if (pCMesh) {
 			this->vertexBuffer = std::move(pCMesh->vertexBuffer);
 			this->indices = std::move(pCMesh->indices);
-			auto hitRes = CollisionGeomerty::TraceByLine(tlineBeginPos, tlineVector, applyTransform);
+			auto hitRes = CollisionGeometry::TraceByLine(tlineBeginPos, tlineVector, applyTransform);
 			if (hitRes.size()) {
 				hitResults.push_back({ pCMesh,hitRes });
 			}
