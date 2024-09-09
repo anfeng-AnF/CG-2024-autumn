@@ -160,6 +160,7 @@
     <ClCompile Include="App.cpp" />
     <ClCompile Include="CtrlableGeometry.cpp" />
     <ClCompile Include="CtrlCeomerty.cpp" />
+    <ClCompile Include="DebugGraphsMannger.cpp" />
     <ClCompile Include="GeometryShader.cpp" />
     <ClCompile Include="TransformCtrlComponent.cpp" />
     <ClCompile Include="Axis.cpp" />
@@ -206,6 +207,7 @@
   <ItemGroup>
     <ClInclude Include="App.h" />
     <ClInclude Include="CtrlableGeometry.h" />
+    <ClInclude Include="DebugGraphsMannger.h" />
     <ClInclude Include="GeometryShader.h" />
     <ClInclude Include="TransformCtrlComponent.h" />
     <ClInclude Include="Axis.h" />

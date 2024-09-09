@@ -9,13 +9,15 @@
 #include "Window.h"
 #include <thread>
 
-class TransformComponentBase
-{
-public:
-	struct screenPos {
+struct screenPos {
 		UINT x;
 		UINT y;
 	};
+void ConvertScreenToWorld(screenPos scPos, Window& wnd);
+
+class TransformComponentBase
+{
+public:
 	enum TransformAxis {
 		NONE_AXIS,
 		X,
@@ -38,19 +40,24 @@ public:
 protected:
 	FTransform transform;
 	std::unique_ptr<TransformCtrlComponent> pTransformCtrlComponent;
+	TransformAxis tAxis;
 };
 
 class TranslateComponent :public TransformComponentBase
 {
-
+public:
+	XMMATRIX GetDeltaTransform(screenPos from, screenPos to, Window& wnd) override;
 };
 
 class RotationComponent :public TransformComponentBase
 {
+public:
+	XMMATRIX GetDeltaTransform(screenPos from, screenPos to, Window& wnd) override;
 
 };
 
 class ScaleComponent :public TransformComponentBase
 {
-
+public:
+	XMMATRIX GetDeltaTransform(screenPos from, screenPos to, Window& wnd) override;
 };

@@ -195,6 +195,12 @@
     <ClCompile Include="GeometryShader.cpp">
       <Filter>D3DCore\Source Files\BIndable</Filter>
     </ClCompile>
+    <ClCompile Include="CtrlableGeometry.cpp">
+      <Filter>D3DCore\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugGraphsMannger.cpp">
+      <Filter>Base\源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChiliWin.h">
@@ -364,6 +370,12 @@
     </ClInclude>
     <ClInclude Include="GeometryShader.h">
       <Filter>D3DCore\Header\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="CtrlableGeometry.h">
+      <Filter>D3DCore\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugGraphsMannger.h">
+      <Filter>D3DCore\Header\Drawable\DebugGraphs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
