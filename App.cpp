@@ -18,7 +18,8 @@ App::App(UINT width, UINT height)
 	wnd(width, height, L"∏ ”Í"),
 	width(width), height(height), light(wnd.Gfx()),
 	ctrl(&cam, wnd.Gfx()),
-	threadPool(10)
+	threadPool(10),
+	om(OperatorManager::GetInstance(wnd.mouse,wnd.Kbd,wnd))
 {
 	wnd.Gfx().SetProjection(Perspective);
 	wnd.DisableCursor();
@@ -94,7 +95,7 @@ void App::DoFrame()
 	{
 		wnd.Gfx().SetProjection(Orthographic);
 	}
-
+	om.DoFrame();
 
 	const auto dt = timer.Mark() * speed_factor;
 	wnd.Gfx().BeginFrame(0.07f, 0.0f, 0.12f);

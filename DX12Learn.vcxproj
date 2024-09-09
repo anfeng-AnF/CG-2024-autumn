@@ -162,6 +162,7 @@
     <ClCompile Include="CtrlCeomerty.cpp" />
     <ClCompile Include="DebugGraphsMannger.cpp" />
     <ClCompile Include="GeometryShader.cpp" />
+    <ClCompile Include="OperatorManager.cpp" />
     <ClCompile Include="TransformCtrlComponent.cpp" />
     <ClCompile Include="Axis.cpp" />
     <ClCompile Include="Bindable.cpp" />
@@ -209,6 +210,7 @@
     <ClInclude Include="CtrlableGeometry.h" />
     <ClInclude Include="DebugGraphsMannger.h" />
     <ClInclude Include="GeometryShader.h" />
+    <ClInclude Include="OperatorManager.h" />
     <ClInclude Include="TransformCtrlComponent.h" />
     <ClInclude Include="Axis.h" />
     <ClInclude Include="Bindable.h" />

@@ -7,6 +7,7 @@
 #include "DebugSphere.h"
 #include "TransformCtrlComponent.h"
 #include "Window.h"
+#include "DebugGraphsMannger.h"
 #include <thread>
 
 struct screenPos {
@@ -41,6 +42,8 @@ protected:
 	FTransform transform;
 	std::unique_ptr<TransformCtrlComponent> pTransformCtrlComponent;
 	TransformAxis tAxis;
+	DebugGraphsMannger& DGM;
+	mutable Graphics* pGfx = nullptr;
 };
 
 class TranslateComponent :public TransformComponentBase
@@ -53,7 +56,6 @@ class RotationComponent :public TransformComponentBase
 {
 public:
 	XMMATRIX GetDeltaTransform(screenPos from, screenPos to, Window& wnd) override;
-
 };
 
 class ScaleComponent :public TransformComponentBase

@@ -199,6 +199,9 @@
       <Filter>D3DCore\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DebugGraphsMannger.cpp">
+      <Filter>D3DCore\Source Files\Drawable\DebugGraphs</Filter>
+    </ClCompile>
+    <ClCompile Include="OperatorManager.cpp">
       <Filter>Base\源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -376,6 +379,9 @@
     </ClInclude>
     <ClInclude Include="DebugGraphsMannger.h">
       <Filter>D3DCore\Header\Drawable\DebugGraphs</Filter>
+    </ClInclude>
+    <ClInclude Include="OperatorManager.h">
+      <Filter>Base\头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

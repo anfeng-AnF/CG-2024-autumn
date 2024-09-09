@@ -3,6 +3,8 @@
 #include "Drawable.h"
 #include "unordered_map"
 #include "ChiliTimer.h"
+#include "DebugLine.h"
+#include "DebugSphere.h"
 
 #define KEEP_EXIST -D3D11_FLOAT32_MAX
 class DebugGraphsMannger
@@ -14,7 +16,7 @@ public:
 	static DebugGraphsMannger& GetDGMRefference();
 
 private:
-	DebugGraphsMannger();
+	DebugGraphsMannger() {};
 	DebugGraphsMannger(const DebugGraphsMannger&) = delete;
 	DebugGraphsMannger operator=(const DebugGraphsMannger&) = delete;
 private:

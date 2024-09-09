@@ -1,11 +1,13 @@
 #include "CtrlableGeometry.h"
 
-TransformComponentBase::TransformComponentBase()
+TransformComponentBase::TransformComponentBase():
+	DGM(DebugGraphsMannger::GetDGMRefference())
 {
 }
 
 void TransformComponentBase::draw(Graphics& gfx) const noexcept
 {
+	pGfx = &gfx;
 }
 
 void TransformComponentBase::SetTransform(FTransform transform)
@@ -23,7 +25,14 @@ bool TransformComponentBase::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX
 		if (res.second->GetName() == "XZ")tAxis = XZ;
 		if (res.second->GetName() == "YZ")tAxis = YZ;
 		if (res.second->GetName() =="XYZ")tAxis = XYZ;
+		DebugSphere ds(*pGfx, XMFLOAT3{ 0.7f,0.1f,0.1f }, res.first.pos);
+		DGM.AddGeo(&ds);
 
+		return true;
+	}
+	else
+	{
+		tAxis = NONE_AXIS;
 	}
 	return false;
 }
