@@ -9,24 +9,23 @@
 #include "Window.h"
 #include "DebugGraphsMannger.h"
 #include "list"
-#include "InputState.h"
 #include <thread>
-
+struct screenPos;
+DirectX::XMFLOAT3 ConvertScreenToView(screenPos scPos, Window& wnd,float deepthOffset=0.0f);
+DirectX::XMFLOAT3 ConvertViewToWorld(XMFLOAT3 viewPos, Window& wnd);
 struct screenPos {
-		UINT x;
-		UINT y;
+		int x;
+		int y;
+		screenPos& operator+=(const screenPos& other);
+		screenPos(std::pair<int, int> pos);
+		screenPos(int a, int b) :x(a), y(b) {};
 	};
 struct LineRay {
-	XMFLOAT3 rayOrigin;
-	XMFLOAT3 rayDirection;
+	DirectX::XMFLOAT3 rayOrigin;
+	DirectX::XMFLOAT3 rayDirection;
 	LineRay() = default;
-	LineRay(screenPos sp, Window& wnd) {
-
-	};
+	LineRay(screenPos sp, Window& wnd);
 };
-XMFLOAT3 ConvertScreenToView(screenPos scPos, Window& wnd,float deepthOffset=0.0f);
-XMFLOAT3 ConvertViewToWorld(XMFLOAT3 viewPos, Window& wnd);
-
 
 class TransformComponentBase
 {
@@ -55,7 +54,7 @@ protected:
 	FTransform transform;
 	std::unique_ptr<TransformCtrlComponent> pTransformCtrlComponent;
 
-	TransformAxis tAxis;
+	TransformAxis tAxis=NONE_AXIS;
 	cMesh* ctrlingMesh=nullptr;
 	
 	DebugGraphsMannger& DGM;
@@ -83,42 +82,90 @@ public:
 class CollisionGeoManager
 {
 public:
-	void AddGeomerty(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
-	void AddGeomerty(std::shared_ptr<CollisionGeometry> Geo,bool isSelected=false);
+	struct TransformState;
+	enum TransformationMethod
+	{
+		NONE = 0,
+		TRANSLATE = 1,
+		SCALE = 2,
+		ROTATION = 3
+	};
 
+	//Interface for Input Control
+	class TranslationState : public InputState
+	{
+	public:
+		TranslationState(Window& window, CollisionGeoManager& manager);
+
+		void Enter() override;
+		void Update(float deltaTime) override;
+		void Exit() override;
+	private:
+		CollisionGeoManager& collisionManager;
+		std::unordered_map<char, TransformationMethod>shortcutKey = {
+				{'q', TransformationMethod::NONE},
+				{'w', TransformationMethod::TRANSLATE},
+				{'e', TransformationMethod::SCALE},
+				{'r', TransformationMethod::ROTATION},
+				{'Q', TransformationMethod::NONE},
+				{'W', TransformationMethod::TRANSLATE},
+				{'E', TransformationMethod::SCALE},
+				{'R', TransformationMethod::ROTATION},
+		};
+		bool selectedComponent = false;
+	};
+
+public:
+	void AddGeometry(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
+	void AddGeometry(std::shared_ptr<CollisionGeometry> Geo,bool isSelected=false);
+
+	//caculate deltaTransform from imgui/component
 	void TransformGeometryByImGui(Window& wnd);
-	void TransformGeometryByComponent(screenPos pos);
+	void TransformGeometryByComponent(Window& wnd, std::optional<Mouse::RawDelta> rawData);
+	/// <summary>
+	/// Selects a geometry based on the provided screen position and window context.
+	/// </summary>
+	/// <param name="pos">The screen position to check for geometry selection.</param>
+	/// <param name="wnd">The window context to use for input handling.</param>
+	/// <returns>
+	/// <c>0</c> if no geometry is selected.<br/>
+	/// <c>1</c> if a collision geometry is selected.<br/>
+	/// <c>2</c> if a transform component is selected.
+	/// </returns>
+	int SelectGeometry(screenPos pos, Window& wnd);
 
-	auto SelectGeometry(screenPos pos, Window& wnd);
-
+	void ChangeTransformationMethod(TransformationMethod method);
 	void Draw(Graphics& gfx);
+private:
+	//apply deltaTransform to Geos
+	void Transform();
+
+	//get transform data from ImGui
+	void DrawImGui(Graphics& gfx);
+
+	//Update control point location
+	void RenewOriginPointPos();
+
 private:
 	std::unique_ptr<TranslateComponent> translateComponent;
 	std::unique_ptr<RotationComponent> rotationComponent;
 	std::unique_ptr<ScaleComponent> scaleComponent;
 
 	std::unordered_map<std::shared_ptr<CollisionGeometry>, bool>Geomertys;
-	std::list<std::shared_ptr<CollisionGeometry>, FTransform>mapSelectedGeomertys; //selected geo and pervious transform
+	std::list<std::pair<std::shared_ptr<CollisionGeometry>, FTransform>> SelectedGeomertys; //selected geo and pervious transform
 
-	struct 
+	//change by DrawImgui,TransformComponent,reset when SelectedGeometrys size change 
+	struct TransformState
 	{
-		FTransform deltaTransform;
-		FTransform originTransform;
-		XMFLOAT3 color;
-	}ImGuiTransformData;
+		FTransform deltaTransform;		//delta transform
+		XMFLOAT3 DeltaRotationEuler;	//delta rotation euler -> quaternion rotation 
+		FTransform originTransform;		//origin point transform
+		XMFLOAT3 color;					//change color is use
+		screenPos beginScreenPos;		//Start controlling the click position when transforming components
+		screenPos deltaScreenPos;		//Delta using rawdata overlay
+		TransformationMethod transformationMethod;		//0-none  1-translate  2-scale 3-rotation
+		bool affectOriginOnly;
+	}TransformData;
 
 	DebugGraphsMannger& DGM = DebugGraphsMannger::GetDGMRefference();
 };
-
-
-namespace InputStateClass {
-	class UsingTransformComponent :public InputState
-	{
-		// Í¨¹ý InputState ¼Ì³Ð
-		void Enter() override;
-		void HandleKeyboardInput() override;
-		void HandleMouseInput() override;
-		void Update(float deltaTime) override;
-		void Exit() override;
-	};
-}

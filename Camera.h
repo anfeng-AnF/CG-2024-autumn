@@ -1,11 +1,23 @@
 #pragma once
 #include "Graphics.h"
 #include "Transform.h"
-#include "InputState.h"
 #include "InputStateMachine.h"
 
 class Camera
 {
+public:
+	class CameraMove :public InputState
+	{
+	public:
+		CameraMove(Window& window,Camera* cam) : InputState(window),cam(cam) {};
+		// 通过 InputState 继承
+		void Enter() override;
+		void Update(float deltaTime) override;
+		void Exit() override;
+
+	private:
+		Camera* cam;
+	};
 public:
 	Camera()noexcept;
 	DirectX::XMMATRIX GetMatrix() const noexcept;
@@ -26,19 +38,3 @@ private:
 	float travelSpeed = 12.0f;
 	static constexpr float rotationSpeed = 0.004f;
 };
-//handel input
-namespace InputStateClass {
-	class CameraMove :public InputState
-	{
-	public:
-		CameraMove(Window& wnd) :InputState(wnd) {};
-
-
-		// 通过 InputState 继承
-		void Enter() override;
-		void HandleKeyboardInput() override;
-		void HandleMouseInput() override;
-		void Update(float deltaTime) override;
-		void Exit() override;
-	};
-}

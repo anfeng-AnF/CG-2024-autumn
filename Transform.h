@@ -4,6 +4,7 @@
 #include <cmath>
 
 using namespace DirectX;
+bool IsPerspectiveMatrix(const XMMATRIX& m);
 
 class FTransform {
 public:
@@ -24,7 +25,7 @@ public:
     XMVECTOR GetForwardVector() const;
     XMVECTOR GetRightVector() const;
     XMVECTOR GetUpVector() const;
-
+    friend bool operator==(const FTransform& lhs, const FTransform& rhs);
 public:
     static const XMVECTOR ForwardVector, RightVector, UpVector;
     XMVECTOR position; // Œª÷√

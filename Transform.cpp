@@ -101,3 +101,16 @@ XMVECTOR FTransform::GetUpVector() const {
 const DirectX::XMVECTOR FTransform::ForwardVector = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 const DirectX::XMVECTOR FTransform::RightVector = DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
 const DirectX::XMVECTOR FTransform::UpVector = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+bool IsPerspectiveMatrix(const XMMATRIX& m)
+{
+	return (m.r[3].m128_f32[3] == 0.0f && m.r[3].m128_f32[2] != 0.0f);
+}
+
+bool operator==(const FTransform& lhs, const FTransform& rhs)
+{
+	
+	return DirectX::XMVector3Equal(lhs.position, rhs.position) &&
+		DirectX::XMQuaternionEqual(lhs.rotation, rhs.rotation) &&
+		DirectX::XMVector3Equal(lhs.scale, rhs.scale);
+}

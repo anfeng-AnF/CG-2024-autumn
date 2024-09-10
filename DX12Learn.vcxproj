@@ -158,17 +158,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CtrlableGeometry.cpp" />
     <ClCompile Include="CtrlCeomerty.cpp" />
     <ClCompile Include="DebugGraphsMannger.cpp" />
     <ClCompile Include="GeometryShader.cpp" />
-    <ClCompile Include="InputState.cpp" />
-    <ClCompile Include="InputStateMachine.cpp" />
     <ClCompile Include="TransformCtrlComponent.cpp" />
     <ClCompile Include="Axis.cpp" />
     <ClCompile Include="Bindable.cpp" />
-    <ClCompile Include="Camrea.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ChiliTimer.cpp" />
     <ClCompile Include="CollisionGeometry.cpp" />
     <ClCompile Include="DebugSphere.cpp" />
@@ -212,7 +209,6 @@
     <ClInclude Include="CtrlableGeometry.h" />
     <ClInclude Include="DebugGraphsMannger.h" />
     <ClInclude Include="GeometryShader.h" />
-    <ClInclude Include="InputState.h" />
     <ClInclude Include="InputStateMachine.h" />
     <ClInclude Include="TransformCtrlComponent.h" />
     <ClInclude Include="Axis.h" />
