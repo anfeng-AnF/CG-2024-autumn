@@ -105,6 +105,7 @@ public:
 	void EnableRaw() noexcept;
 	void DisableRaw() noexcept;
 	bool RawEnabled() const noexcept;
+	void FlushRawDelta()noexcept;
 private:
 	void OnMouseMove(int x, int y) noexcept;
 	void OnMouseLeave() noexcept;

@@ -17,9 +17,9 @@ public:
 
 	private:
 		Camera* cam;
-	};
+	}inputState;
 public:
-	Camera()noexcept;
+	Camera(Window& window);
 	DirectX::XMMATRIX GetMatrix() const noexcept;
 	void SpawnControlWindow() noexcept;
 	void Reset() noexcept;

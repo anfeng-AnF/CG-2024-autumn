@@ -7,7 +7,7 @@ TransformComponentBase::TransformComponentBase():
 
 void TransformComponentBase::draw(Graphics& gfx) const noexcept
 {
-	pGfx = &gfx;
+	//pGfx = &gfx;
 }
 
 void TransformComponentBase::SetTransform(FTransform transform)
@@ -25,8 +25,8 @@ bool TransformComponentBase::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX
 		if (res.second->GetName() == "XZ")tAxis = XZ;
 		if (res.second->GetName() == "YZ")tAxis = YZ;
 		if (res.second->GetName() =="XYZ")tAxis = XYZ;
-		DebugSphere ds(*pGfx, XMFLOAT3{ 0.7f,0.1f,0.1f }, res.first.pos);
-		DGM.AddGeo(&ds);
+
+		DGM.AddGeo(std::make_shared<DebugSphere>(*pGfx, XMFLOAT3{ 0.7f,0.1f,0.1f }, res.first.pos));
 		res.second->SetSelect(true);
 		ctrlingMesh = res.second;
 		return true;
@@ -61,6 +61,12 @@ XMMATRIX ScaleComponent::GetDeltaTransform(screenPos from, screenPos to, Window&
 	return XMMATRIX();
 }
 
+CollisionGeoManager::CollisionGeoManager(Window& wnd, Camera& cam) 
+    :
+    inputState(wnd, *this),
+    gfx(&wnd.Gfx()), cam(&cam),
+    DGM(DebugGraphsMannger::GetDGMRefference())
+{}; 
 void CollisionGeoManager::AddGeometry(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos)
 {
     Geomertys[std::make_shared<CollisionGeometry>(gfx, _vertexBuffer, _indices, _pos)] = false;
@@ -112,7 +118,9 @@ void CollisionGeoManager::TransformGeometryByComponent(Window& wnd, std::optiona
 
 int CollisionGeoManager::SelectGeometry(screenPos pos, Window& wnd)
 {
-    LineRay ray(pos, wnd);
+    LineRay ray(pos, wnd,*cam);
+    XMFLOAT3 endPos = { ray.rayOrigin.x+ ray.rayDirection.x * 1e4f, ray.rayOrigin.y + ray.rayDirection.y * 1e4f, ray.rayOrigin.z + ray.rayDirection.z * 1e4f };
+    DGM.AddGeo(std::make_shared<DebugLine>(*gfx, ray.rayOrigin, endPos, XMFLOAT3(1.0f, 0.0f, 0.0f)));
     //0-none  1-translate  2-scale 3-rotation
     bool selectedComponent = false;
     switch (TransformData.transformationMethod)
@@ -141,13 +149,14 @@ int CollisionGeoManager::SelectGeometry(screenPos pos, Window& wnd)
     float minDistance = D3D11_FLOAT32_MAX;
     std::shared_ptr<CollisionGeometry> nearestGeo=nullptr;
     for (auto& geo : Geomertys) {
-        auto hitRes = geo.first->TraceByLine(ray.rayOrigin, ray.rayDirection);
+        auto hitRes = geo.first->TraceByLine(ray.rayOrigin, ray.rayDirection,geo.first->GetTransformXM());
         if (hitRes.size()) {
             for (const auto& collisionRes : hitRes) {
                 if (minDistance > collisionRes.hitDistance) {
                     minDistance = collisionRes.hitDistance;
                     nearestGeo = geo.first;
                 }
+                DGM.AddGeo(std::make_shared<DebugSphere>(*gfx, XMFLOAT3{ 0.8f,0.2f,0.2f }, collisionRes.pos,0.02f));
             }
         }
     }
@@ -212,6 +221,11 @@ void CollisionGeoManager::Draw(Graphics& gfx)
         }
         obj.first->Draw(gfx);
     }
+}
+
+int CollisionGeoManager::GetSelectedGeoNum()
+{
+    return SelectedGeomertys.size();
 }
 
 void CollisionGeoManager::Transform()
@@ -281,7 +295,7 @@ void CollisionGeoManager::RenewOriginPointPos()
     this->TransformData.originTransform = FTransform(avgPos, { 1.0f,1.0f,1.0f,0.0f }, rotation);
 }
 
-LineRay::LineRay(screenPos sp, Window& wnd)
+LineRay::LineRay(screenPos sp, Window& wnd,Camera&cam)
 {
     auto clickViewPos = ConvertScreenToView(sp, wnd, 1.0f);
     auto clickWorldPos = ConvertViewToWorld(clickViewPos, wnd);
@@ -289,7 +303,7 @@ LineRay::LineRay(screenPos sp, Window& wnd)
 
     if (IsPerspectiveMatrix(wnd.Gfx().GetProjection())) {
         auto cameraMatrix = wnd.Gfx().GetCamera();
-        XMStoreFloat3(&rayBeginPos, FTransform(cameraMatrix).position);
+        XMStoreFloat3(&rayBeginPos, cam.GetTransform().position);
     }
     else {
         rayBeginPos = ConvertViewToWorld(ConvertScreenToView(sp, wnd), wnd);
@@ -309,19 +323,22 @@ XMFLOAT3 ConvertScreenToView(screenPos scPos, Window& wnd, float depthOffset)
 
     float x = (2.0f * scPos.x / width) - 1.0f;
     float y = 1.0f - (2.0f * scPos.y / height);
+    XMMATRIX projectionMatrix = wnd.Gfx().GetProjection();
+    XMMATRIX invProj = XMMatrixInverse(nullptr, projectionMatrix);
 
-    return XMFLOAT3(x, y, depthOffset);
+    XMVECTOR screenPosVec = XMVectorSet(x, y, depthOffset, 1.0f);
+    XMVECTOR viewPosVec = XMVector3TransformCoord(screenPosVec, invProj);
+    return XMFLOAT3(viewPosVec.m128_f32[0], viewPosVec.m128_f32[1], viewPosVec.m128_f32[2]);
 }
+
 
 XMFLOAT3 ConvertViewToWorld(XMFLOAT3 viewPos, Window& wnd)
 {
     XMMATRIX viewMatrix = wnd.Gfx().GetCamera();
-    XMMATRIX projectionMatrix = wnd.Gfx().GetProjection();
-
-    XMMATRIX invViewProj = XMMatrixInverse(nullptr, viewMatrix * projectionMatrix);
+    XMMATRIX invView = XMMatrixInverse(nullptr, viewMatrix);
 
     XMVECTOR viewPosVec = XMLoadFloat3(&viewPos);
-    XMVECTOR worldPosVec = XMVector3TransformCoord(viewPosVec, invViewProj);
+    XMVECTOR worldPosVec = XMVector3TransformCoord(viewPosVec, invView);
 
     XMFLOAT3 worldPos;
     XMStoreFloat3(&worldPos, worldPosVec);
@@ -346,13 +363,19 @@ CollisionGeoManager::TranslationState::TranslationState(Window& window, Collisio
 
 void CollisionGeoManager::TranslationState::Enter()
 {
+    wnd.EnableCursor();
+    wnd.mouse.DisableRaw();
+    wnd.Kbd.FlushChar();
+    wnd.Kbd.FlushKey();
 }
 
 void CollisionGeoManager::TranslationState::Update(float deltaTime)
 {
     //Handle keyboard input
     while (auto c = wnd.Kbd.ReadChar()) {
-        this->collisionManager.ChangeTransformationMethod(shortcutKey[c.value()]);
+        if (collisionManager.GetSelectedGeoNum()) {
+            this->collisionManager.ChangeTransformationMethod(shortcutKey[c.value()]);
+        }
     }
     //Handling of mouse input
     while (const auto delta = wnd.mouse.Read()) {
@@ -403,3 +426,4 @@ void CollisionGeoManager::TranslationState::Exit()
 {
 
 }
+

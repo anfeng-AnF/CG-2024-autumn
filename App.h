@@ -9,7 +9,9 @@
 #include <set>
 #include "CtrlCeomerty.h"
 #include "ThreadPool.h"
-
+#include "CtrlableGeometry.h"
+#include "InputStateMachine.h"
+#include "DebugGraphsMannger.h"
 
 class App
 {
@@ -36,9 +38,10 @@ private:
 	float speed_factor = 1.0f;
 	Camera cam;	
 	PointLight light;	
-	CtrlGeomerty ctrl;
+	CollisionGeoManager ctrl;
 	//Model wall{ wnd.Gfx(),"Models\\RockWall\\RockWall.fbx" };
 	//Model Lantern{ wnd.Gfx(),"Models\\Lantern\\Lantern_Fixed1.fbx" };
 	Axis axis{ wnd.Gfx() };
-	//InputStateMachine& om;
+	InputStateMachine ISM;
+	DebugGraphsMannger &DGM=DebugGraphsMannger::GetDGMRefference();
 };

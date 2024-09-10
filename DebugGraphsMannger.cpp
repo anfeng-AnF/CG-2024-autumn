@@ -2,27 +2,31 @@
 
 void DebugGraphsMannger::Draw(Graphics& gfx)
 {
-    for (auto& geo : umapDebugGeoWithExistTime) {
-        if (geo.second == KEEP_EXIST)continue;
-        geo.second -= time.Peek();
-        if (geo.second < 0) {
-            umapDebugGeoWithExistTime.erase(geo.first);
+    for (auto it = umapDebugGeoWithExistTime.begin(); it != umapDebugGeoWithExistTime.end(); )
+    {
+        if (it->second == KEEP_EXIST) {
+            ++it;
+            continue;
+        }
+        it->second -= time.Peek();
+        it->first->Draw(gfx);
+        if (it->second < 0) {
+            it = umapDebugGeoWithExistTime.erase(it);
+        }
+        else {
+            ++it;
         }
     }
     time.Mark();
 }
 
-void DebugGraphsMannger::AddGeo(Drawable* geometry, float existTime)
+void DebugGraphsMannger::AddGeo(std::shared_ptr<Drawable> geometry, float existTime)
 {
-    this->umapDebugGeoWithExistTime[geometry] = existTime;
+    umapDebugGeoWithExistTime[std::move(geometry)] = existTime;
 }
 
-void DebugGraphsMannger::ChangeGeoExistTime(Drawable* geometry, float DeltaTime)
+void DebugGraphsMannger::ChangeGeoExistTime(std::shared_ptr<Drawable> geometry, float DeltaTime)
 {
-    if (umapDebugGeoWithExistTime.find(geometry) == umapDebugGeoWithExistTime.end())
-    {
-        umapDebugGeoWithExistTime[geometry] = DeltaTime;
-    };
     umapDebugGeoWithExistTime[geometry] += DeltaTime;
 }
 

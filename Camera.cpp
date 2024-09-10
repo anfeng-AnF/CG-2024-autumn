@@ -3,7 +3,7 @@
 
 namespace dx = DirectX;
 
-Camera::Camera() noexcept
+Camera::Camera(Window& window) :inputState(window, this)
 {
 	Reset();
 }
@@ -170,6 +170,8 @@ XMFLOAT3 Camera::GetUpVector() const noexcept
 void Camera::CameraMove::Enter()
 {
 	wnd.DisableCursor();
+	wnd.mouse.Flush();
+	wnd.mouse.FlushRawDelta();
 	wnd.mouse.EnableRaw();
 }
 
@@ -208,17 +210,25 @@ void Camera::CameraMove::Update(float deltaTime)
 		cam->RotateRoll(-1.0f);
 	}
 	//Handling of mouse input
+	if (wnd.mouse.RightIsPressed())
+	{
+		while (const auto delta = wnd.mouse.ReadRawDelta())
+		{
+			cam->RotatePitchYaw((float)delta->x, (float)delta->y);
+		}
+	}
+	else
+	{
+		this->Machine->SetState("default");
+	}
 	while (const auto delta = wnd.mouse.Read()) {
 		switch (delta.value().GetType())
 		{
-		case Mouse::Event::Type::RPress:
-			while (const auto delta = wnd.mouse.ReadRawDelta())
-			{
-				cam->RotatePitchYaw((float)delta->x, (float)delta->y);
-			}
+		case Mouse::Event::Type::WheelDown:
+			cam->DecreaseTravelSpeed();
 			break;
-		case Mouse::Event::Type::RRelease:
-			this->Machine->SetState("default");
+		case Mouse::Event::Type::WheelUp:
+			cam->IncreaseTravelSpeed();
 			break;
 		default:
 			break;

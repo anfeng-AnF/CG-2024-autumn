@@ -19,12 +19,13 @@ struct screenPos {
 		screenPos& operator+=(const screenPos& other);
 		screenPos(std::pair<int, int> pos);
 		screenPos(int a, int b) :x(a), y(b) {};
+		screenPos() = default;
 	};
 struct LineRay {
 	DirectX::XMFLOAT3 rayOrigin;
 	DirectX::XMFLOAT3 rayDirection;
 	LineRay() = default;
-	LineRay(screenPos sp, Window& wnd);
+	LineRay(screenPos sp, Window& wnd,Camera&cam);
 };
 
 class TransformComponentBase
@@ -81,8 +82,8 @@ public:
 
 class CollisionGeoManager
 {
-public:
 	struct TransformState;
+public:
 	enum TransformationMethod
 	{
 		NONE = 0,
@@ -96,7 +97,7 @@ public:
 	{
 	public:
 		TranslationState(Window& window, CollisionGeoManager& manager);
-
+		TranslationState(const TranslationState& other) = default;
 		void Enter() override;
 		void Update(float deltaTime) override;
 		void Exit() override;
@@ -113,11 +114,13 @@ public:
 				{'R', TransformationMethod::ROTATION},
 		};
 		bool selectedComponent = false;
-	};
+	}inputState;
 
 public:
+	CollisionGeoManager(Window& wnd, Camera& cam);
+
 	void AddGeometry(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
-	void AddGeometry(std::shared_ptr<CollisionGeometry> Geo,bool isSelected=false);
+	void AddGeometry(std::shared_ptr<CollisionGeometry> Geo, bool isSelected = false);
 
 	//caculate deltaTransform from imgui/component
 	void TransformGeometryByImGui(Window& wnd);
@@ -136,6 +139,8 @@ public:
 
 	void ChangeTransformationMethod(TransformationMethod method);
 	void Draw(Graphics& gfx);
+
+	int GetSelectedGeoNum();
 private:
 	//apply deltaTransform to Geos
 	void Transform();
@@ -167,5 +172,7 @@ private:
 		bool affectOriginOnly;
 	}TransformData;
 
-	DebugGraphsMannger& DGM = DebugGraphsMannger::GetDGMRefference();
+	DebugGraphsMannger& DGM;
+	Graphics* gfx;
+	Camera* cam;
 };

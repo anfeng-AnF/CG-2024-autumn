@@ -17,16 +17,17 @@ App::App(UINT width, UINT height)
 	:
 	wnd(width, height, L"∏ ”Í"),
 	width(width), height(height), light(wnd.Gfx()),
-	ctrl(&cam, wnd.Gfx()),
-	threadPool(10)
+	threadPool(10),
+	cam(wnd),
+	ctrl(wnd,cam)
 {
 	wnd.Gfx().SetProjection(Perspective);
 	wnd.DisableCursor();
 
 	auto a=Sphere::Make(2.0f);
-	ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices, DirectX::XMFLOAT3{ 20.0f,0.0f,0.0f }));
-	ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices, DirectX::XMFLOAT3{ 10.0f,0.0f,0.0f }));
-	ctrl.AddGeomerty(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices, DirectX::XMFLOAT3{ 0.0f,10.0f,20.0f }));
+	ctrl.AddGeometry(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices, DirectX::XMFLOAT3{ 20.0f,0.0f,0.0f }));
+	//ctrl.AddGeometry(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices, DirectX::XMFLOAT3{ 10.0f,0.0f,0.0f }));
+	//ctrl.AddGeometry(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices, DirectX::XMFLOAT3{ 0.0f,10.0f,20.0f }));
 
 	Dvtx::VertexBuffer vbuf(Dvtx::VertexLayout{}.Append(Dvtx::VertexLayout::Position3D));
 	vbuf.EmplaceBack(DirectX::XMFLOAT3{ 100.0f,0.0f,100.0f });
@@ -65,7 +66,11 @@ App::App(UINT width, UINT height)
 		ind.push_back(nextIndex);
 		ind.push_back(nextNextIndex);
 	}
-	ctrl.AddGeomerty(std::make_shared<WidthLine>(wnd.Gfx(),cam, vbufLine, ind));
+	//ctrl.AddGeometry(std::make_shared<WidthLine>(wnd.Gfx(),cam, vbufLine, ind));
+
+	ISM.AddState("default", std::make_unique<CollisionGeoManager::TranslationState>(ctrl.inputState));
+	ISM.AddState("CameraMove", std::make_unique<Camera::CameraMove>(cam.inputState));
+	ISM.SetState("default");
 }
 int App::Go()
 {
@@ -95,7 +100,6 @@ void App::DoFrame()
 		wnd.Gfx().SetProjection(Orthographic);
 	}
 
-	const auto dt = timer.Mark() * speed_factor;
 	wnd.Gfx().BeginFrame(0.07f, 0.0f, 0.12f);
 	wnd.Gfx().SetCamera(cam.GetMatrix());
 	light.Bind(wnd.Gfx(), cam.GetMatrix());
@@ -104,111 +108,112 @@ void App::DoFrame()
 	light.Draw(wnd.Gfx());
 	axis.Draw(wnd.Gfx());
 
-
-	static bool isUseCC;
-	if (!wnd.mouse.RightIsPressed()||isUseCC)
-	{
-		wnd.EnableCursor();
-		wnd.mouse.DisableRaw();
-	}
-	else
-	{
-		wnd.DisableCursor();
-		wnd.mouse.EnableRaw();
-	}
-
-
-	if (!wnd.CursorEnabled())
-	{
-		if (wnd.Kbd.KeyIsPressed('W') && isPerspective)
-		{
-			cam.Translate({ dt,0.0f,0.0f });
-		}
-		if (wnd.Kbd.KeyIsPressed('A'))
-		{
-			cam.Translate({ 0.0f,-dt,0.0f });
-		}
-		if (wnd.Kbd.KeyIsPressed('S') && isPerspective)
-		{
-			cam.Translate({ -dt,0.0f,0.0f });
-		}
-		if (wnd.Kbd.KeyIsPressed('D'))
-		{
-			cam.Translate({ 0.0f,dt,0.0f });
-		}
-		if (wnd.Kbd.KeyIsPressed(VK_SPACE)) {
-			cam.Translate({ 0.0f,0.0f,dt });
-		}
-		if (wnd.Kbd.KeyIsPressed(VK_CONTROL)) {
-			cam.Translate({ 0.0f,0.0f,-dt });
-		}
-		if (wnd.Kbd.KeyIsPressed('Q'))
-		{
-			cam.RotateRoll(1.0f);
-		}
-		if (wnd.Kbd.KeyIsPressed('E'))
-		{
-			cam.RotateRoll(-1.0f);
-		}
-	}
-	else
-	{
-		auto buffer = wnd.Kbd.ReadChar();
-		if (buffer.has_value()&&wnd.CursorEnabled()) {
-			ctrl.ChangeTransformationMethod(buffer.value());
-		}
-	}
-
-
-	std::pair<int, int> lastFarmPos;
-	while (const auto delta = wnd.mouse.ReadRawDelta())
-	{
-		if (!wnd.CursorEnabled()&&!isUseCC)
-		{
-			cam.RotatePitchYaw((float)delta->x, (float)delta->y);
-		}
-		if (isUseCC) {
-			lastFarmPos.first += delta->x;
-			lastFarmPos.second += delta->y;
-			wnd.UpdateMousePosition(delta->x, delta->y);
-		}
-	}
-	if (isUseCC) {
-		ctrl.OnTransformComponent(lastFarmPos,width,height);
-#ifdef DEBUG
-		std::ostringstream oss;
-		oss << lastFarmPos.first << "  " << lastFarmPos.second << std::endl;
-		OutputDebugStringA(oss.str().c_str());
-#endif // DEBUG
-	}
-	while (const auto delta = wnd.mouse.Read())
-	{
-		if (delta->GetType() == Mouse::Event::Type::LPress)
-		{
-			std::pair<int, int>pos = delta->GetPos();
-
-			if (ctrl.SelectGeomerty(pos.first, pos.second, width, height, isPerspective)) {
-				//ctrl.TransformGeomerty(wnd);
-				isUseCC = ctrl.IsUseCtrlComponent();
-			}
-		}
-		if (delta->GetType() == Mouse::Event::Type::LRelease) {
-			if (isUseCC) {
-				ctrl.EndComponentTransform();
-				isUseCC = false;
-			}
-		}
-		if (wnd.CursorEnabled())break;
-		if (delta->GetType() == Mouse::Event::Type::WheelDown)
-		{
-			cam.DecreaseTravelSpeed();
-		}
-		if (delta->GetType() == Mouse::Event::Type::WheelUp)
-		{
-			cam.IncreaseTravelSpeed();
-		}
-	}
-	ctrl.Draw();
+	ISM.DoFrame(timer.Mark());
+	DGM.Draw(wnd.Gfx());
+//	static bool isUseCC;
+//	if (!wnd.mouse.RightIsPressed()||isUseCC)
+//	{
+//		wnd.EnableCursor();
+//		wnd.mouse.DisableRaw();
+//	}
+//	else
+//	{
+//		wnd.DisableCursor();
+//		wnd.mouse.EnableRaw();
+//	}
+//
+//
+//	if (!wnd.CursorEnabled())
+//	{
+//		if (wnd.Kbd.KeyIsPressed('W') && isPerspective)
+//		{
+//			cam.Translate({ dt,0.0f,0.0f });
+//		}
+//		if (wnd.Kbd.KeyIsPressed('A'))
+//		{
+//			cam.Translate({ 0.0f,-dt,0.0f });
+//		}
+//		if (wnd.Kbd.KeyIsPressed('S') && isPerspective)
+//		{
+//			cam.Translate({ -dt,0.0f,0.0f });
+//		}
+//		if (wnd.Kbd.KeyIsPressed('D'))
+//		{
+//			cam.Translate({ 0.0f,dt,0.0f });
+//		}
+//		if (wnd.Kbd.KeyIsPressed(VK_SPACE)) {
+//			cam.Translate({ 0.0f,0.0f,dt });
+//		}
+//		if (wnd.Kbd.KeyIsPressed(VK_CONTROL)) {
+//			cam.Translate({ 0.0f,0.0f,-dt });
+//		}
+//		if (wnd.Kbd.KeyIsPressed('Q'))
+//		{
+//			cam.RotateRoll(1.0f);
+//		}
+//		if (wnd.Kbd.KeyIsPressed('E'))
+//		{
+//			cam.RotateRoll(-1.0f);
+//		}
+//	}
+//	else
+//	{
+//		auto buffer = wnd.Kbd.ReadChar();
+//		if (buffer.has_value()&&wnd.CursorEnabled()) {
+//			ctrl.ChangeTransformationMethod(buffer.value());
+//		}
+//	}
+//
+//
+//	std::pair<int, int> lastFarmPos;
+//	while (const auto delta = wnd.mouse.ReadRawDelta())
+//	{
+//		if (!wnd.CursorEnabled()&&!isUseCC)
+//		{
+//			cam.RotatePitchYaw((float)delta->x, (float)delta->y);
+//		}
+//		if (isUseCC) {
+//			lastFarmPos.first += delta->x;
+//			lastFarmPos.second += delta->y;
+//			wnd.UpdateMousePosition(delta->x, delta->y);
+//		}
+//	}
+//	if (isUseCC) {
+//		ctrl.OnTransformComponent(lastFarmPos,width,height);
+//#ifdef DEBUG
+//		std::ostringstream oss;
+//		oss << lastFarmPos.first << "  " << lastFarmPos.second << std::endl;
+//		OutputDebugStringA(oss.str().c_str());
+//#endif // DEBUG
+//	}
+//	while (const auto delta = wnd.mouse.Read())
+//	{
+//		if (delta->GetType() == Mouse::Event::Type::LPress)
+//		{
+//			std::pair<int, int>pos = delta->GetPos();
+//
+//			if (ctrl.SelectGeomerty(pos.first, pos.second, width, height, isPerspective)) {
+//				//ctrl.TransformGeomerty(wnd);
+//				isUseCC = ctrl.IsUseCtrlComponent();
+//			}
+//		}
+//		if (delta->GetType() == Mouse::Event::Type::LRelease) {
+//			if (isUseCC) {
+//				ctrl.EndComponentTransform();
+//				isUseCC = false;
+//			}
+//		}
+//		if (wnd.CursorEnabled())break;
+//		if (delta->GetType() == Mouse::Event::Type::WheelDown)
+//		{
+//			cam.DecreaseTravelSpeed();
+//		}
+//		if (delta->GetType() == Mouse::Event::Type::WheelUp)
+//		{
+//			cam.IncreaseTravelSpeed();
+//		}
+//	}
+	ctrl.Draw(wnd.Gfx());
 
 	// imgui windows
 	ImGui::Begin("Menu");
@@ -216,7 +221,7 @@ void App::DoFrame()
 	const char* proj = "current: Perspective";
 	if (!isPerspective)proj = "current: Orthographic";
 	ImGui::Text(proj);
-	ctrl.TransformGeomerty(wnd);
+	//ctrl.TransformGeomerty(wnd);
 	ImGui::End();
 	cam.SpawnControlWindow();
 	light.SpawnControlWindow();

@@ -199,3 +199,8 @@ void Mouse::OnWheelDelta(int x, int y, int delta) noexcept
 	}
 }
 
+void Mouse::FlushRawDelta() noexcept
+{
+	this->rawDeltaBuffer = std::queue<Mouse::RawDelta>();
+}
+
