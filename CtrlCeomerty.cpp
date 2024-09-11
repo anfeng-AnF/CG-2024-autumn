@@ -602,9 +602,6 @@
  {
      switch (currentStatue)
      {
-     case CtrlComponents::NONE:
-         return FTransform();
-         break;
      case CtrlComponents::ON_TRANSLATION:
          return pTranslation->GetTransform();
          break;
@@ -613,6 +610,9 @@
          break;
      case CtrlComponents::ON_ROTATION:
          return pRotation->GetTransform();
+         break;
+     default:
+         return FTransform();
          break;
      }
  }

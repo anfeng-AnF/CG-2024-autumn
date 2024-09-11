@@ -114,3 +114,39 @@ bool operator==(const FTransform& lhs, const FTransform& rhs)
 		DirectX::XMQuaternionEqual(lhs.rotation, rhs.rotation) &&
 		DirectX::XMVector3Equal(lhs.scale, rhs.scale);
 }
+
+XMFLOAT3 operator+(const XMFLOAT3& lhs, const XMFLOAT3& rhs)
+{
+	return XMFLOAT3(
+		lhs.x + rhs.x,
+		lhs.y + rhs.y,
+		lhs.z + rhs.z
+	);
+}
+
+XMFLOAT3 operator-(const XMFLOAT3& lhs, const XMFLOAT3& rhs)
+{
+	return XMFLOAT3(
+		lhs.x - rhs.x,
+		lhs.y - rhs.y,
+		lhs.z - rhs.z
+	);
+}
+
+XMFLOAT3 operator*(const XMFLOAT3& lhs, float scalar)
+{
+	return XMFLOAT3(
+		lhs.x * scalar,
+		lhs.y * scalar,
+		lhs.z * scalar
+	);
+}
+
+XMFLOAT3 operator/(const XMFLOAT3& lhs, float scalar)
+{
+	return XMFLOAT3(
+		lhs.x / scalar,
+		lhs.y / scalar,
+		lhs.z / scalar
+	);
+}

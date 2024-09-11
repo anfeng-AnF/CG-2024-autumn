@@ -58,7 +58,7 @@ TransformCtrlComponent::TransformCtrlComponent(Graphics& gfx,Camera&cam, std::st
 
     auto Material = pScene->mMaterials;
 
-    for (int i = 0; i < pScene->mNumMeshes; i++) {
+    for (UINT i = 0; i < pScene->mNumMeshes; i++) {
 		meshPtrs.push_back(this->ParseMesh(gfx, *pScene->mMeshes[i], pScene->mMaterials));
     }
 	int nextId = 0;

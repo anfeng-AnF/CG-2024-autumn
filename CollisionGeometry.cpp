@@ -28,7 +28,7 @@ std::vector<CollisionGeometry::CollisionRes> CollisionGeometry::TraceByLine(Dire
 {
     namespace dx=DirectX;
 
-    UINT32 indicesSize = indices.size();
+    UINT32 indicesSize =(UINT32) indices.size();
     auto data = vertexBuffer->GetData();
     std::vector<CollisionRes> result;
 
@@ -195,7 +195,7 @@ std::vector<CollisionGeometry::CollisionRes> Line::TraceByLine(DirectX::XMFLOAT3
     namespace dx = DirectX;
 
     std::vector<CollisionRes> result;
-    UINT32 indicesSize = indices.size();
+    UINT32 indicesSize = (UINT32)indices.size();
     auto data = vertexBuffer->GetData();
 
     //cacularte data size
@@ -339,7 +339,7 @@ void TriangelGeo::Draw(Graphics& gfx) const noexcept
 WidthLine::WidthLine(Graphics& gfx, Camera& cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos, int lineWidth)
     :
     Line(gfx,cam,_vertexBuffer,_indices,_pos),
-    width(lineWidth),
+    width((float)lineWidth),
     gcBuf(gfx)
 {
     auto it=std::find(binds.begin(), binds.end(), Bind::Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_LINELIST));

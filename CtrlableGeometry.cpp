@@ -2,7 +2,8 @@
 
 TransformComponentBase::TransformComponentBase(Graphics& gfx, Camera& cam, std::string filePath) :
 	DGM(DebugGraphsMannger::GetDGMRefference()),
-    gfx(gfx)
+    gfx(gfx),
+    cam(cam)
 {
     pTransformCtrlComponent = std::make_unique<TransformCtrlComponent>(gfx, cam, filePath);
 }
@@ -50,7 +51,72 @@ void TransformComponentBase::EndTransform()
 	if (ctrlingMesh) {
 		ctrlingMesh->SetSelect(false);
 		ctrlingMesh = nullptr;
+        onTransform = false;
 	}
+}
+
+LineRay TransformComponentBase::GetPlaneFlatPointNormal(LineRay line, XMVECTOR point)
+{
+    XMVECTOR lineOrigin = XMLoadFloat3(&line.rayOrigin);
+    XMVECTOR lineDirection = XMLoadFloat3(&line.rayDirection);
+    XMVECTOR targetPoint = point;
+
+    XMVECTOR vectorOP = XMVectorSubtract(targetPoint, lineOrigin);
+
+    float t = XMVector3Dot(vectorOP, lineDirection).m128_f32[0] / XMVector3Dot(lineDirection, lineDirection).m128_f32[0];
+    XMVECTOR closestPoint = XMVectorAdd(lineOrigin, XMVectorScale(lineDirection, t));
+
+    XMVECTOR vectorToTarget = XMVectorSubtract(targetPoint, closestPoint);
+    vectorToTarget = XMVector3Normalize(vectorToTarget);
+    LineRay result;
+    XMStoreFloat3(&result.rayOrigin, closestPoint);  
+    XMStoreFloat3(&result.rayDirection, vectorToTarget);
+
+    return result;
+}
+
+XMFLOAT3 TransformComponentBase::GetIntersectionPlaneLine(LineRay plane, LineRay line)
+{
+    XMVECTOR planePoint = XMLoadFloat3(&plane.rayOrigin);
+    XMVECTOR planeNormal = XMLoadFloat3(&plane.rayDirection);
+    XMVECTOR lineOrigin = XMLoadFloat3(&line.rayOrigin);
+    XMVECTOR lineDirection = XMLoadFloat3(&line.rayDirection);
+
+    XMVECTOR numerator = XMVector3Dot(XMVectorSubtract(planePoint, lineOrigin), planeNormal);
+    XMVECTOR denominator = XMVector3Dot(lineDirection, planeNormal);
+
+    if (XMVector3Equal(denominator, XMVectorZero()))
+    {
+        throw std::runtime_error("The line is parallel to the plane or lies within the plane.");
+    }
+
+    float t = numerator.m128_f32[0] / denominator.m128_f32[0];
+
+    XMVECTOR intersection = XMVectorAdd(lineOrigin, XMVectorScale(lineDirection, t));
+
+    XMFLOAT3 intersectionPoint;
+    XMStoreFloat3(&intersectionPoint, intersection);
+
+    return intersectionPoint;
+}
+
+float TransformComponentBase::GetProjectionLength(const XMFLOAT3& aDirection, const XMFLOAT3& bDirection)
+{
+    XMVECTOR aVec = XMLoadFloat3(&aDirection);
+    XMVECTOR bVec = XMLoadFloat3(&bDirection);
+
+    XMVECTOR dotProduct = XMVector3Dot(aVec, bVec);
+
+    XMVECTOR bLength = XMVector3Length(bVec);
+
+    float projectionLength = dotProduct.m128_f32[0] / bLength.m128_f32[0];
+
+    return projectionLength;
+}
+
+XMMATRIX TransformComponentBase::CreateTranslationMatrix(const XMFLOAT3& translation)
+{
+    return XMMatrixTranslation(translation.x, translation.y, translation.z);
 }
 
 TranslateComponent::TranslateComponent(Graphics& gfx, Camera& cam, std::string filePath)
@@ -61,26 +127,67 @@ TranslateComponent::TranslateComponent(Graphics& gfx, Camera& cam, std::string f
 
 XMMATRIX TranslateComponent::GetDeltaTransform(screenPos from, screenPos to, Window& wnd)
 {
-    XMMATRIX resMatrix = XMMatrixIdentity();
+    //get plane
+    LineRay plane;
     switch (tAxis)
     {
     case TransformComponentBase::X:
+        plane = GetPlaneFlatPointNormal(LineRay{ transform.position,transform.GetRightVector() }, cam.GetTransform().position);
         break;
     case TransformComponentBase::Y:
+        plane = GetPlaneFlatPointNormal(LineRay{ transform.position,transform.GetUpVector() }, cam.GetTransform().position);
         break;
     case TransformComponentBase::Z:
+        plane = GetPlaneFlatPointNormal(LineRay{ transform.position,transform.GetForwardVector() }, cam.GetTransform().position);
         break;
     case TransformComponentBase::XY:
+        plane = { transform.position,XMVector3Normalize(XMVector3Cross(transform.GetRightVector(),transform.GetUpVector())) };
         break;
     case TransformComponentBase::XZ:
+        plane = { transform.position,XMVector3Normalize(XMVector3Cross(transform.GetRightVector(),transform.GetForwardVector())) };
         break;
     case TransformComponentBase::YZ:
+        plane = { transform.position,XMVector3Normalize(XMVector3Cross(transform.GetUpVector(),transform.GetForwardVector())) };
         break;
     case TransformComponentBase::XYZ:
+        plane = { transform.position,XMVector3Normalize(XMVectorSubtract(cam.GetTransform().position,transform.position)) };
         break;
     default:
+        throw std::runtime_error("How did you get here without the center shaft?");
         break;
     }
+    if (!onTransform) {
+        fromWorldPos= this->GetIntersectionPlaneLine(plane, LineRay(from, wnd, cam));
+    }
+    auto toWorldPos = this->GetIntersectionPlaneLine(plane, LineRay(to+from, wnd, cam));
+    //Preparation data completed//
+
+    XMMATRIX resMatrix = XMMatrixIdentity();
+    XMVECTOR translateDirection;
+    float t=1.0f;
+    switch (tAxis)
+    {
+    case TransformComponentBase::X:
+        translateDirection = transform.GetRightVector();
+        t *= this->GetProjectionLength(toWorldPos-fromWorldPos, { translateDirection.m128_f32[0],translateDirection.m128_f32[1],translateDirection.m128_f32[2] });
+        break;
+    case TransformComponentBase::Y:
+        translateDirection = transform.GetUpVector();
+        t *= this->GetProjectionLength(toWorldPos - fromWorldPos, { translateDirection.m128_f32[0],translateDirection.m128_f32[1],translateDirection.m128_f32[2] });
+        break;
+    case TransformComponentBase::Z:
+        translateDirection = transform.GetForwardVector();
+        t *= this->GetProjectionLength(toWorldPos - fromWorldPos, { translateDirection.m128_f32[0],translateDirection.m128_f32[1],translateDirection.m128_f32[2] });
+        break;
+    case TransformComponentBase::XY:
+    case TransformComponentBase::YZ:
+    case TransformComponentBase::XZ:
+    case TransformComponentBase::XYZ:
+        XMFLOAT3 a = toWorldPos - fromWorldPos;
+        translateDirection =XMVectorSet(a.x, a.y, a.z, 0.0f);
+        break;
+    }
+    resMatrix = this->CreateTranslationMatrix({ translateDirection.m128_f32[0] * t, translateDirection.m128_f32[1] * t, translateDirection.m128_f32[2] * t });
 	return resMatrix;
 }
 
@@ -141,10 +248,10 @@ void CollisionGeoManager::TransformGeometryByImGui(Window& wnd)
     TransformData.deltaTransform.rotation = q;
 }
 
-void CollisionGeoManager::TransformGeometryByComponent(Window& wnd, std::optional<Mouse::RawDelta> rawDelta)
+void CollisionGeoManager::TransformGeometryByComponent(Window& wnd, screenPos Delta)
 {
     XMMATRIX deltaTransform=XMMatrixIdentity();
-    TransformData.deltaScreenPos +=screenPos{rawDelta->x, rawDelta->y};
+    TransformData.deltaScreenPos +=Delta;
     switch (TransformData.transformationMethod)
     {
     case 0:
@@ -282,7 +389,7 @@ void CollisionGeoManager::Draw(Graphics& gfx)
 
 int CollisionGeoManager::GetSelectedGeoNum()
 {
-    return SelectedGeomertys.size();
+    return (int)SelectedGeomertys.size();
 }
 
 void CollisionGeoManager::Transform()
@@ -323,6 +430,7 @@ void CollisionGeoManager::EndComponentTransform()
 void CollisionGeoManager::DrawImGui(Graphics& gfx)
 {
     ImGui::BeginChild("transform", { 0,0 });
+    ImGui::Checkbox("Automatically applying transformations?", &TransformData.autoApplyTransform);
     if (SelectedGeomertys.size() == 0) {
         ImGui::EndChild();
         return;
@@ -381,6 +489,15 @@ void CollisionGeoManager::RenewTransformDelta()
     TransformData.color = { -1.0f,0.0f,0.0f };
 }
 
+void CollisionGeoManager::ApplyTransform()
+{
+    for (auto& geo : SelectedGeomertys) {
+        geo.second = geo.first->GetTransform();
+    }
+    TransformData.deltaTransform = FTransform();
+    this->RenewOriginPointPos();
+}
+
 LineRay::LineRay(screenPos sp, Window& wnd,Camera&cam)
 {
     auto clickViewPos = ConvertScreenToView(sp, wnd, 1.0f);
@@ -401,7 +518,12 @@ LineRay::LineRay(screenPos sp, Window& wnd,Camera&cam)
     XMVECTOR rayDirVec = XMLoadFloat3(&rayDirection);
     rayDirVec = XMVector3Normalize(rayDirVec);
     XMStoreFloat3(&rayDirection, rayDirVec);
-};
+}
+LineRay::LineRay(DirectX::XMVECTOR origin, DirectX::XMVECTOR direction)
+{
+    DirectX::XMStoreFloat3(&rayOrigin, origin);
+    DirectX::XMStoreFloat3(&rayDirection, direction);
+}
 
 XMFLOAT3 ConvertScreenToView(screenPos scPos, Window& wnd, float depthOffset)
 {
@@ -444,6 +566,19 @@ screenPos::screenPos(std::pair<int, int> pos)
     y = pos.second;
 }
 
+bool screenPos::operator!=(const screenPos& other) const
+{
+    return x != other.x || y != other.y;
+}
+
+screenPos screenPos::operator+(const screenPos& other) const
+{
+    return screenPos(
+    this->x+other.x,
+        this->y+other.y
+    );
+}
+
 CollisionGeoManager::TranslationState::TranslationState(Window& window, CollisionGeoManager& manager)
     : InputState(window), collisionManager(manager) {}
 
@@ -461,6 +596,9 @@ void CollisionGeoManager::TranslationState::Update(float deltaTime)
     while (auto c = wnd.Kbd.ReadChar()) {
         if (collisionManager.GetSelectedGeoNum()) {
             this->collisionManager.ChangeTransformationMethod(shortcutKey[c.value()]);
+        }
+        if (c == VK_RETURN && !this->selectedComponent) {
+            collisionManager.ApplyTransform();
         }
     }
     //Handling of mouse input
@@ -487,6 +625,9 @@ void CollisionGeoManager::TranslationState::Update(float deltaTime)
                 selectedComponent = false;
                 wnd.mouse.DisableRaw();
                 collisionManager.EndComponentTransform();
+                if (collisionManager.TransformData.autoApplyTransform) {
+                    collisionManager.ApplyTransform();
+                }
             }
             break;
 
@@ -499,18 +640,17 @@ void CollisionGeoManager::TranslationState::Update(float deltaTime)
             break;
         }
     }
-
-    while (auto rawDelta = wnd.mouse.ReadRawDelta())
+    if (selectedComponent && wnd.mouse.LeftIsPressed())
     {
-        if (selectedComponent&&wnd.mouse.LeftIsPressed())
+        std::pair<int, int> rawData = { 0,0 };
+        while (auto rawDelta = wnd.mouse.ReadRawDelta())
         {
-            if (rawDelta) {
-                collisionManager.TransformGeometryByComponent(wnd, rawDelta);
-                wnd.UpdateMousePosition(rawDelta.value().x, rawDelta.value().y);
-            }
+            rawData.first += rawDelta.value().x;
+            rawData.second += rawDelta.value().y;
         }
+        collisionManager.TransformGeometryByComponent(wnd, { rawData.first,rawData.second });
+        wnd.UpdateMousePosition(rawData.first, rawData.second);
     }
-
     collisionManager.TransformGeometryByImGui(wnd);
     collisionManager.Transform();
 }

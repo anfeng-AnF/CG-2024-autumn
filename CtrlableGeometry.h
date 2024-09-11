@@ -20,12 +20,15 @@ struct screenPos {
 		screenPos(std::pair<int, int> pos);
 		screenPos(int a, int b) :x(a), y(b) {};
 		screenPos() = default;
+		bool operator!=(const screenPos& other) const;
+		screenPos operator+(const screenPos& other) const;
 	};
 struct LineRay {
 	DirectX::XMFLOAT3 rayOrigin;
 	DirectX::XMFLOAT3 rayDirection;
 	LineRay() = default;
 	LineRay(screenPos sp, Window& wnd,Camera&cam);
+	LineRay(DirectX::XMVECTOR origin, DirectX::XMVECTOR direction);
 };
 
 class TransformComponentBase
@@ -52,6 +55,13 @@ public:
 	bool TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector);
 	void EndTransform();
 protected:
+	//Utility function
+	LineRay GetPlaneFlatPointNormal(LineRay line,XMVECTOR point);
+	XMFLOAT3 GetIntersectionPlaneLine(LineRay plane, LineRay line);//Plane point formula and linear pointwise formula
+	float GetProjectionLength(const XMFLOAT3& aDirection, const XMFLOAT3& bDirection);
+	XMMATRIX CreateTranslationMatrix(const XMFLOAT3& translation);
+
+
 	FTransform transform;
 	std::unique_ptr<TransformCtrlComponent> pTransformCtrlComponent;
 
@@ -60,6 +70,10 @@ protected:
 	
 	DebugGraphsMannger& DGM;
 	Graphics& gfx;
+	Camera& cam;
+
+	XMFLOAT3 fromWorldPos;
+	bool onTransform = false;
 };
 
 class TranslateComponent :public TransformComponentBase
@@ -130,7 +144,7 @@ public:
 
 	//caculate deltaTransform from imgui/component
 	void TransformGeometryByImGui(Window& wnd);
-	void TransformGeometryByComponent(Window& wnd, std::optional<Mouse::RawDelta> rawData);
+	void TransformGeometryByComponent(Window& wnd, screenPos Delta);
 	/// <summary>
 	/// Selects a geometry based on the provided screen position and window context.
 	/// </summary>
@@ -161,6 +175,9 @@ private:
 
 	//Renew Data
 	void RenewTransformDelta();
+
+	
+	void ApplyTransform();
 private:
 	std::unique_ptr<TranslateComponent> pTranslateComponent;
 	std::unique_ptr<RotationComponent> pRotationComponent;
@@ -180,6 +197,7 @@ private:
 		screenPos deltaScreenPos;		//Delta using rawdata overlay
 		TransformationMethod transformationMethod;		//0-none  1-translate  2-scale 3-rotation
 		bool affectOriginOnly;
+		bool autoApplyTransform=true;
 	}TransformData;
 
 	DebugGraphsMannger& DGM;
