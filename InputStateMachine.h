@@ -3,6 +3,9 @@
 #include <unordered_map>
 #include <memory>
 #include <string>
+
+#define PERVIOUS_STATE "pervious"
+#define DEFAULT_STATE  "default"
 class InputStateMachine;
 
 class InputState {
@@ -22,7 +25,7 @@ protected:
 class InputStateMachine
 {
 public:
-    InputStateMachine() = default;
+    InputStateMachine() {};
 
     void DoFrame(float deltaTime) {
         if (currentState) {
@@ -37,7 +40,7 @@ public:
 
     void SetState(const std::string& name) {
         auto it = states.find(name);
-        if (it == states.end()) {
+        if (it == states.end()&&name!=PERVIOUS_STATE) {
             throw std::runtime_error("State not found: "+name);
             return;
         }
@@ -45,7 +48,16 @@ public:
         if (currentState) {
             currentState->Exit();
         }
-        currentState = it->second.get();
+
+        if (name == PERVIOUS_STATE) {
+            std::swap(currentState, perviousState);
+        }
+        else
+        {
+            perviousState = currentState;
+            currentState = it->second.get();
+        }
+
         if (currentState) {
             currentState->Enter();
         }
@@ -54,4 +66,5 @@ public:
 private:
     std::unordered_map<std::string, std::unique_ptr<InputState>> states;
     InputState* currentState = nullptr;
+    InputState* perviousState = nullptr;
 };

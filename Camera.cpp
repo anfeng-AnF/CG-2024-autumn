@@ -219,7 +219,7 @@ void Camera::CameraMove::Update(float deltaTime)
 	}
 	else
 	{
-		this->Machine->SetState("default");
+		this->Machine->SetState(PERVIOUS_STATE);
 	}
 	while (const auto delta = wnd.mouse.Read()) {
 		switch (delta.value().GetType())

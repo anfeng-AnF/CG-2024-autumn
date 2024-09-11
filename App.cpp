@@ -26,8 +26,8 @@ App::App(UINT width, UINT height)
 
 	auto a=Sphere::Make(2.0f);
 	ctrl.AddGeometry(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices, DirectX::XMFLOAT3{ 20.0f,0.0f,0.0f }));
-	//ctrl.AddGeometry(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices, DirectX::XMFLOAT3{ 10.0f,0.0f,0.0f }));
-	//ctrl.AddGeometry(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices, DirectX::XMFLOAT3{ 0.0f,10.0f,20.0f }));
+	ctrl.AddGeometry(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices, DirectX::XMFLOAT3{ 10.0f,0.0f,0.0f }));
+	ctrl.AddGeometry(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices, DirectX::XMFLOAT3{ 0.0f,10.0f,20.0f }));
 
 	Dvtx::VertexBuffer vbuf(Dvtx::VertexLayout{}.Append(Dvtx::VertexLayout::Position3D));
 	vbuf.EmplaceBack(DirectX::XMFLOAT3{ 100.0f,0.0f,100.0f });
@@ -36,7 +36,7 @@ App::App(UINT width, UINT height)
 	vbuf.EmplaceBack(DirectX::XMFLOAT3{ 100.0f,0.0f,-100.0f });
 	std::vector<uint16_t> ind = { 3,0,1,3,1,2 };
 
-	//ctrl.AddGeomerty(wnd.Gfx(),vbuf,ind);
+	//ctrl.AddGeometry(wnd.Gfx(),vbuf,ind);
 
 	Dvtx::VertexBuffer vbufLine(Dvtx::VertexLayout{}.Append(Dvtx::VertexLayout::Position3D));
 	float radius=5.0f;
@@ -68,9 +68,9 @@ App::App(UINT width, UINT height)
 	}
 	//ctrl.AddGeometry(std::make_shared<WidthLine>(wnd.Gfx(),cam, vbufLine, ind));
 
-	ISM.AddState("default", std::make_unique<CollisionGeoManager::TranslationState>(ctrl.inputState));
+	ISM.AddState(DEFAULT_STATE, std::make_unique<CollisionGeoManager::TranslationState>(ctrl.inputState));
 	ISM.AddState("CameraMove", std::make_unique<Camera::CameraMove>(cam.inputState));
-	ISM.SetState("default");
+	ISM.SetState(DEFAULT_STATE);
 }
 int App::Go()
 {
@@ -213,15 +213,15 @@ void App::DoFrame()
 //			cam.IncreaseTravelSpeed();
 //		}
 //	}
-	ctrl.Draw(wnd.Gfx());
 
+	ctrl.Draw(wnd.Gfx());
 	// imgui windows
 	ImGui::Begin("Menu");
 	ImGui::Checkbox("Use Perspective", &isPerspective);
 	const char* proj = "current: Perspective";
 	if (!isPerspective)proj = "current: Orthographic";
 	ImGui::Text(proj);
-	//ctrl.TransformGeomerty(wnd);
+	ctrl.DrawImGui(wnd.Gfx());
 	ImGui::End();
 	cam.SpawnControlWindow();
 	light.SpawnControlWindow();

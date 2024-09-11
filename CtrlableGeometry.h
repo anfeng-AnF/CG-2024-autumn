@@ -42,7 +42,7 @@ public:
 		XYZ
 	};
 public:
-	TransformComponentBase();
+	TransformComponentBase(Graphics& gfx,Camera&cam , std::string filePath);
 	//Called externally and passed in mouse displacement to get component-controlled transformations
 	virtual XMMATRIX GetDeltaTransform(screenPos from,screenPos to,Window&wnd) = 0;
 	void draw(Graphics& gfx)const noexcept;
@@ -59,25 +59,31 @@ protected:
 	cMesh* ctrlingMesh=nullptr;
 	
 	DebugGraphsMannger& DGM;
-	mutable Graphics* pGfx = nullptr;
+	Graphics& gfx;
 };
 
 class TranslateComponent :public TransformComponentBase
 {
 public:
+	TranslateComponent(Graphics& gfx, Camera& cam, std::string filePath);
 	XMMATRIX GetDeltaTransform(screenPos from, screenPos to, Window& wnd) override;
+
 };
 
 class RotationComponent :public TransformComponentBase
 {
 public:
+	RotationComponent(Graphics& gfx, Camera& cam, std::string filePath);
 	XMMATRIX GetDeltaTransform(screenPos from, screenPos to, Window& wnd) override;
+
 };
 
 class ScaleComponent :public TransformComponentBase
 {
 public:
+	ScaleComponent(Graphics& gfx, Camera& cam, std::string filePath);
 	XMMATRIX GetDeltaTransform(screenPos from, screenPos to, Window& wnd) override;
+
 };
 
 class CollisionGeoManager
@@ -91,7 +97,7 @@ public:
 		SCALE = 2,
 		ROTATION = 3
 	};
-
+	friend class TranslationState;
 	//Interface for Input Control
 	class TranslationState : public InputState
 	{
@@ -141,20 +147,24 @@ public:
 	void Draw(Graphics& gfx);
 
 	int GetSelectedGeoNum();
+	//get transform data from ImGui
+	void DrawImGui(Graphics& gfx);
+
+	//component transform end
+	void EndComponentTransform();
 private:
 	//apply deltaTransform to Geos
 	void Transform();
 
-	//get transform data from ImGui
-	void DrawImGui(Graphics& gfx);
-
 	//Update control point location
 	void RenewOriginPointPos();
 
+	//Renew Data
+	void RenewTransformDelta();
 private:
-	std::unique_ptr<TranslateComponent> translateComponent;
-	std::unique_ptr<RotationComponent> rotationComponent;
-	std::unique_ptr<ScaleComponent> scaleComponent;
+	std::unique_ptr<TranslateComponent> pTranslateComponent;
+	std::unique_ptr<RotationComponent> pRotationComponent;
+	std::unique_ptr<ScaleComponent> pScaleComponent;
 
 	std::unordered_map<std::shared_ptr<CollisionGeometry>, bool>Geomertys;
 	std::list<std::pair<std::shared_ptr<CollisionGeometry>, FTransform>> SelectedGeomertys; //selected geo and pervious transform

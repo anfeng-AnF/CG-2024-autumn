@@ -1,17 +1,24 @@
 ﻿#include "CtrlableGeometry.h"
 
-TransformComponentBase::TransformComponentBase():
-	DGM(DebugGraphsMannger::GetDGMRefference())
+TransformComponentBase::TransformComponentBase(Graphics& gfx, Camera& cam, std::string filePath) :
+	DGM(DebugGraphsMannger::GetDGMRefference()),
+    gfx(gfx)
 {
+    pTransformCtrlComponent = std::make_unique<TransformCtrlComponent>(gfx, cam, filePath);
 }
 
 void TransformComponentBase::draw(Graphics& gfx) const noexcept
 {
-	//pGfx = &gfx;
+    pTransformCtrlComponent->SetTransform(transform);
+    auto depth = Bind::DepthStencilState(gfx);
+    depth.Bind(gfx);
+    pTransformCtrlComponent->Draw(gfx);
+    depth.UnBind(gfx);
 }
 
 void TransformComponentBase::SetTransform(FTransform transform)
 {
+    this->transform = transform;
 }
 
 bool TransformComponentBase::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector)
@@ -26,7 +33,7 @@ bool TransformComponentBase::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX
 		if (res.second->GetName() == "YZ")tAxis = YZ;
 		if (res.second->GetName() =="XYZ")tAxis = XYZ;
 
-		DGM.AddGeo(std::make_shared<DebugSphere>(*pGfx, XMFLOAT3{ 0.7f,0.1f,0.1f }, res.first.pos));
+		DGM.AddGeo(std::make_shared<DebugSphere>(gfx, XMFLOAT3{ 0.7f,0.1f,0.1f }, res.first.pos));
 		res.second->SetSelect(true);
 		ctrlingMesh = res.second;
 		return true;
@@ -46,14 +53,52 @@ void TransformComponentBase::EndTransform()
 	}
 }
 
+TranslateComponent::TranslateComponent(Graphics& gfx, Camera& cam, std::string filePath)
+    :
+    TransformComponentBase(gfx, cam, filePath)
+{
+}
+
 XMMATRIX TranslateComponent::GetDeltaTransform(screenPos from, screenPos to, Window& wnd)
 {
-	return XMMATRIX();
+    XMMATRIX resMatrix = XMMatrixIdentity();
+    switch (tAxis)
+    {
+    case TransformComponentBase::X:
+        break;
+    case TransformComponentBase::Y:
+        break;
+    case TransformComponentBase::Z:
+        break;
+    case TransformComponentBase::XY:
+        break;
+    case TransformComponentBase::XZ:
+        break;
+    case TransformComponentBase::YZ:
+        break;
+    case TransformComponentBase::XYZ:
+        break;
+    default:
+        break;
+    }
+	return resMatrix;
+}
+
+RotationComponent::RotationComponent(Graphics& gfx, Camera& cam, std::string filePath)
+    :
+    TransformComponentBase(gfx, cam, filePath) 
+{
 }
 
 XMMATRIX RotationComponent::GetDeltaTransform(screenPos from, screenPos to, Window& wnd)
 {
 	return XMMATRIX();
+}
+
+ScaleComponent::ScaleComponent(Graphics& gfx, Camera& cam, std::string filePath)
+    :
+    TransformComponentBase(gfx, cam, filePath)
+{
 }
 
 XMMATRIX ScaleComponent::GetDeltaTransform(screenPos from, screenPos to, Window& wnd)
@@ -66,7 +111,12 @@ CollisionGeoManager::CollisionGeoManager(Window& wnd, Camera& cam)
     inputState(wnd, *this),
     gfx(&wnd.Gfx()), cam(&cam),
     DGM(DebugGraphsMannger::GetDGMRefference())
-{}; 
+{
+    pTranslateComponent = std::make_unique<TranslateComponent>(wnd.Gfx(), cam, "Models\\Component\\Position.fbx");
+    pRotationComponent = std::make_unique<RotationComponent>(wnd.Gfx(), cam, "Models\\Component\\Rotation.fbx");
+    pScaleComponent = std::make_unique<ScaleComponent>(wnd.Gfx(),cam,"Models\\Component\\Scale.fbx");
+}; 
+
 void CollisionGeoManager::AddGeometry(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos)
 {
     Geomertys[std::make_shared<CollisionGeometry>(gfx, _vertexBuffer, _indices, _pos)] = false;
@@ -84,11 +134,11 @@ void CollisionGeoManager::AddGeometry(std::shared_ptr<CollisionGeometry> Geo, bo
 void CollisionGeoManager::TransformGeometryByImGui(Window& wnd)
 {
     auto q=DirectX::XMQuaternionRotationRollPitchYaw(
-        TransformData.DeltaRotationEuler.x, 
-        TransformData.DeltaRotationEuler.y, 
-        TransformData.DeltaRotationEuler.z
+        TransformData.DeltaRotationEuler.x / 180 * XM_PI,
+        TransformData.DeltaRotationEuler.y / 180 * XM_PI,
+        TransformData.DeltaRotationEuler.z / 180 * XM_PI
     );
-    TransformData.deltaTransform.rotation = XMQuaternionMultiply(TransformData.deltaTransform.rotation, q);
+    TransformData.deltaTransform.rotation = q;
 }
 
 void CollisionGeoManager::TransformGeometryByComponent(Window& wnd, std::optional<Mouse::RawDelta> rawDelta)
@@ -101,13 +151,13 @@ void CollisionGeoManager::TransformGeometryByComponent(Window& wnd, std::optiona
         assert(0 && L"How do you get this value when using ,amazing ~ ♪ : TransformData.transformationMethod");
         break;
     case 1:
-        deltaTransform= translateComponent->GetDeltaTransform(TransformData.beginScreenPos, TransformData.deltaScreenPos,wnd);
+        deltaTransform= pTranslateComponent->GetDeltaTransform(TransformData.beginScreenPos, TransformData.deltaScreenPos,wnd);
         break;
     case 2:
-        deltaTransform = scaleComponent->GetDeltaTransform(TransformData.beginScreenPos, TransformData.deltaScreenPos, wnd);
+        deltaTransform = pScaleComponent->GetDeltaTransform(TransformData.beginScreenPos, TransformData.deltaScreenPos, wnd);
         break;
     case 3:
-        deltaTransform = rotationComponent->GetDeltaTransform(TransformData.beginScreenPos, TransformData.deltaScreenPos, wnd);
+        deltaTransform = pRotationComponent->GetDeltaTransform(TransformData.beginScreenPos, TransformData.deltaScreenPos, wnd);
         break;
     default:
         assert(0 && "unknown value : TransformData.transformationMethod");
@@ -118,27 +168,29 @@ void CollisionGeoManager::TransformGeometryByComponent(Window& wnd, std::optiona
 
 int CollisionGeoManager::SelectGeometry(screenPos pos, Window& wnd)
 {
-    LineRay ray(pos, wnd,*cam);
-    XMFLOAT3 endPos = { ray.rayOrigin.x+ ray.rayDirection.x * 1e4f, ray.rayOrigin.y + ray.rayDirection.y * 1e4f, ray.rayOrigin.z + ray.rayDirection.z * 1e4f };
+    LineRay ray(pos, wnd, *cam);
+    XMFLOAT3 endPos = { ray.rayOrigin.x + ray.rayDirection.x * 1e4f, ray.rayOrigin.y + ray.rayDirection.y * 1e4f, ray.rayOrigin.z + ray.rayDirection.z * 1e4f };
     DGM.AddGeo(std::make_shared<DebugLine>(*gfx, ray.rayOrigin, endPos, XMFLOAT3(1.0f, 0.0f, 0.0f)));
     //0-none  1-translate  2-scale 3-rotation
     bool selectedComponent = false;
-    switch (TransformData.transformationMethod)
-    {
-    case 1:
-        selectedComponent = translateComponent->TraceByLine(ray.rayOrigin, ray.rayDirection);
-        break;
-    case 2:
-        selectedComponent = scaleComponent->TraceByLine(ray.rayOrigin, ray.rayDirection);
-        break;
-    case 3:
-        selectedComponent = rotationComponent->TraceByLine(ray.rayOrigin, ray.rayDirection);
-        break;
-    default:
-        break;
+    if (SelectedGeomertys.size()) {
+        switch (TransformData.transformationMethod)
+        {
+        case 1:
+            selectedComponent = pTranslateComponent->TraceByLine(ray.rayOrigin, ray.rayDirection);
+            break;
+        case 2:
+            selectedComponent = pScaleComponent->TraceByLine(ray.rayOrigin, ray.rayDirection);
+            break;
+        case 3:
+            selectedComponent = pRotationComponent->TraceByLine(ray.rayOrigin, ray.rayDirection);
+            break;
+        default:
+            break;
+        }
     }
     if (selectedComponent)
-    {   
+    {
         this->TransformData.beginScreenPos = pos;
         this->TransformData.deltaScreenPos = { 0,0 };
         //return 2 for transform component be selected
@@ -147,19 +199,20 @@ int CollisionGeoManager::SelectGeometry(screenPos pos, Window& wnd)
 
     //get the nearest geo
     float minDistance = D3D11_FLOAT32_MAX;
-    std::shared_ptr<CollisionGeometry> nearestGeo=nullptr;
+    std::shared_ptr<CollisionGeometry> nearestGeo = nullptr;
     for (auto& geo : Geomertys) {
-        auto hitRes = geo.first->TraceByLine(ray.rayOrigin, ray.rayDirection,geo.first->GetTransformXM());
+        auto hitRes = geo.first->TraceByLine(ray.rayOrigin, ray.rayDirection, geo.first->GetTransformXM());
         if (hitRes.size()) {
             for (const auto& collisionRes : hitRes) {
                 if (minDistance > collisionRes.hitDistance) {
                     minDistance = collisionRes.hitDistance;
                     nearestGeo = geo.first;
                 }
-                DGM.AddGeo(std::make_shared<DebugSphere>(*gfx, XMFLOAT3{ 0.8f,0.2f,0.2f }, collisionRes.pos,0.02f));
+                DGM.AddGeo(std::make_shared<DebugSphere>(*gfx, XMFLOAT3{ 0.8f,0.2f,0.2f }, collisionRes.pos, 0.02f));
             }
         }
     }
+    RenewTransformDelta();
     //0 for nothing selected
     if (!nearestGeo) {
         //If click blank, remove all selected geometry
@@ -185,10 +238,14 @@ int CollisionGeoManager::SelectGeometry(screenPos pos, Window& wnd)
         nearestGeo->SetSelect(true);
         SelectedGeomertys.push_back({ std::move(nearestGeo),transform });
         RenewOriginPointPos();
-       
-        // 1 for select collisionGeometry
-        return 1;
+
     }
+    if (SelectedGeomertys.size() == 1) {
+        TransformData.color = SelectedGeomertys.front().first->GetColor();
+    }
+    // 1 for select collisionGeometry
+    RenewOriginPointPos();
+    return 1;
 }
 
 void CollisionGeoManager::ChangeTransformationMethod(TransformationMethod method)
@@ -198,28 +255,28 @@ void CollisionGeoManager::ChangeTransformationMethod(TransformationMethod method
 
 void CollisionGeoManager::Draw(Graphics& gfx)
 {
-    switch (TransformData.transformationMethod)
-    {
-    case TransformationMethod::NONE:
-        break;
-    case TransformationMethod::TRANSLATE:
-        translateComponent->draw(gfx);
-        break;
-    case TransformationMethod::SCALE:
-        scaleComponent->draw(gfx);
-        break;
-    case TransformationMethod::ROTATION:
-        rotationComponent->draw(gfx);
-        break;
-    default:
-        break;
-    }
-    DrawImGui(gfx);
     for (const auto& obj : Geomertys) {
         if (auto a = static_cast<CollisionGeometry*>(obj.first.get())) {
             a->Bind(gfx);
         }
         obj.first->Draw(gfx);
+    }
+    if (SelectedGeomertys.size() == 0)return;
+    switch (TransformData.transformationMethod)
+    {
+    case TransformationMethod::NONE:
+        break;
+    case TransformationMethod::TRANSLATE:
+        pTranslateComponent->draw(gfx);
+        break;
+    case TransformationMethod::SCALE:
+        pScaleComponent->draw(gfx);
+        break;
+    case TransformationMethod::ROTATION:
+        pRotationComponent->draw(gfx);
+        break;
+    default:
+        break;
     }
 }
 
@@ -238,6 +295,29 @@ void CollisionGeoManager::Transform()
             val.first->SetColor(TransformData.color);
         }
 	}
+    pTranslateComponent->SetTransform(TransformData.originTransform + TransformData.deltaTransform);
+    pScaleComponent->SetTransform(TransformData.originTransform + TransformData.deltaTransform);
+    pRotationComponent->SetTransform(TransformData.originTransform + TransformData.deltaTransform);
+}
+
+void CollisionGeoManager::EndComponentTransform()
+{
+    switch (TransformData.transformationMethod)
+    {
+    case TransformationMethod::NONE:
+        break;
+    case TransformationMethod::TRANSLATE:
+        pTranslateComponent->EndTransform();
+        break;
+    case TransformationMethod::SCALE:
+        pScaleComponent->EndTransform();
+        break;
+    case TransformationMethod::ROTATION:
+        pRotationComponent->EndTransform();
+        break;
+    default:
+        break;
+    }
 }
 
 void CollisionGeoManager::DrawImGui(Graphics& gfx)
@@ -272,7 +352,6 @@ void CollisionGeoManager::DrawImGui(Graphics& gfx)
     ImGui::RadioButton("Scale", reinterpret_cast<int*>(&method), static_cast<int>(TransformationMethod::SCALE));
     ImGui::RadioButton("Rotation", reinterpret_cast<int*>(&method), static_cast<int>(TransformationMethod::ROTATION));
 
-
     for (auto& val : SelectedGeomertys) {
         if (auto wline = dynamic_cast<WidthLine*>(val.first.get())) {
             ImGui::SliderFloat("Width", &wline->width, 0.00f, 10.0f);
@@ -288,11 +367,18 @@ void CollisionGeoManager::RenewOriginPointPos()
         avgPos = XMVectorAdd(avgPos, geo.second.position);
     }
     avgPos = XMVectorScale(avgPos, 1.0f / (float)SelectedGeomertys.size());
-    XMVECTOR rotation = { 0.0f,0.0f,0.0f,0.0f };
+    XMVECTOR rotation = XMQuaternionIdentity();
     if (SelectedGeomertys.size() == 1) {
         rotation = SelectedGeomertys.front().second.rotation;
     }
     this->TransformData.originTransform = FTransform(avgPos, { 1.0f,1.0f,1.0f,0.0f }, rotation);
+}
+
+void CollisionGeoManager::RenewTransformDelta()
+{
+    TransformData.deltaTransform = FTransform();
+    TransformData.DeltaRotationEuler = { 0.0f,0.0f,0.0f };
+    TransformData.color = { -1.0f,0.0f,0.0f };
 }
 
 LineRay::LineRay(screenPos sp, Window& wnd,Camera&cam)
@@ -383,15 +469,6 @@ void CollisionGeoManager::TranslationState::Update(float deltaTime)
         {
         case Mouse::Event::Type::LPress:
         {
-            auto rawDelta = wnd.mouse.ReadRawDelta();
-            if (selectedComponent)
-            {
-                if (rawDelta) {
-                    collisionManager.TransformGeometryByComponent(wnd, rawDelta);
-                    wnd.UpdateMousePosition(rawDelta.value().x, rawDelta.value().y);
-                }
-                break;
-            }
             int res = collisionManager.SelectGeometry(delta->GetPos(), wnd);
             if (res == 1) {
                 selectedComponent = false;
@@ -400,6 +477,7 @@ void CollisionGeoManager::TranslationState::Update(float deltaTime)
             {
                 selectedComponent = true;
                 wnd.mouse.EnableRaw();
+                wnd.mouse.FlushRawDelta();
             }
         }
         break;
@@ -408,6 +486,7 @@ void CollisionGeoManager::TranslationState::Update(float deltaTime)
             if (selectedComponent) {
                 selectedComponent = false;
                 wnd.mouse.DisableRaw();
+                collisionManager.EndComponentTransform();
             }
             break;
 
@@ -420,6 +499,20 @@ void CollisionGeoManager::TranslationState::Update(float deltaTime)
             break;
         }
     }
+
+    while (auto rawDelta = wnd.mouse.ReadRawDelta())
+    {
+        if (selectedComponent&&wnd.mouse.LeftIsPressed())
+        {
+            if (rawDelta) {
+                collisionManager.TransformGeometryByComponent(wnd, rawDelta);
+                wnd.UpdateMousePosition(rawDelta.value().x, rawDelta.value().y);
+            }
+        }
+    }
+
+    collisionManager.TransformGeometryByImGui(wnd);
+    collisionManager.Transform();
 }
 
 void CollisionGeoManager::TranslationState::Exit()

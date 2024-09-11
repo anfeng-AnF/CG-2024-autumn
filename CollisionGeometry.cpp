@@ -116,6 +116,11 @@ void CollisionGeometry::SetColor(DirectX::XMFLOAT3 Color) noexcept
     this->color = Color;
 }
 
+DirectX::XMFLOAT3 CollisionGeometry::GetColor() noexcept
+{
+    return color;
+}
+
 void CollisionGeometry::Bind(Graphics& gfx) noexcept
 {
     DirectX::XMFLOAT3 dataCopy;

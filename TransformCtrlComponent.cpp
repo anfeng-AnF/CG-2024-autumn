@@ -75,7 +75,7 @@ void TransformCtrlComponent::Draw(Graphics& gfx) const noexcept
 		{ scale, scale, scale },
 		transform.rotation
 	);
-
+	
 	pRoot->Draw(gfx, dynamicTransform.GetMatrix());
 }
 
@@ -137,6 +137,9 @@ float TransformCtrlComponent::GetDynamicScaling(Graphics& gfx, Camera& cam) cons
 	XMVECTOR objectPosition = transform.position;
 	XMMATRIX viewMatrix = cam.GetMatrix();
 	XMMATRIX projectionMatrix = gfx.GetProjection();
+	if (!IsPerspectiveMatrix(projectionMatrix)) {
+		return 1.0f;
+	}
 	XMMATRIX viewProjectionMatrix = XMMatrixMultiply(viewMatrix, projectionMatrix);
 
 	XMVECTOR pos4 = XMVectorSetW(objectPosition, 1.0f);

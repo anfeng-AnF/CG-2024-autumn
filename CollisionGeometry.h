@@ -29,6 +29,7 @@ public:
 	void SetPos(DirectX::XMFLOAT3 pos) noexcept;
 	DirectX::XMFLOAT3 GetPos() noexcept;
 	void SetColor(DirectX::XMFLOAT3 Color) noexcept;
+	DirectX::XMFLOAT3 GetColor()noexcept;
 	void SetSelect(bool IsSelected)noexcept;
 	FTransform GetTransform();
 	void SetTransform(FTransform&transform);
