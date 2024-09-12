@@ -737,10 +737,21 @@ void CollisionGeoManager::TranslationState::Update(float deltaTime)
     //Handle keyboard input
     while (auto c = wnd.Kbd.ReadChar()) {
         if (collisionManager.GetSelectedGeoNum()) {
-            this->collisionManager.ChangeTransformationMethod(shortcutKey[c.value()]);
+            if(shortcutKeyTransformationMethod.find(c.value())!=shortcutKeyTransformationMethod.end())
+            this->collisionManager.ChangeTransformationMethod(shortcutKeyTransformationMethod[c.value()]);
         }
-        if (c == VK_RETURN && !this->selectedComponent) {
-            collisionManager.ApplyTransform();
+    }
+    while (auto c = wnd.Kbd.ReadKey())
+    {
+        if (shortcutKeySwitchPerspective.find(c.value().GetCode()) != shortcutKeySwitchPerspective.end()) {
+            collisionManager.cam->SetTransform(shortcutKeySwitchPerspective[c.value().GetCode()]);
+        }
+        switch (c.value().GetCode()) {
+        case VK_RETURN:
+            if (!this->selectedComponent) {
+                collisionManager.ApplyTransform();
+            }
+            break;
         }
     }
     //Handling of mouse input

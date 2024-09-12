@@ -43,11 +43,11 @@ void Camera::SpawnControlWindow() noexcept
 		ImGui::Text("Rotation (Pitch,Roll,Yaw): %.2f, %.2f, %.2f", euler.x, euler.y, euler.z);
 		ImGui::Text("Travel Speed: %f", travelSpeed);
 
-
 		if (ImGui::Button("Reset"))
 		{
 			Reset();
 		}
+
 		ImGui::End();
 	}
 }
@@ -58,6 +58,11 @@ void Camera::Reset() noexcept
 	transform.position = XMVectorSet(-10.0f,13.0f,-16.0f, 0.0f);
 	transform.rotation = DirectX::XMQuaternionRotationRollPitchYaw(0.5f,0.52f,0.0f);
 	EnableRollRotate = false;
+}
+
+void Camera::SetTransform(FTransform transform)
+{
+	this->transform = transform;
 }
 
 void Camera::RotatePitchYaw(float dx, float dy) noexcept

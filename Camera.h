@@ -23,6 +23,7 @@ public:
 	DirectX::XMMATRIX GetMatrix() const noexcept;
 	void SpawnControlWindow() noexcept;
 	void Reset() noexcept;
+	void SetTransform(FTransform transform);
 	void RotatePitchYaw(float dx, float dy)noexcept;
 	void RotateRoll(float dz)noexcept;
 	void Translate(DirectX::XMFLOAT3 translation) noexcept;

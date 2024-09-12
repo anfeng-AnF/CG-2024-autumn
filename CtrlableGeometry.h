@@ -132,7 +132,7 @@ public:
 		void Exit() override;
 	private:
 		CollisionGeoManager& collisionManager;
-		std::unordered_map<char, TransformationMethod>shortcutKey = {
+		std::unordered_map<char, TransformationMethod>shortcutKeyTransformationMethod = {
 				{'q', TransformationMethod::NONE},
 				{'w', TransformationMethod::TRANSLATE},
 				{'e', TransformationMethod::SCALE},
@@ -141,6 +141,11 @@ public:
 				{'W', TransformationMethod::TRANSLATE},
 				{'E', TransformationMethod::SCALE},
 				{'R', TransformationMethod::ROTATION},
+		};
+		std::unordered_map<UINT, FTransform> shortcutKeySwitchPerspective = {
+			{VK_NUMPAD1, FTransform{{0.0f, 0.0f, -30.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, XMQuaternionRotationRollPitchYaw(0.0f, 0.0f, 0.0f)}}, // Front View
+			{VK_NUMPAD3, FTransform{{30.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, XMQuaternionRotationRollPitchYaw(0.0f, -XM_PI/2, 0.0f)}}, // Right View
+			{VK_NUMPAD7, FTransform{{0.0f, 30.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, XMQuaternionRotationRollPitchYaw(XM_PI / 2, 0.0f, 0.0f)}}, // Top View
 		};
 		bool selectedComponent = false;
 	}inputState;
