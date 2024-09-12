@@ -66,7 +66,7 @@ App::App(UINT width, UINT height)
 		ind.push_back(nextIndex);
 		ind.push_back(nextNextIndex);
 	}
-	//ctrl.AddGeometry(std::make_shared<WidthLine>(wnd.Gfx(),cam, vbufLine, ind));
+	ctrl.AddGeometry(std::make_shared<WidthLine>(wnd.Gfx(),cam, vbufLine, ind));//
 
 	ISM.AddState(DEFAULT_STATE, std::make_unique<CollisionGeoManager::TranslationState>(ctrl.inputState));
 	ISM.AddState("CameraMove", std::make_unique<Camera::CameraMove>(cam.inputState));

@@ -59,8 +59,10 @@ protected:
 	LineRay GetPlaneFlatPointNormal(LineRay line,XMVECTOR point);
 	XMFLOAT3 GetIntersectionPlaneLine(LineRay plane, LineRay line);//Plane point formula and linear pointwise formula
 	float GetProjectionLength(const XMFLOAT3& aDirection, const XMFLOAT3& bDirection);
+	float GetProjectionLength(const XMVECTOR& aDirection, const XMVECTOR& bDirection);
 	XMMATRIX CreateTranslationMatrix(const XMFLOAT3& translation);
-
+	LineRay GetPlane();
+	XMVECTOR XM3F2XMVEC(XMFLOAT3 f3);
 
 	FTransform transform;
 	std::unique_ptr<TransformCtrlComponent> pTransformCtrlComponent;
@@ -81,7 +83,7 @@ class TranslateComponent :public TransformComponentBase
 public:
 	TranslateComponent(Graphics& gfx, Camera& cam, std::string filePath);
 	XMMATRIX GetDeltaTransform(screenPos from, screenPos to, Window& wnd) override;
-
+private:
 };
 
 class RotationComponent :public TransformComponentBase
@@ -97,7 +99,11 @@ class ScaleComponent :public TransformComponentBase
 public:
 	ScaleComponent(Graphics& gfx, Camera& cam, std::string filePath);
 	XMMATRIX GetDeltaTransform(screenPos from, screenPos to, Window& wnd) override;
-
+private:
+	float GetScaleLength(LineRay Plane, LineRay ray);
+private:
+	float BeginScaleLength=0.0f;
+	XMFLOAT3 scaleDirection;
 };
 
 class CollisionGeoManager
