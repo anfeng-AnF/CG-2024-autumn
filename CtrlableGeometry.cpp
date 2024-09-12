@@ -224,7 +224,51 @@ RotationComponent::RotationComponent(Graphics& gfx, Camera& cam, std::string fil
 
 XMMATRIX RotationComponent::GetDeltaTransform(screenPos from, screenPos to, Window& wnd)
 {
-	return XMMATRIX();
+    static LineRay plane;
+    static XMMATRIX rotationMatrix = XMMatrixIdentity();
+    static screenPos lastPosTo = from;
+    screenPos deltaTo = {};
+    if (!onTransform) {
+        plane = GetPlane();
+        onTransform = true;
+        rotationMatrix = XMMatrixIdentity();
+        deltaTo = to + from - lastPosTo;
+    }
+    beginDirection = XMVector3Normalize(XMVectorSubtract(
+        XM3F2XMVEC(GetIntersectionPlaneLine(plane, LineRay(from + lastPosTo, wnd, cam))),
+        transform.position));
+    deltaTo = to - lastPosTo;
+    lastPosTo = to;
+
+    XMVECTOR toDirection = XMVector3Normalize(XMVectorSubtract(
+        XM3F2XMVEC(GetIntersectionPlaneLine(plane, LineRay(from + lastPosTo + deltaTo, wnd, cam))),
+        transform.position));
+
+
+    std::ostringstream oss;
+
+    XMVECTOR axis;
+    switch (tAxis)
+    {
+    case TransformComponentBase::XY:
+        axis = transform.GetForwardVector();
+        break;
+    case TransformComponentBase::XZ:
+        axis = transform.GetUpVector();
+        break;
+    case TransformComponentBase::YZ:
+        axis = transform.GetRightVector();
+        break;
+    }
+    float angle = acos(XMVectorGetX(XMVector3Dot(beginDirection, toDirection)));
+    XMMATRIX rotationMatrixDelta = XMMatrixRotationAxis(axis, angle);
+    rotationMatrix = XMMatrixMultiply(rotationMatrix, rotationMatrixDelta);
+
+
+    auto a = FTransform(rotationMatrix).GetRotationEuler();
+    oss << std::endl;
+    OutputDebugStringA(oss.str().c_str());
+	return rotationMatrix;
 }
 
 ScaleComponent::ScaleComponent(Graphics& gfx, Camera& cam, std::string filePath)
@@ -668,6 +712,17 @@ screenPos screenPos::operator+(const screenPos& other) const
     );
 }
 
+screenPos screenPos::operator-(const screenPos& other) const
+{
+    return screenPos(x - other.x, y - other.y);
+}
+
+screenPos& screenPos::operator-=(const screenPos& other)
+{
+    x -= other.x;
+    y -= other.y;
+    return *this;
+}
 CollisionGeoManager::TranslationState::TranslationState(Window& window, CollisionGeoManager& manager)
     : InputState(window), collisionManager(manager) {}
 
@@ -740,7 +795,7 @@ void CollisionGeoManager::TranslationState::Update(float deltaTime)
         collisionManager.TransformGeometryByComponent(wnd, { rawData.first,rawData.second });
         wnd.UpdateMousePosition(rawData.first, rawData.second);
     }
-    collisionManager.TransformGeometryByImGui(wnd);
+    //collisionManager.TransformGeometryByImGui(wnd);
     collisionManager.Transform();
 }
 

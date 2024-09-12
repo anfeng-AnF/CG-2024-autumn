@@ -22,6 +22,8 @@ struct screenPos {
 		screenPos() = default;
 		bool operator!=(const screenPos& other) const;
 		screenPos operator+(const screenPos& other) const;
+		screenPos operator-(const screenPos& other) const;
+		screenPos& operator-=(const screenPos& other);
 	};
 struct LineRay {
 	DirectX::XMFLOAT3 rayOrigin;
@@ -91,7 +93,8 @@ class RotationComponent :public TransformComponentBase
 public:
 	RotationComponent(Graphics& gfx, Camera& cam, std::string filePath);
 	XMMATRIX GetDeltaTransform(screenPos from, screenPos to, Window& wnd) override;
-
+private:
+	XMVECTOR beginDirection;
 };
 
 class ScaleComponent :public TransformComponentBase
