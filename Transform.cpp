@@ -37,6 +37,21 @@ XMMATRIX FTransform::GetMatrix() const {
 	return scaleMatrix * rotationMatrix * translationMatrix;
 }
 
+XMMATRIX FTransform::GetTranslateMatrix() const
+{
+	return XMMatrixTranslationFromVector(position);
+}
+
+XMMATRIX FTransform::GetScaleMatrix() const
+{
+	return XMMatrixScalingFromVector(scale);
+}
+
+XMMATRIX FTransform::GetRotationMatrix() const
+{
+	return XMMatrixRotationQuaternion(rotation);
+}
+
 FTransform FTransform::operator+(const FTransform& other) const
 {
 	XMVECTOR combinedScale = XMVectorMultiply(scale, other.scale);

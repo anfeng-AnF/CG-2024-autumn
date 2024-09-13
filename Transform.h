@@ -16,6 +16,9 @@ public:
 
     // ªÒ»°±‰ªªæÿ’Û
     XMMATRIX GetMatrix() const;
+    XMMATRIX GetTranslateMatrix() const;
+    XMMATRIX GetScaleMatrix() const;
+    XMMATRIX GetRotationMatrix()const;
 
     FTransform operator+(const FTransform& other) const;
 
