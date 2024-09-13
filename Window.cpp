@@ -164,6 +164,21 @@ void Window::UpdateMousePosition(int deltaX, int deltaY) noexcept{
 	SetCursorPos(newCursorPos.x, newCursorPos.y);
 }
 
+std::pair<int, float> Window::GetMouseSettings()
+{
+	// 获取鼠标灵敏度
+	int mouseSpeed = 0;
+	SystemParametersInfo(SPI_GETMOUSESPEED, 0, &mouseSpeed, 0);
+
+	// 获取 DPI 缩放倍率
+	HDC hdc = GetDC(hWnd);
+	int dpi = GetDeviceCaps(hdc, LOGPIXELSX);
+	ReleaseDC(hWnd, hdc);
+	float dpiScaling = dpi / 96.0f;  // 96 DPI 是标准缩放，倍率为 1.0
+
+	return { mouseSpeed, dpiScaling };
+}
+
 
 void Window::ConfineCursor() noexcept
 {

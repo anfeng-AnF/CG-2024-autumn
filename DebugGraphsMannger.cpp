@@ -26,6 +26,9 @@ void DebugGraphsMannger::Draw(Graphics& gfx)
 
 void DebugGraphsMannger::AddGeo(std::shared_ptr<Drawable> geometry, float existTime, GeometryType type)
 {
+#ifndef _DEBUG
+    if(type!=DEBUG)
+#endif // _DEBUG
     umapDebugGeoWithExistTime[std::move(geometry)] = { existTime,type };
 }
 

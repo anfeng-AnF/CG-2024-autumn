@@ -42,7 +42,8 @@ public:
 	void DisableCursor() noexcept;
 	bool CursorEnabled() const noexcept;
 	void UpdateMousePosition(int deltaX, int deltaY) noexcept;
-
+	std::pair<int, float> GetMouseSettings();
+	
 private:
 	void ConfineCursor() noexcept;
 	void FreeCursor() noexcept;

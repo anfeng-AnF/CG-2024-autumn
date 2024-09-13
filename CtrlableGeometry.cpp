@@ -190,26 +190,35 @@ XMMATRIX TranslateComponent::GetDeltaTransform(screenPos from, screenPos to, Win
     XMMATRIX resMatrix = XMMatrixIdentity();
     XMVECTOR translateDirection;
     float t=1.0f;
+    auto transformRightVector = transform.GetRightVector();
+    auto transformUpVector = transform.GetUpVector();
+    auto transformForwardVector = transform.GetForwardVector();
+    XMFLOAT3 delta = toWorldPos - fromWorldPos;
     switch (tAxis)
     {
     case TransformComponentBase::X:
-        translateDirection = transform.GetRightVector();
-        t *= this->GetProjectionLength(toWorldPos-fromWorldPos, { translateDirection.m128_f32[0],translateDirection.m128_f32[1],translateDirection.m128_f32[2] });
+        translateDirection = FTransform::RightVector;
+        t *= this->GetProjectionLength(XMLoadFloat3(&delta), transformRightVector);
         break;
     case TransformComponentBase::Y:
-        translateDirection = transform.GetUpVector();
-        t *= this->GetProjectionLength(toWorldPos - fromWorldPos, { translateDirection.m128_f32[0],translateDirection.m128_f32[1],translateDirection.m128_f32[2] });
+        translateDirection = FTransform::UpVector;
+        t *= this->GetProjectionLength(XMLoadFloat3(&delta),transformUpVector);
         break;
     case TransformComponentBase::Z:
-        translateDirection = transform.GetForwardVector();
-        t *= this->GetProjectionLength(toWorldPos - fromWorldPos, { translateDirection.m128_f32[0],translateDirection.m128_f32[1],translateDirection.m128_f32[2] });
+        translateDirection = FTransform::ForwardVector;
+        t *= this->GetProjectionLength(XMLoadFloat3(&delta),transformForwardVector);
         break;
     case TransformComponentBase::XY:
     case TransformComponentBase::YZ:
     case TransformComponentBase::XZ:
     case TransformComponentBase::XYZ:
         XMFLOAT3 a = toWorldPos - fromWorldPos;
-        translateDirection =XMVectorSet(a.x, a.y, a.z, 0.0f);
+        translateDirection =XMVectorSet(
+            GetProjectionLength({ a.x,a.y,a.z,0.0f }, transform.GetRightVector()),
+            GetProjectionLength({ a.x,a.y,a.z,0.0f }, transform.GetUpVector()),
+            GetProjectionLength({ a.x,a.y,a.z,0.0f }, transform.GetForwardVector()),
+            0.0f
+        );
         break;
     }
     resMatrix = this->CreateTranslationMatrix({ translateDirection.m128_f32[0] * t, translateDirection.m128_f32[1] * t, translateDirection.m128_f32[2] * t });
@@ -222,51 +231,75 @@ RotationComponent::RotationComponent(Graphics& gfx, Camera& cam, std::string fil
 {
 }
 
+#include <DirectXMath.h>
+
 XMMATRIX RotationComponent::GetDeltaTransform(screenPos from, screenPos to, Window& wnd)
 {
     static LineRay plane;
     static XMMATRIX rotationMatrix = XMMatrixIdentity();
     static screenPos lastPosTo = from;
+    static DirectX::XMVECTOR quaternion = DirectX::XMQuaternionIdentity(); // Store the rotation as a quaternion
     screenPos deltaTo = {};
+
     if (!onTransform) {
         plane = GetPlane();
         onTransform = true;
         rotationMatrix = XMMatrixIdentity();
-        deltaTo = to + from - lastPosTo;
+        quaternion = DirectX::XMQuaternionIdentity();
+        lastPosTo = to;
+        deltaTo = to;
     }
+    DebugGraphsMannger::GetInstence().AddGeo(std::make_shared<DebugLine>(gfx, plane.rayOrigin, plane.rayDirection, 10.0f, XMFLOAT3{ 0.0f,1.0f,0.0f }));
     beginDirection = XMVector3Normalize(XMVectorSubtract(
         XM3F2XMVEC(GetIntersectionPlaneLine(plane, LineRay(from + lastPosTo, wnd, cam))),
         transform.position));
+
     deltaTo = to - lastPosTo;
     lastPosTo = to;
-    if (!(deltaTo != screenPos{ 0,0 }))return rotationMatrix;
-    XMVECTOR toDirection = XMVector3Normalize(XMVectorSubtract(
-        XM3F2XMVEC(GetIntersectionPlaneLine(plane, LineRay(from + lastPosTo + deltaTo, wnd, cam))),
-        transform.position));
 
+    auto point = GetIntersectionPlaneLine(plane, LineRay(from + lastPosTo + deltaTo, wnd, cam));
+    XMVECTOR toDirection = XMVector3Normalize(XMVectorSubtract(
+        XM3F2XMVEC(point), transform.position));
+
+    // Create the DebugLine visualization for debugging
+    LineRay toAngle = { transform.position, toDirection };
+
+    if (!(deltaTo != screenPos{ 0, 0 })) {
+        return rotationMatrix;
+    }
+
+    // Select the axis of rotation
     XMVECTOR axis;
     switch (tAxis)
     {
     case TransformComponentBase::XY:
-        axis = transform.GetForwardVector();
+        axis = FTransform::ForwardVector;
         break;
     case TransformComponentBase::XZ:
-        axis = transform.GetUpVector();
+        axis = FTransform::UpVector;
         break;
     case TransformComponentBase::YZ:
-        axis = transform.GetRightVector();
+        axis = FTransform::RightVector;
         break;
     }
+
     float angle = acos(XMVectorGetX(XMVector3Dot(beginDirection, toDirection)));
-    //Determine the direction
-    float dir =XMVector3Dot(XMVector3Cross(beginDirection, toDirection),axis).m128_f32[0];
-    if (dir < 0)angle *= -1;
+    float dir = XMVectorGetX(XMVector3Dot(XMVector3Cross(beginDirection, toDirection), axis));
+    if (dir < 0) {
+        angle *= -1;
+    }
 
-    XMMATRIX rotationMatrixDelta = XMMatrixRotationAxis(axis, angle);
-    rotationMatrix = XMMatrixMultiply(rotationMatrix, rotationMatrixDelta);
+    // Avoid NaN values
+    if (std::isnan(angle)) {
+        angle = 0.0f;
+    }
+    XMVECTOR rotationQuaternionDelta = DirectX::XMQuaternionRotationAxis(axis, angle / 2);
+    quaternion = DirectX::XMQuaternionMultiply(quaternion, rotationQuaternionDelta);
+    rotationMatrix = DirectX::XMMatrixRotationQuaternion(quaternion);
 
-	return rotationMatrix;
+    return rotationMatrix;
 }
+
 
 ScaleComponent::ScaleComponent(Graphics& gfx, Camera& cam, std::string filePath)
     :
@@ -284,21 +317,26 @@ XMMATRIX ScaleComponent::GetDeltaTransform(screenPos from, screenPos to, Window&
         switch (tAxis)
         {
         case TransformComponentBase::X:
-            XMStoreFloat3(&scaleDirection,transform.GetRightVector());
+            XMStoreFloat3(&scaleDirection,FTransform::RightVector);
             break;
         case TransformComponentBase::Y:
-            XMStoreFloat3(&scaleDirection, transform.GetUpVector());
+            XMStoreFloat3(&scaleDirection,FTransform::UpVector);
             break;
         case TransformComponentBase::Z:
-            XMStoreFloat3(&scaleDirection, transform.GetForwardVector());
+            XMStoreFloat3(&scaleDirection,FTransform::ForwardVector);
             break;
         case TransformComponentBase::XY:
         case TransformComponentBase::XZ:
         case TransformComponentBase::YZ:
-            XMStoreFloat3(&scaleDirection, XMVector3Normalize(
-                XMVectorSubtract(
-                    XM3F2XMVEC(GetIntersectionPlaneLine(plane, LineRay(from, wnd, cam))),
-                    transform.position)));
+            auto a=
+            XMVectorSubtract(
+                XM3F2XMVEC(GetIntersectionPlaneLine(plane, LineRay(from, wnd, cam))),
+                transform.position);
+            scaleDirection = {
+                GetProjectionLength(a, transform.GetRightVector()),
+                GetProjectionLength(a, transform.GetUpVector()),
+                GetProjectionLength(a, transform.GetForwardVector()),
+            };
             break;
         case TransformComponentBase::XYZ:
             XMStoreFloat3(&scaleDirection, XMVector3Normalize(XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f)));
@@ -375,7 +413,8 @@ void CollisionGeoManager::TransformGeometryByImGui(Window& wnd)
         TransformData.DeltaRotationEuler.y / 180 * XM_PI,
         TransformData.DeltaRotationEuler.z / 180 * XM_PI
     );
-    TransformData.deltaTransform.rotation = q;
+
+    TransformData.deltaTransform.rotation = XMVector4Normalize(TransformData.deltaTransform.rotation);
 }
 
 void CollisionGeoManager::TransformGeometryByComponent(Window& wnd, screenPos Delta)
@@ -527,10 +566,10 @@ void CollisionGeoManager::Transform()
 {
     auto axisTransformMatrix = TransformData.originTransform.GetMatrix();
     auto invAxisTrans = XMMatrixInverse(nullptr, axisTransformMatrix);
-
+    FTransform transform; 
 	for (auto val : SelectedGeomertys) {
 
-		auto transform =FTransform(
+		transform =FTransform(
             val.second.GetMatrix()*
             invAxisTrans*
             TransformData.deltaTransform.GetMatrix()*
@@ -541,9 +580,10 @@ void CollisionGeoManager::Transform()
             val.first->SetColor(TransformData.color);
         }
 	}
-    pTranslateComponent->SetTransform(TransformData.originTransform + TransformData.deltaTransform);
-    pScaleComponent->SetTransform(TransformData.originTransform + TransformData.deltaTransform);
-    pRotationComponent->SetTransform(TransformData.originTransform + TransformData.deltaTransform);
+    transform = TransformData.deltaTransform.GetMatrix() * axisTransformMatrix;
+    pTranslateComponent->SetTransform(transform);
+    pScaleComponent->SetTransform(transform);
+    pRotationComponent->SetTransform(transform);
 }
 
 void CollisionGeoManager::EndComponentTransform()
@@ -581,14 +621,23 @@ void CollisionGeoManager::DrawImGui(Graphics& gfx)
     ImGui::SliderFloat("p X", &reinterpret_cast<float*>(&TransformData.deltaTransform.position)[0], -100.0f, 100.0f);
     ImGui::SliderFloat("p Y", &reinterpret_cast<float*>(&TransformData.deltaTransform.position)[1], -100.0f, 100.0f);
     ImGui::SliderFloat("p Z", &reinterpret_cast<float*>(&TransformData.deltaTransform.position)[2], -100.0f, 100.0f);
+
     ImGui::Text("Scale");
     ImGui::SliderFloat("s X", &reinterpret_cast<float*>(&TransformData.deltaTransform.scale)[0], 0.0f, 10.0f);
     ImGui::SliderFloat("s Y", &reinterpret_cast<float*>(&TransformData.deltaTransform.scale)[1], 0.0f, 10.0f);
     ImGui::SliderFloat("s Z", &reinterpret_cast<float*>(&TransformData.deltaTransform.scale)[2], 0.0f, 10.0f);
-    ImGui::Text("Rotation");
+
+    ImGui::Text("Rotation (Euler Angles)");
     ImGui::SliderFloat("r X", &TransformData.DeltaRotationEuler.x, -180.0f, 180.0f);
     ImGui::SliderFloat("r Y", &TransformData.DeltaRotationEuler.y, -180.0f, 180.0f);
     ImGui::SliderFloat("r Z", &TransformData.DeltaRotationEuler.z, -180.0f, 180.0f);
+
+    ImGui::Text("Rotation (Quaternion)");
+    ImGui::SliderFloat("q W", &reinterpret_cast<float*>(&TransformData.deltaTransform.rotation)[3], -1.1f, 1.1f);
+    ImGui::SliderFloat("q X", &reinterpret_cast<float*>(&TransformData.deltaTransform.rotation)[0], -1.1f, 1.1f);
+    ImGui::SliderFloat("q Y", &reinterpret_cast<float*>(&TransformData.deltaTransform.rotation)[1], -1.1f, 1.1f);
+    ImGui::SliderFloat("q Z", &reinterpret_cast<float*>(&TransformData.deltaTransform.rotation)[2], -1.1f, 1.1f);
+
     ImGui::Text("Color");
     ImGui::ColorEdit3("RGB", &TransformData.color.x);
     ImGui::Text("--------Transform--------");
@@ -638,7 +687,7 @@ void CollisionGeoManager::ApplyTransform(bool renewOrigin)
     }
     else
     {
-        TransformData.originTransform = TransformData.originTransform + TransformData.deltaTransform;
+        TransformData.originTransform =FTransform( TransformData.deltaTransform.GetMatrix()* TransformData.originTransform.GetMatrix());
     }
     TransformData.deltaTransform = FTransform();
 }
@@ -819,7 +868,8 @@ void CollisionGeoManager::TranslationState::Update(float deltaTime)
             rawData.first += rawDelta.value().x;
             rawData.second += rawDelta.value().y;
         }
-        collisionManager.TransformGeometryByComponent(wnd, { rawData.first,rawData.second });
+        auto[mouseSpeed, dpiScaling] = wnd.GetMouseSettings();
+        collisionManager.TransformGeometryByComponent(wnd, { rawData.first,rawData.second});
         wnd.UpdateMousePosition(rawData.first, rawData.second);
     }
     if (!selectedComponent) {

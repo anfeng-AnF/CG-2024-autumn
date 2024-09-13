@@ -7,6 +7,7 @@ class DebugLine:public Drawable
 {
 public:
 	DebugLine(Graphics& gfx, DirectX::XMFLOAT3 begin, DirectX::XMFLOAT3 end, DirectX::XMFLOAT3 color);
+	DebugLine(Graphics& gfx, DirectX::XMFLOAT3 rayOrigin, DirectX::XMFLOAT3 rayDirection ,float length, DirectX::XMFLOAT3 color);
 private:
 	// Í¨¹ý Drawable ¼Ì³Ð
 	DirectX::XMMATRIX GetTransformXM() const noexcept override;
