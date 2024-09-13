@@ -26,11 +26,43 @@ DebugLine::DebugLine(Graphics& gfx, DirectX::XMFLOAT3 begin, DirectX::XMFLOAT3 e
 	AddBind(InputLayout::Resolve(gfx, vbf.GetLayout(), pvsbc));
 
 	AddBind(Topology::Resolve(gfx, D3D_PRIMITIVE_TOPOLOGY_LINELIST));
-
-	AddBind(std::make_shared<TransformCbuf>(gfx, *this));
 }
 
 DirectX::XMMATRIX DebugLine::GetTransformXM() const noexcept
+{
+	return DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f);
+}
+
+DottedLine::DottedLine(Graphics& gfx, DirectX::XMFLOAT3 begin, DirectX::XMFLOAT3 end, DirectX::XMFLOAT3 color)
+{
+	using Dvtx::VertexLayout;
+	using namespace Bind;
+	Dvtx::VertexBuffer vbf(Dvtx::VertexLayout{}
+		.Append(VertexLayout::Position3D)
+		.Append(VertexLayout::Float3Color)
+	);
+	std::vector<uint16_t> indices = { 0,1 };
+	vbf.EmplaceBack(begin, color);
+	vbf.EmplaceBack(end, color);
+	static int id = 0;
+	AddBind(VertexBuffer::Resolve(gfx, "dotLine" + std::to_string(id++), vbf));
+
+	AddBind(IndexBuffer::Resolve(gfx, "dotLine", indices));
+
+	AddBind(GeometryShader::Resolve(gfx, "DottedLineGS.cso"));
+
+	AddBind(PixelShader::Resolve(gfx, "AxisPS.cso"));
+
+	auto pvs = VertexShader::Resolve(gfx, "AxisVS.cso");
+	auto pvsbc = pvs->GetBytecode();
+	AddBind(std::move(pvs));
+
+	AddBind(InputLayout::Resolve(gfx, vbf.GetLayout(), pvsbc));
+
+	AddBind(Topology::Resolve(gfx, D3D_PRIMITIVE_TOPOLOGY_LINELIST));
+}
+
+DirectX::XMMATRIX DottedLine::GetTransformXM() const noexcept
 {
 	return DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f);
 }

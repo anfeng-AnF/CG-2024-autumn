@@ -10,10 +10,16 @@
 class DebugGraphsMannger
 {
 public:
+    enum GeometryType
+    {
+        DEBUG,
+        USER_AID
+    };
+public:
     void Draw(Graphics& gfx);
-    void AddGeo(std::shared_ptr<Drawable> geometry, float existTime = 5.0f);
+    void AddGeo(std::shared_ptr<Drawable> geometry, float existTime = 5.0f, GeometryType type = DEBUG);
     void ChangeGeoExistTime(std::shared_ptr<Drawable> geometry, float DeltaTime = 0.0f);
-    static DebugGraphsMannger& GetDGMRefference();
+    static DebugGraphsMannger& GetInstence();
 
 private:
     DebugGraphsMannger() {};
@@ -21,6 +27,6 @@ private:
     DebugGraphsMannger& operator=(const DebugGraphsMannger&) = delete;
 
 private:
-    std::unordered_map<std::shared_ptr<Drawable>, float> umapDebugGeoWithExistTime;
+    std::unordered_map<std::shared_ptr<Drawable>, std::pair<float,GeometryType>> umapDebugGeoWithExistTime;
     ChiliTimer time;
 };

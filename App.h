@@ -43,5 +43,5 @@ private:
 	//Model Lantern{ wnd.Gfx(),"Models\\Lantern\\Lantern_Fixed1.fbx" };
 	Axis axis{ wnd.Gfx() };
 	InputStateMachine ISM;
-	DebugGraphsMannger &DGM=DebugGraphsMannger::GetDGMRefference();
+	DebugGraphsMannger &DGM=DebugGraphsMannger::GetInstence();
 };

@@ -1,7 +1,7 @@
 ﻿#include "CtrlableGeometry.h"
 
 TransformComponentBase::TransformComponentBase(Graphics& gfx, Camera& cam, std::string filePath) :
-	DGM(DebugGraphsMannger::GetDGMRefference()),
+	DGM(DebugGraphsMannger::GetInstence()),
     gfx(gfx),
     cam(cam)
 {
@@ -306,7 +306,7 @@ XMMATRIX ScaleComponent::GetDeltaTransform(screenPos from, screenPos to, Window&
         }
     }
     float toScaleLength = GetScaleLength(plane, LineRay{to+from,wnd,cam});
-    float scaleFactor = toScaleLength / BeginScaleLength-1.0f;
+    float scaleFactor =abs(toScaleLength) / BeginScaleLength-1.0f;
     return XMMatrixScaling(scaleDirection.x * scaleFactor + 1.0f, scaleDirection.y * scaleFactor + 1.0f, scaleDirection.z * scaleFactor + 1.0f);
 }
 #define SET_LENGTH_PROJECTION(NORMALIZE_VEC) length = GetProjectionLength(\
@@ -347,7 +347,7 @@ CollisionGeoManager::CollisionGeoManager(Window& wnd, Camera& cam)
     :
     inputState(wnd, *this),
     gfx(&wnd.Gfx()), cam(&cam),
-    DGM(DebugGraphsMannger::GetDGMRefference())
+    DGM(DebugGraphsMannger::GetInstence())
 {
     pTranslateComponent = std::make_unique<TranslateComponent>(wnd.Gfx(), cam, "Models\\Component\\Position.fbx");
     pRotationComponent = std::make_unique<RotationComponent>(wnd.Gfx(), cam, "Models\\Component\\Rotation.fbx");
@@ -525,9 +525,17 @@ int CollisionGeoManager::GetSelectedGeoNum()
 
 void CollisionGeoManager::Transform()
 {
-    //todo transform relate origin
+    auto axisTransformMatrix = TransformData.originTransform.GetMatrix();
+    auto invAxisTrans = XMMatrixInverse(nullptr, axisTransformMatrix);
+
 	for (auto val : SelectedGeomertys) {
-		auto transform = val.second + TransformData.deltaTransform;
+
+		auto transform =FTransform(
+            val.second.GetMatrix()*
+            invAxisTrans*
+            TransformData.deltaTransform.GetMatrix()*
+            axisTransformMatrix
+            );
 		val.first->SetTransform(transform);
         if (TransformData.color.x != -1.0f) {
             val.first->SetColor(TransformData.color);
@@ -620,13 +628,19 @@ void CollisionGeoManager::RenewTransformDelta()
     TransformData.color = { -1.0f,0.0f,0.0f };
 }
 
-void CollisionGeoManager::ApplyTransform()
+void CollisionGeoManager::ApplyTransform(bool renewOrigin)
 {
     for (auto& geo : SelectedGeomertys) {
         geo.second = geo.first->GetTransform();
     }
+    if (renewOrigin) {
+        this->RenewOriginPointPos();
+    }
+    else
+    {
+        TransformData.originTransform = TransformData.originTransform + TransformData.deltaTransform;
+    }
     TransformData.deltaTransform = FTransform();
-    this->RenewOriginPointPos();
 }
 
 LineRay::LineRay(screenPos sp, Window& wnd,Camera&cam)
@@ -769,6 +783,10 @@ void CollisionGeoManager::TranslationState::Update(float deltaTime)
                 selectedComponent = true;
                 wnd.mouse.EnableRaw();
                 wnd.mouse.FlushRawDelta();
+                if (collisionManager.TransformData.autoApplyTransform)
+                {
+                    collisionManager.ApplyTransform(false);
+                }
             }
         }
         break;
@@ -779,7 +797,7 @@ void CollisionGeoManager::TranslationState::Update(float deltaTime)
                 wnd.mouse.DisableRaw();
                 collisionManager.EndComponentTransform();
                 if (collisionManager.TransformData.autoApplyTransform) {
-                    collisionManager.ApplyTransform();
+                    collisionManager.ApplyTransform(false);
                 }
             }
             break;

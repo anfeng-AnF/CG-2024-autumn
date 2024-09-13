@@ -4,13 +4,17 @@ void DebugGraphsMannger::Draw(Graphics& gfx)
 {
     for (auto it = umapDebugGeoWithExistTime.begin(); it != umapDebugGeoWithExistTime.end(); )
     {
-        if (it->second == KEEP_EXIST) {
+        if (it->second.first == KEEP_EXIST) {
             ++it;
             continue;
         }
-        it->second -= time.Peek();
-        it->first->Draw(gfx);
-        if (it->second < 0) {
+        it->second.first -= time.Peek();
+#ifndef _DEBUG
+        if (it->second.second != DEBUG)
+#endif // _DEBUG
+            it->first->Draw(gfx);
+
+        if (it->second.first < 0) {
             it = umapDebugGeoWithExistTime.erase(it);
         }
         else {
@@ -20,17 +24,17 @@ void DebugGraphsMannger::Draw(Graphics& gfx)
     time.Mark();
 }
 
-void DebugGraphsMannger::AddGeo(std::shared_ptr<Drawable> geometry, float existTime)
+void DebugGraphsMannger::AddGeo(std::shared_ptr<Drawable> geometry, float existTime, GeometryType type)
 {
-    umapDebugGeoWithExistTime[std::move(geometry)] = existTime;
+    umapDebugGeoWithExistTime[std::move(geometry)] = { existTime,type };
 }
 
 void DebugGraphsMannger::ChangeGeoExistTime(std::shared_ptr<Drawable> geometry, float DeltaTime)
 {
-    umapDebugGeoWithExistTime[geometry] += DeltaTime;
+    umapDebugGeoWithExistTime[geometry].first += DeltaTime;
 }
 
-DebugGraphsMannger& DebugGraphsMannger::GetDGMRefference()
+DebugGraphsMannger& DebugGraphsMannger::GetInstence()
 {
     static DebugGraphsMannger DGM;
     return DGM;

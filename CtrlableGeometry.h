@@ -191,7 +191,7 @@ private:
 	void RenewTransformDelta();
 
 	
-	void ApplyTransform();
+	void ApplyTransform(bool renewOrigin = true);
 private:
 	std::unique_ptr<TranslateComponent> pTranslateComponent;
 	std::unique_ptr<RotationComponent> pRotationComponent;

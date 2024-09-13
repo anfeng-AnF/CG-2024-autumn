@@ -64,6 +64,9 @@
     <Filter Include="Base\头文件\interface">
       <UniqueIdentifier>{65d9d241-72ea-416e-9159-571449dd5afa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader\CG_Shader\Debugs">
+      <UniqueIdentifier>{f9b34550-fa5a-4260-a280-e03db9c21a2d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -428,12 +431,6 @@
     <FxCompile Include="CollisionGeomertyPS.hlsl">
       <Filter>Shader\CG_Shader</Filter>
     </FxCompile>
-    <FxCompile Include="DebugSphereVS.hlsl">
-      <Filter>Shader\CG_Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="DebugSpherePS.hlsl">
-      <Filter>Shader\CG_Shader</Filter>
-    </FxCompile>
     <FxCompile Include="ArrowVS.hlsl">
       <Filter>Shader\CG_Shader</Filter>
     </FxCompile>
@@ -448,6 +445,15 @@
     </FxCompile>
     <FxCompile Include="LineWidthGS.hlsl">
       <Filter>Shader\CG_Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="DebugSpherePS.hlsl">
+      <Filter>Shader\CG_Shader\Debugs</Filter>
+    </FxCompile>
+    <FxCompile Include="DebugSphereVS.hlsl">
+      <Filter>Shader\CG_Shader\Debugs</Filter>
+    </FxCompile>
+    <FxCompile Include="DottedLineGS.hlsl">
+      <Filter>Shader\CG_Shader\Debugs</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
