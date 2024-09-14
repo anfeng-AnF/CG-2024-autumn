@@ -6,4 +6,6 @@ class ImguiManager
 public:
 	ImguiManager();
 	~ImguiManager();
+
+	void SetScale(float Scale);
 };

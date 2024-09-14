@@ -11,7 +11,7 @@ public:
 	class SpawnGeoInputState :public InputState
 	{
 	public:
-		SpawnGeoInputState();
+		SpawnGeoInputState(Window& wnd,SpawnGeometryByInput* pSpawnGeo);
 		// Í¨¹ý InputState ¼Ì³Ð
 		void Enter() override;
 		void Update(float deltaTime) override;
@@ -19,7 +19,10 @@ public:
 
 	private:
 		SpawnGeometryByInput* pSpawnGeo;
-	};
+		ImVec2 wndPos;
+		bool choosedMehod = false;
+		bool onDrawing = false;
+	}inputState;
 	enum SpawnGeoMehod
 	{
 		NONE,
@@ -32,10 +35,10 @@ public:
 	SpawnGeometryByInput(Window&wnd,Camera&cam ,CollisionGeoManager*CGM);
 
 	bool SpawnLine(screenPos pos,bool lpressed,SpawnGeoMehod SGmehod);//line with circle
-	bool SpawnLineContinue(screenPos pos, bool endFlag=false);
+	//bool SpawnLineContinue(screenPos pos, bool endFlag=false);
 	bool SpawnCircleArc(screenPos pos,bool lpresed);
 
-	bool SpawnImGuiWnd();
+	bool SpawnImGuiWnd(ImVec2 windowPos);
 
 	void draw(Graphics& gfx);
 private:

@@ -70,7 +70,7 @@ private:
 class WidthLine :public Line
 {
 public:
-	WidthLine(Graphics& gfx, Camera& cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f }, int lineWidth = 1);
+	WidthLine(Graphics& gfx, Camera& cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f }, float lineWidth = 1);
 	virtual std::vector<CollisionRes> TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix = XMMatrixIdentity(), float posOffset = 0.0f) override;
 	void Draw(Graphics& gfx)const noexcept override;
 	void Bind(Graphics& gfx)noexcept override;

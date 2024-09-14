@@ -14,3 +14,8 @@ ImguiManager::~ImguiManager()
 {
 	ImGui::DestroyContext();
 }
+
+void ImguiManager::SetScale(float Scale)
+{
+	ImGui::GetIO().FontGlobalScale = Scale;
+}

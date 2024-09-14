@@ -817,6 +817,11 @@ void CollisionGeoManager::TranslationState::Update(float deltaTime)
                 collisionManager.ApplyTransform();
             }
             break;
+        case 0x41:
+            if (wnd.Kbd.KeyIsPressed(VK_SHIFT)) {
+                this->Machine->SetState("SpawnGeo");
+            }
+            break;
         }
     }
     //Handling of mouse input

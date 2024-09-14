@@ -12,6 +12,7 @@
 #include "CtrlableGeometry.h"
 #include "InputStateMachine.h"
 #include "DebugGraphsMannger.h"
+#include "SpawnGeometryByInput.h"
 
 class App
 {
@@ -44,4 +45,5 @@ private:
 	Axis axis{ wnd.Gfx() };
 	InputStateMachine ISM;
 	DebugGraphsMannger &DGM=DebugGraphsMannger::GetInstence();
+	SpawnGeometryByInput SG;
 };

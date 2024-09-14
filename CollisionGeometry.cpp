@@ -336,7 +336,7 @@ void TriangelGeo::Draw(Graphics& gfx) const noexcept
     gfx.DrawIndexed(pIndexBuffer->GetCount());
 }
 
-WidthLine::WidthLine(Graphics& gfx, Camera& cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos, int lineWidth)
+WidthLine::WidthLine(Graphics& gfx, Camera& cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos, float lineWidth)
     :
     Line(gfx,cam,_vertexBuffer,_indices,_pos),
     width((float)lineWidth),

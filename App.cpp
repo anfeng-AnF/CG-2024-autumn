@@ -19,7 +19,8 @@ App::App(UINT width, UINT height)
 	width(width), height(height), light(wnd.Gfx()),
 	threadPool(10),
 	cam(wnd),
-	ctrl(wnd,cam)
+	ctrl(wnd,cam),
+	SG(wnd,cam,&ctrl)
 {
 	wnd.Gfx().SetProjection(Perspective);
 	wnd.DisableCursor();
@@ -70,6 +71,7 @@ App::App(UINT width, UINT height)
 
 	ISM.AddState(DEFAULT_STATE, std::make_unique<CollisionGeoManager::TranslationState>(ctrl.inputState));
 	ISM.AddState("CameraMove", std::make_unique<Camera::CameraMove>(cam.inputState));
+	ISM.AddState("SpawnGeo", std::make_unique<SpawnGeometryByInput::SpawnGeoInputState>(SG.inputState));
 	ISM.SetState(DEFAULT_STATE);
 }
 int App::Go()
