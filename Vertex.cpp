@@ -178,7 +178,12 @@ namespace Dvtx
 	{
 		return buffer.size();
 	}
-	Vertex VertexBuffer::Back() 
+	Vertex VertexBuffer::At(size_t idx)
+	{
+		assert(Size() >= idx && idx >= 0u);
+		return Vertex{buffer.data()+layout.Size()*idx,layout};
+	}
+	Vertex VertexBuffer::Back()
 	{
 		assert(buffer.size() != 0u);
 		return Vertex{ buffer.data() + buffer.size() - layout.Size(),layout };
@@ -204,5 +209,11 @@ namespace Dvtx
 	ConstVertex VertexBuffer::operator[](size_t i) const 
 	{
 		return const_cast<VertexBuffer&>(*this)[i];
+	}
+	void VertexBuffer::PopBack()
+	{
+		if (buffer.size()) {
+			buffer.resize(buffer.size() - layout.Size());
+		}
 	}
 }

@@ -183,7 +183,7 @@ namespace Dvtx
 			}
 		}
 	protected:
-		Vertex(char* pData, const VertexLayout& layout) ;
+		Vertex(char* pData, const VertexLayout& layout);
 	private:
 		// enables parameter pack setting of multiple parameters by element index
 		template<typename First, typename ...Rest>
@@ -239,12 +239,20 @@ namespace Dvtx
 			buffer.resize(buffer.size() + layout.Size());
 			Back().SetAttributeByIndex(0u, std::forward<Params>(params)...);
 		}
+		Vertex At(size_t idx);
 		Vertex Back() ;
 		Vertex Front() ;
 		Vertex operator[](size_t i) ;
 		ConstVertex Back() const ;
 		ConstVertex Front() const ;
 		ConstVertex operator[](size_t i) const ;
+		void PopBack();
+		template<typename ...Params>
+		void ModifyAt(size_t idx, Params&&... params) 
+		{
+			assert(sizeof...(params) == layout.GetElementCount() && "Param count doesn't match number of vertex elements");
+			At(idx).SetAttributeByIndex(0u, std::forward<Params>(params)...);
+		};
 	private:
 		std::vector<char> buffer;
 		VertexLayout layout;

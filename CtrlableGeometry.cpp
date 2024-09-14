@@ -565,21 +565,24 @@ int CollisionGeoManager::GetSelectedGeoNum()
 void CollisionGeoManager::Transform()
 {
     auto axisTransformMatrix = TransformData.originTransform.GetMatrix();
-    auto invAxisTrans = XMMatrixInverse(nullptr, axisTransformMatrix);
-    FTransform transform; 
-	for (auto val : SelectedGeomertys) {
+    FTransform transform;
 
-		transform =FTransform(
-            val.second.GetMatrix()*
-            invAxisTrans*
-            TransformData.deltaTransform.GetMatrix()*
-            axisTransformMatrix
+    if (!TransformData.affectOriginOnly) {
+        auto invAxisTrans = XMMatrixInverse(nullptr, axisTransformMatrix);
+        for (auto val : SelectedGeomertys) {
+
+            transform = FTransform(
+                val.second.GetMatrix() *
+                invAxisTrans *
+                TransformData.deltaTransform.GetMatrix() *
+                axisTransformMatrix
             );
-		val.first->SetTransform(transform);
-        if (TransformData.color.x != -1.0f) {
-            val.first->SetColor(TransformData.color);
+            val.first->SetTransform(transform);
+            if (TransformData.color.x != -1.0f) {
+                val.first->SetColor(TransformData.color);
+            }
         }
-	}
+    }
     transform = TransformData.deltaTransform.GetMatrix() * axisTransformMatrix;
     pTranslateComponent->SetTransform(transform);
     pScaleComponent->SetTransform(transform);
@@ -614,8 +617,7 @@ void CollisionGeoManager::DrawImGui(Graphics& gfx)
         ImGui::EndChild();
         return;
     }
-    static bool affectOriginOnly = false;
-    ImGui::Checkbox("Affect origin only?", &affectOriginOnly);
+    ImGui::Checkbox("Affect origin only?", &TransformData.affectOriginOnly);
 
     ImGui::Text("Position");
     ImGui::SliderFloat("p X", &reinterpret_cast<float*>(&TransformData.deltaTransform.position)[0], -100.0f, 100.0f);

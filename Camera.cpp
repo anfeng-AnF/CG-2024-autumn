@@ -3,6 +3,10 @@
 
 namespace dx = DirectX;
 
+const FTransform Camera::FrontView = FTransform{ {0.0f, 0.0f, -30.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, XMQuaternionRotationRollPitchYaw(0.0f, 0.0f, 0.0f) }; // Front View
+const FTransform Camera::RightView = FTransform{ {30.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, XMQuaternionRotationRollPitchYaw(0.0f, -XM_PI / 2, 0.0f) }; // Right View
+const FTransform Camera::TopView   = FTransform{ {0.0f, 30.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, XMQuaternionRotationRollPitchYaw(XM_PI / 2, 0.0f, 0.0f) }; // Top View
+
 Camera::Camera(Window& window) :inputState(window, this)
 {
 	Reset();

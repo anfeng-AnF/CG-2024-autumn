@@ -162,6 +162,7 @@
     <ClCompile Include="CtrlCeomerty.cpp" />
     <ClCompile Include="DebugGraphsMannger.cpp" />
     <ClCompile Include="GeometryShader.cpp" />
+    <ClCompile Include="SpawnGeometryByInput.cpp" />
     <ClCompile Include="TransformCtrlComponent.cpp" />
     <ClCompile Include="Axis.cpp" />
     <ClCompile Include="Bindable.cpp" />
@@ -210,6 +211,7 @@
     <ClInclude Include="DebugGraphsMannger.h" />
     <ClInclude Include="GeometryShader.h" />
     <ClInclude Include="InputStateMachine.h" />
+    <ClInclude Include="SpawnGeometryByInput.h" />
     <ClInclude Include="TransformCtrlComponent.h" />
     <ClInclude Include="Axis.h" />
     <ClInclude Include="Bindable.h" />

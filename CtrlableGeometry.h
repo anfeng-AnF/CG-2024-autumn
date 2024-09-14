@@ -210,7 +210,7 @@ private:
 		screenPos beginScreenPos;		//Start controlling the click position when transforming components
 		screenPos deltaScreenPos;		//Delta using rawdata overlay
 		TransformationMethod transformationMethod;		//0-none  1-translate  2-scale 3-rotation
-		bool affectOriginOnly;
+		bool affectOriginOnly =false;
 		bool autoApplyTransform=true;
 	}TransformData;
 

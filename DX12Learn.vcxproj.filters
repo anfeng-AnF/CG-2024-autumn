@@ -207,6 +207,9 @@
     <ClCompile Include="DebugGraphsMannger.cpp">
       <Filter>D3DCore\Source Files\Drawable\DebugGraphs</Filter>
     </ClCompile>
+    <ClCompile Include="SpawnGeometryByInput.cpp">
+      <Filter>D3DCore\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChiliWin.h">
@@ -385,6 +388,9 @@
     </ClInclude>
     <ClInclude Include="InputStateMachine.h">
       <Filter>Base\头文件\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="SpawnGeometryByInput.h">
+      <Filter>D3DCore\Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

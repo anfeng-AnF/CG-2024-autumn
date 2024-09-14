@@ -9,7 +9,7 @@ public:
 	class CameraMove :public InputState
 	{
 	public:
-		CameraMove(Window& window,Camera* cam) : InputState(window),cam(cam) {};
+		CameraMove(Window& window, Camera* cam) : InputState(window), cam(cam) {};
 		// Í¨¹ý InputState ¼Ì³Ð
 		void Enter() override;
 		void Update(float deltaTime) override;
@@ -33,6 +33,12 @@ public:
 	XMFLOAT3 GetForwardVector()const noexcept;
 	XMFLOAT3 GetRightVector()const noexcept;
 	XMFLOAT3 GetUpVector()const noexcept;
+
+public:
+	static const FTransform FrontView;
+	static const FTransform RightView;
+	static const FTransform TopView  ;
+
 private:
 	bool EnableRollRotate = false;
 	FTransform transform;
