@@ -3,7 +3,10 @@
 #include "CtrlableGeometry.h"
 #include "InputStateMachine.h"
 #include "Vertex.h"
-
+std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateLineWithAdjacency(
+	const XMFLOAT3& point1, const XMFLOAT3& point2);
+std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateCircleWithAdjacency(
+	const XMFLOAT3& center, const XMFLOAT3& edgePoint, const XMFLOAT3& normal, unsigned int segmentCount);
 class SpawnGeometryByInput
 {
 	friend class SpawnGeoInputState;
@@ -22,6 +25,7 @@ public:
 		ImVec2 wndPos;
 		bool choosedMehod = false;
 		bool onDrawing = false;
+		bool drawingEnd = false;
 	}inputState;
 	enum SpawnGeoMehod
 	{

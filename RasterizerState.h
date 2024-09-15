@@ -27,6 +27,9 @@ inline Bind::RasterizerState::RasterizerState(Graphics& gfx, D3D11_CULL_MODE cul
 	rasterDesc.ScissorEnable = FALSE;
 	rasterDesc.MultisampleEnable = FALSE;
 	rasterDesc.AntialiasedLineEnable = FALSE;
+	rasterDesc.FillMode = D3D11_FILL_SOLID;         // 填充模式为实心
+	rasterDesc.CullMode = D3D11_CULL_NONE;         // 关闭剔除
+	rasterDesc.FrontCounterClockwise = FALSE;      // 设置前向面为顺时针
 
 	// 创建光栅化器状态对象
 	HRESULT hr = GetDevice(gfx)->CreateRasterizerState(&rasterDesc, &pRasterizerState);

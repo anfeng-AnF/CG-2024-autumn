@@ -158,8 +158,9 @@ Line::Line(Graphics& gfx,Camera&cam, Dvtx::VertexBuffer& _vertexBuffer, std::vec
     gfx(gfx)
 {
     using namespace Bind;
-    AddBind(VertexBuffer::Resolve(gfx, "LineCollisionGeomerty", *vertexBuffer));
-    AddBind(IndexBuffer::Resolve(gfx, "LineCollisionGeomerty", indices));
+    static int id = 0;
+    AddBind(VertexBuffer::Resolve(gfx, "LineCollisionGeomerty"+std::to_string(id++), *vertexBuffer));
+    AddBind(IndexBuffer::Resolve(gfx, "LineCollisionGeomerty" + std::to_string(id), indices));
     AddBind(Bind::PixelShader::Resolve(gfx, "LinePS.cso"));
 
     auto pvs = Bind::VertexShader::Resolve(gfx, "LineVS.cso");
@@ -339,7 +340,7 @@ void TriangelGeo::Draw(Graphics& gfx) const noexcept
 WidthLine::WidthLine(Graphics& gfx, Camera& cam, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos, float lineWidth)
     :
     Line(gfx,cam,_vertexBuffer,_indices,_pos),
-    width((float)lineWidth),
+    width(lineWidth),
     gcBuf(gfx)
 {
     auto it=std::find(binds.begin(), binds.end(), Bind::Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_LINELIST));

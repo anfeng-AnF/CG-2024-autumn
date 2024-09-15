@@ -14,10 +14,13 @@ void SpawnGeometryByInput::SpawnGeoInputState::Enter()
 	wndPos = ImVec2{ (float)wnd.mouse.GetPosX(),(float)wnd.mouse.GetPosY() };
 	choosedMehod = false;
 	onDrawing = false;
+	drawingEnd = false;
 }
 
 void SpawnGeometryByInput::SpawnGeoInputState::Update(float deltaTime)
 {
+	pSpawnGeo->draw(wnd.Gfx());
+
 	//should exit state?
 	//spawn ctrl wnd
 	if (!choosedMehod) {
@@ -25,8 +28,10 @@ void SpawnGeometryByInput::SpawnGeoInputState::Update(float deltaTime)
 	}
 
 	if (choosedMehod
-		&& pSpawnGeo->mehod == NONE 
-		|| wnd.Kbd.KeyIsPressed(VK_ESCAPE)) {
+		&& pSpawnGeo->mehod == NONE
+		|| wnd.Kbd.KeyIsPressed(VK_ESCAPE)
+		|| drawingEnd)
+	{
 		this->Machine->SetState(PERVIOUS_STATE);
 	}bool methodIsNone = (pSpawnGeo->mehod == NONE);
 
@@ -40,15 +45,43 @@ void SpawnGeometryByInput::SpawnGeoInputState::Update(float deltaTime)
 			this->Machine->SetState("CameraMove");
 			break;
 		case Mouse::Event::Type::LPress:
+			switch (pSpawnGeo->mehod)
+			{
+			case SpawnGeometryByInput::LINE:
+			case SpawnGeometryByInput::CIRCLE:
+				drawingEnd = pSpawnGeo->SpawnLine(delta.value().GetPos(), true, pSpawnGeo->mehod);
+				break;
+			case SpawnGeometryByInput::LINE_CONTINUE:
+				break;
+			case SpawnGeometryByInput::CIRCLE_ARC:
+				drawingEnd = pSpawnGeo->SpawnCircleArc(delta.value().GetPos(), true);
+				break;
+			}
 			onDrawing = true;
 			break;
-
-
 		default:
+
 			break;
 		}
-
+		//handle spawn msg	
+		if (onDrawing) {
+			switch (pSpawnGeo->mehod)
+			{
+			case SpawnGeometryByInput::LINE:
+			case SpawnGeometryByInput::CIRCLE:
+				pSpawnGeo->SpawnLine(delta.value().GetPos(), false, pSpawnGeo->mehod);
+				break;
+			case SpawnGeometryByInput::LINE_CONTINUE:
+				break;
+			case SpawnGeometryByInput::CIRCLE_ARC:
+				pSpawnGeo->SpawnCircleArc(delta.value().GetPos(), false);
+				break;
+			}
+		}
 	}
+
+
+
 
 
 }
@@ -58,7 +91,7 @@ void SpawnGeometryByInput::SpawnGeoInputState::Exit()
 }
 
 
-std::pair<Dvtx::VertexBuffer, std::vector<unsigned int>> CreateLineWithAdjacency(
+std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateLineWithAdjacency(
 	const XMFLOAT3& point1, const XMFLOAT3& point2)
 {
 	// 创建仅包含Position3D的顶点布局
@@ -73,14 +106,14 @@ std::pair<Dvtx::VertexBuffer, std::vector<unsigned int>> CreateLineWithAdjacency
 	vbuf.EmplaceBack(point2);  // 终点
 
 	// 构建带有邻接信息的线段的indices
-	std::vector<unsigned int> indices = {
+	std::vector<uint16_t> indices = {
 		0, 0, 1, 1  // adj1, point1, point2, adj2
 	};
 
 	return { std::move(vbuf), indices };
 }
-std::pair<Dvtx::VertexBuffer, std::vector<unsigned int>> CreateCircleWithAdjacency(
-	const XMFLOAT3& center, const XMFLOAT3& edgePoint, unsigned int segmentCount = 20)
+std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateCircleWithAdjacency(
+	const XMFLOAT3& center, const XMFLOAT3& edgePoint, const XMFLOAT3& normal, unsigned int segmentCount=20)
 {
 	// 创建仅包含Position3D的顶点布局
 	Dvtx::VertexBuffer vbuf(
@@ -97,30 +130,49 @@ std::pair<Dvtx::VertexBuffer, std::vector<unsigned int>> CreateCircleWithAdjacen
 
 	float radius = sqrtf(radiusVec.x * radiusVec.x + radiusVec.y * radiusVec.y + radiusVec.z * radiusVec.z);
 
-	// 创建圆上的顶点
-	float angleStep = XM_2PI / segmentCount;  // 每段的角度步进
+	// 计算圆所在平面的法线和基于此平面的单位向量
+	XMVECTOR norm = XMLoadFloat3(&normal);
+	XMVECTOR radiusVecVec = XMLoadFloat3(&radiusVec);
+	XMVECTOR planeNormal = XMVector3Normalize(norm);
+	XMVECTOR circleCenter = XMLoadFloat3(&center);
 
-	// 添加圆上的所有点
+	// 计算圆上的所有顶点
+	std::vector<XMFLOAT3> circleVertices;
+	float angleStep = XM_2PI / segmentCount;
+
+	// 添加圆心作为中心点
+	vbuf.EmplaceBack(center);
+
 	for (unsigned int i = 0; i < segmentCount; ++i)
 	{
 		float angle = i * angleStep;
-		float x = center.x + radius * cosf(angle);
-		float y = center.y;  // 保持与圆心同一个平面
-		float z = center.z + radius * sinf(angle);
 
-		vbuf.EmplaceBack(XMFLOAT3{ x, y, z });
+		// 计算圆上的点
+		XMVECTOR rotatedVec = XMVector3TransformNormal(XMVectorSet(cosf(angle) * radius, sinf(angle) * radius, 0.0f, 0.0f),
+			XMMatrixRotationNormal(planeNormal, angle));
+		XMVECTOR point = XMVectorAdd(circleCenter, rotatedVec);
+
+		XMFLOAT3 vertex;
+		XMStoreFloat3(&vertex, point);
+		circleVertices.push_back(vertex);
+
+		vbuf.EmplaceBack(vertex);
 	}
 
 	// 构建邻接信息的indices
-	std::vector<unsigned int> indices;
+	std::vector<uint16_t> indices;
 
 	for (unsigned int i = 0; i < segmentCount; ++i)
 	{
-		unsigned int nextIndex = (i + 1) % segmentCount;
-		indices.push_back(i);         // 当前顶点
-		indices.push_back(i);         // 当前顶点邻接点（自己）
-		indices.push_back(nextIndex); // 下一个顶点
-		indices.push_back(nextIndex); // 下一个顶点邻接点（自己）
+		unsigned int currIndex = i + 1;  // 从 1 开始以便后续连接圆心
+		unsigned int prevIndex = (i + segmentCount - 1) % segmentCount + 1;
+		unsigned int nextIndex = (i + 1) % segmentCount + 1;
+
+		// 添加 4 个索引：圆心，前一个点，当前点，下一个点
+		indices.push_back(0);       // 圆心
+		indices.push_back(prevIndex); // 前一个点
+		indices.push_back(currIndex); // 当前点
+		indices.push_back(nextIndex); // 下一个点
 	}
 
 	return { std::move(vbuf), indices };
@@ -198,12 +250,12 @@ SpawnGeometryByInput::SpawnGeometryByInput(Window& wnd, Camera& cam, CollisionGe
 
 bool SpawnGeometryByInput::SpawnLine(screenPos pos,bool lpressed,SpawnGeoMehod SGmehod)
 {
-	static bool called = false;
+	static int called = 0;
 	LineRay line(pos, wnd, cam);
 	static LineRay plane;
 	static XMFLOAT3 perPoint;
+	XMFLOAT3 point;
 	if (!called) {
-		perPoint = GetIntersectionPlaneLine(plane, line);
 		auto camTransform = cam.GetTransform();
 		XMStoreFloat3(&plane.rayDirection, camTransform.GetForwardVector());
 		if (camTransform == Camera::FrontView || camTransform == Camera::RightView || camTransform == Camera::TopView) {
@@ -213,37 +265,40 @@ bool SpawnGeometryByInput::SpawnLine(screenPos pos,bool lpressed,SpawnGeoMehod S
 		{
 			plane.rayOrigin = plane.rayDirection * 30.0f;
 		}
+		perPoint = GetIntersectionPlaneLine(plane, line);
 	}
 	else
 	{
-		auto point = GetIntersectionPlaneLine(plane, line);
-		Dvtx::VertexBuffer vbuf(
-			Dvtx::VertexLayout{}
-			.Append(Dvtx::VertexLayout::Position3D)
-		);
-		std::vector<unsigned int> indices;
+		point = GetIntersectionPlaneLine(plane, line);
 		switch (SGmehod)
 		{
-		case SpawnGeometryByInput::LINE:
-			std::tie(vbuf, indices) = CreateLineWithAdjacency(perPoint, point);
+		case SpawnGeometryByInput::LINE: {
+			auto [vbuf, indices] = CreateLineWithAdjacency(perPoint, point);
+			drawingGeo = std::make_shared<WidthLine>(wnd.Gfx(), cam, vbuf, indices, XMFLOAT3{ 0.0f,0.0f,0.0f }, 1.0f);
+		}
 			break;
-		case SpawnGeometryByInput::CIRCLE:
-			std::tie(vbuf, indices) = CreateCircleWithAdjacency(perPoint, point);
+		case SpawnGeometryByInput::CIRCLE: {
+			auto [vbuf, indices] = CreateCircleWithAdjacency(perPoint, point,plane.rayDirection);
+			drawingGeo = std::make_shared<WidthLine>(wnd.Gfx(), cam, vbuf, indices, XMFLOAT3{ 0.0f,0.0f,0.0f }, 1.0f);
+		}
 			break;
 		default:
 			break;
 		}
-		//drawingGeo = std::make_shared<WidthLine>(wnd.Gfx(), cam, vbuf, indices, XMFLOAT3{ 0.0f,0.0f,0.0f }, 0.1f);
 	}
+	DebugGraphsMannger::GetInstence().AddGeo(std::make_shared<DebugSphere>(wnd.Gfx(), XMFLOAT3{ 1.0f,0.0f,0.0f }, point), 0.1f);
+	DebugGraphsMannger::GetInstence().AddGeo(std::make_shared<DebugSphere>(wnd.Gfx(), XMFLOAT3{ 1.0f,0.0f,0.0f }, perPoint), 0.1f);
 
 	if (lpressed) 
 	{
-		CGM->AddGeometry(drawingGeo);
-		drawingGeo = nullptr;
-		called = false;
-		return true;
+		called++;
+		if (called == 2) {
+			called = 0;
+			CGM->AddGeometry(drawingGeo);
+			drawingGeo = nullptr;
+			return true;
+		}
 	}
-	called = true;
 	return false;
 }
 

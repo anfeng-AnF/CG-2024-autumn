@@ -26,10 +26,11 @@ App::App(UINT width, UINT height)
 	wnd.DisableCursor();
 
 	auto a=Sphere::Make(2.0f);
-	ctrl.AddGeometry(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices, DirectX::XMFLOAT3{ 20.0f,0.0f,0.0f }));
+	/*
+	ctrl.AddGeometry(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices, DirectX::XMFLOAT3{20.0f,0.0f,0.0f}));
 	ctrl.AddGeometry(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices, DirectX::XMFLOAT3{ 10.0f,0.0f,0.0f }));
 	ctrl.AddGeometry(std::make_shared<TriangelGeo>(wnd.Gfx(), a.vertices, a.indices, DirectX::XMFLOAT3{ 0.0f,10.0f,20.0f }));
-
+	*/
 	Dvtx::VertexBuffer vbuf(Dvtx::VertexLayout{}.Append(Dvtx::VertexLayout::Position3D));
 	vbuf.EmplaceBack(DirectX::XMFLOAT3{ 100.0f,0.0f,100.0f });
 	vbuf.EmplaceBack(DirectX::XMFLOAT3{ -100.0f,0.0f,100.0f });
@@ -67,7 +68,10 @@ App::App(UINT width, UINT height)
 		ind.push_back(nextIndex);
 		ind.push_back(nextNextIndex);
 	}
-	ctrl.AddGeometry(std::make_shared<WidthLine>(wnd.Gfx(),cam, vbufLine, ind));//
+	//ctrl.AddGeometry(std::make_shared<WidthLine>(wnd.Gfx(), cam, vbufLine, ind));
+
+	auto [v, i] = CreateLineWithAdjacency({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,10.0f });
+	ctrl.AddGeometry(std::make_shared<WidthLine>(wnd.Gfx(), cam, v, i));
 
 	ISM.AddState(DEFAULT_STATE, std::make_unique<CollisionGeoManager::TranslationState>(ctrl.inputState));
 	ISM.AddState("CameraMove", std::make_unique<Camera::CameraMove>(cam.inputState));
