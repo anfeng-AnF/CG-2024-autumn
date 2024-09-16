@@ -1,6 +1,7 @@
 cbuffer CBuf
 {
     matrix modelViewProj;
+    matrix modelView;
     float r;
 };
 // 输入的线段顶点
@@ -77,76 +78,83 @@ void main(lineadj VS_OUTPUT input[4], inout TriangleStream<GS_OUTPUT> OutputStre
     
     int n = 10;
     float4 vertexs0[10];
+    float4 vertexs0Nor[10];
     float4 vertexs1[10];
+    float4 vertexs1Nor[10];
     for (uint i = 0; i < n; i++)
     {
         float theta = 2.0f * 3.14159265359f * (float(i) / float(n));
         float cosTheta = cos(theta);
         float sinTheta = sin(theta);
-        vertexs0[i] = (p0 +r*0.5 * (cosTheta * crossPrev + sinTheta * dirP));
-        vertexs1[i] = (p1 +r*0.5 * (cosTheta * crossNext + sinTheta * dirN));
+        vertexs0[i] = (p0 + r * 0.5 * (cosTheta * crossPrev + sinTheta * dirP));
+        vertexs0Nor[i] = cosTheta * crossPrev + sinTheta * dirP;
+        vertexs1[i] = (p1 + r * 0.5 * (cosTheta * crossNext + sinTheta * dirN));
+        vertexs1Nor[i] = cosTheta * crossNext + sinTheta * dirN;
     }
+
     GS_OUTPUT v;
     for (uint j = 0; j < n; j++)
     {
+// 使用预先计算的 vertexs0Nor 和 vertexs1Nor
         v.pos = mul(vertexs0[(j + 1) % n], modelViewProj);
-        v.normal = normalize(cross(vertexs1[j].xyz - vertexs0[j].xyz, vertexs0[(j + 1) % n].xyz - vertexs0[j].xyz));
+        v.normal = mul(vertexs0Nor[(j + 1) % n], modelView); // 对 normal 进行变换
         OutputStream.Append(v);
 
         v.pos = mul(vertexs0[j], modelViewProj);
-        v.normal = normalize(cross(vertexs1[j].xyz - vertexs0[j].xyz, vertexs0[(j + 1) % n].xyz - vertexs0[j].xyz));
+        v.normal = mul(vertexs0Nor[j], modelView); // 对 normal 进行变换
         OutputStream.Append(v);
 
         v.pos = mul(vertexs1[j], modelViewProj);
-        v.normal = normalize(cross(vertexs1[j].xyz - vertexs0[j].xyz, vertexs0[(j + 1) % n].xyz - vertexs0[j].xyz));
+        v.normal = mul(vertexs1Nor[j], modelView); // 对 normal 进行变换
         OutputStream.Append(v);
         OutputStream.RestartStrip();
-    
+
         v.pos = mul(vertexs0[(j + 1) % n], modelViewProj);
-        v.normal = normalize(-cross(vertexs1[(j + 1) % n].xyz - vertexs1[j].xyz, vertexs1[j].xyz - vertexs0[j].xyz));
+        v.normal = mul(vertexs0Nor[(j + 1) % n], modelView); // 对 normal 进行变换
         OutputStream.Append(v);
 
         v.pos = mul(vertexs1[j], modelViewProj);
-        v.normal = normalize(-cross(vertexs1[(j + 1) % n].xyz - vertexs1[j].xyz, vertexs1[j].xyz - vertexs0[j].xyz));
+        v.normal = mul(vertexs1Nor[j], modelView); // 对 normal 进行变换
         OutputStream.Append(v);
 
         v.pos = mul(vertexs1[(j + 1) % n], modelViewProj);
-        v.normal = normalize(-cross(vertexs1[(j + 1) % n].xyz - vertexs1[j].xyz, vertexs1[j].xyz - vertexs0[j].xyz));
+        v.normal = mul(vertexs1Nor[(j + 1) % n], modelView); // 对 normal 进行变换
         OutputStream.Append(v);
         OutputStream.RestartStrip();
-    
-    // 封盖处理
+
+// 封盖处理
         if (bIsBegin)
         {
             v.pos = mul(p0, modelViewProj);
-            v.normal = normalize(cross(vertexs0[(j + 1) % n].xyz - vertexs0[j].xyz, p0.xyz - vertexs0[j].xyz));
+            v.normal = mul(-dirPrev, modelView); // 对封盖法线进行变换
             OutputStream.Append(v);
 
             v.pos = mul(vertexs0[j], modelViewProj);
-            v.normal = normalize(cross(vertexs0[(j + 1) % n].xyz - vertexs0[j].xyz, p0.xyz - vertexs0[j].xyz));
+            v.normal = mul(-dirPrev, modelView); // 对封盖法线进行变换
             OutputStream.Append(v);
 
             v.pos = mul(vertexs0[(j + 1) % n], modelViewProj);
-            v.normal = normalize(cross(vertexs0[(j + 1) % n].xyz - vertexs0[j].xyz, p0.xyz - vertexs0[j].xyz));
+            v.normal = mul(-dirPrev, modelView); // 对封盖法线进行变换
             OutputStream.Append(v);
             OutputStream.RestartStrip();
         }
-    
+
         if (bIsEnd)
         {
             v.pos = mul(vertexs1[(j + 1) % n], modelViewProj);
-            v.normal = normalize(cross(vertexs1[(j + 1) % n].xyz - vertexs1[j].xyz, p1.xyz - vertexs1[j].xyz));
+            v.normal = mul(-dirNext, modelView); // 对封盖法线进行变换
             OutputStream.Append(v);
 
             v.pos = mul(vertexs1[j], modelViewProj);
-            v.normal = normalize(cross(vertexs1[(j + 1) % n].xyz - vertexs1[j].xyz, p1.xyz - vertexs1[j].xyz));
+            v.normal = mul(-dirNext, modelView); // 对封盖法线进行变换
             OutputStream.Append(v);
 
             v.pos = mul(p1, modelViewProj);
-            v.normal = normalize(cross(vertexs1[(j + 1) % n].xyz - vertexs1[j].xyz, p1.xyz - vertexs1[j].xyz));
+            v.normal = mul(-dirNext, modelView); // 对封盖法线进行变换
             OutputStream.Append(v);
             OutputStream.RestartStrip();
         }
     }
+
 }
 

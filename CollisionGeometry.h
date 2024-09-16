@@ -77,6 +77,7 @@ public:
 	struct CbufData
 	{
 		XMMATRIX ViewProj;
+		XMMATRIX ModelView;
 		alignas(16) float r;
 	};
 	Bind::GeometryConstantBuffer<CbufData> gcBuf;

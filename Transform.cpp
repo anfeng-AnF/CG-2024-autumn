@@ -165,3 +165,18 @@ XMFLOAT3 operator/(const XMFLOAT3& lhs, float scalar)
 		lhs.z / scalar
 	);
 }
+
+bool ArePointsEqual(const DirectX::XMFLOAT3& point1, const DirectX::XMFLOAT3& point2, float epsilon)
+{
+	using namespace DirectX;
+
+	XMVECTOR vec1 = XMLoadFloat3(&point1);
+	XMVECTOR vec2 = XMLoadFloat3(&point2);
+
+	XMVECTOR diff = XMVectorSubtract(vec1, vec2);
+
+	float distance = XMVectorGetX(XMVector3Length(diff));
+
+	return distance < epsilon;
+}
+

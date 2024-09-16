@@ -16,7 +16,8 @@ float4 main(float4 pos : SV_POSITION, float3 normal : NORMAL) : SV_Target
     float3 normalizedNormal = normalize(normal);
     float3 lightColor = float3(1.0, 1.0, 1.0); // Ê¾Àý¹âÕÕÑÕÉ«
     float diffuse = max(dot(normalizedNormal, lightDir), 0.0) + float4(0.1f,0.1f,0.1f,0.1f);
-    return float4(diffuse * lightColor, 1.0);
+    //return float4(diffuse * lightColor, 1.0);
+    return float4(196.0f / 255.0f, 156.0f / 255.0f, 217.0f / 255.0f, 1.0f);
 }
 
 

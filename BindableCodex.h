@@ -16,7 +16,26 @@ namespace Bind
 			static_assert(std::is_base_of<Bindable, T>::value, "Can only resolve classes derived from Bindable");
 			return Get().Resolve_<T>(gfx, std::forward<Params>(p)...);
 		}
+		static void DebugString() {
+			Get().printDebugMsg();
+		};
 	private:
+		void printDebugMsg() {
+			static int size = binds.size();
+			if (binds.size() != size) {
+				std::ostringstream oss; 
+				size = binds.size();
+				oss << "------------------------------------------" << binds.size() << std::endl;
+				for (const auto& bind : binds) {
+					oss << "Key: " << bind.first << "\n";
+				}
+
+				oss << "End of binds\n";
+
+				// 使用 DebugStringA 输出调试信息
+				OutputDebugStringA(oss.str().c_str());
+			}
+		};
 		template<class T, typename...Params>
 		std::shared_ptr<T> Resolve_(Graphics& gfx, Params&&...p)
 		{

@@ -19,11 +19,11 @@ DebugLine::DebugLine(Graphics& gfx, DirectX::XMFLOAT3 begin, DirectX::XMFLOAT3 e
 	std::vector<uint16_t> indices = { 0,1 };
 	vbf.EmplaceBack(begin, color);
 	vbf.EmplaceBack(end, color);
-	std::string idStr = "Line_" + XMFLOAT3ToString(begin) + "_" + XMFLOAT3ToString(end) + "_" + XMFLOAT3ToString(color);
+	std::string idStr = "Line_" + XMFLOAT3ToString(begin) + "----" + XMFLOAT3ToString(end) + "----" + XMFLOAT3ToString(color);
 
-	AddBind(VertexBuffer::Resolve(gfx, "Line"+idStr, vbf));
+	AddBind(VertexBuffer::Resolve(gfx, idStr, vbf));
 
-	AddBind(IndexBuffer::Resolve(gfx, "Line", indices));
+	AddBind(IndexBuffer::Resolve(gfx, idStr, indices));
 
 	AddBind(PixelShader::Resolve(gfx, "AxisPS.cso"));
 
@@ -32,7 +32,7 @@ DebugLine::DebugLine(Graphics& gfx, DirectX::XMFLOAT3 begin, DirectX::XMFLOAT3 e
 	AddBind(std::move(pvs));
 
 	AddBind(InputLayout::Resolve(gfx, vbf.GetLayout(), pvsbc));
-
+	AddBind(std::make_shared<TransformCbuf>(gfx, *this));
 	AddBind(Topology::Resolve(gfx, D3D_PRIMITIVE_TOPOLOGY_LINELIST));
 }
 

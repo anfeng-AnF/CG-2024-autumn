@@ -45,3 +45,6 @@ XMFLOAT3 operator*(const XMFLOAT3& lhs, float scalar);
 
 XMFLOAT3 operator/(const XMFLOAT3& lhs, float scalar);
 
+bool ArePointsEqual(const DirectX::XMFLOAT3& point1, const DirectX::XMFLOAT3& point2, float epsilon = 1e-6f);
+
+

@@ -377,6 +377,7 @@ void WidthLine::Bind(Graphics& gfx) noexcept
 {
     CbufData data = {
         DirectX::XMMatrixTranspose(GetTransformXM()*gfx.GetCamera() * gfx.GetProjection()),
+        DirectX::XMMatrixTranspose(GetTransformXM() * gfx.GetCamera()),
         width
     };
     gcBuf.Update(gfx, data);

@@ -27,8 +27,7 @@ void SpawnGeometryByInput::SpawnGeoInputState::Update(float deltaTime)
 		choosedMehod = pSpawnGeo->SpawnImGuiWnd(wndPos);
 	}
 
-	if (choosedMehod
-		&& pSpawnGeo->mehod == NONE
+	if (choosedMehod && pSpawnGeo->mehod == NONE
 		|| wnd.Kbd.KeyIsPressed(VK_ESCAPE)
 		|| drawingEnd)
 	{
@@ -42,7 +41,9 @@ void SpawnGeometryByInput::SpawnGeoInputState::Update(float deltaTime)
 		switch (delta->GetType())
 		{
 		case Mouse::Event::Type::RPress:
-			this->Machine->SetState("CameraMove");
+			if (!onDrawing) {
+				this->Machine->SetState("CameraMove");
+			}
 			break;
 		case Mouse::Event::Type::LPress:
 			switch (pSpawnGeo->mehod)
@@ -79,11 +80,6 @@ void SpawnGeometryByInput::SpawnGeoInputState::Update(float deltaTime)
 			}
 		}
 	}
-
-
-
-
-
 }
 
 void SpawnGeometryByInput::SpawnGeoInputState::Exit()
@@ -94,6 +90,7 @@ void SpawnGeometryByInput::SpawnGeoInputState::Exit()
 std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateLineWithAdjacency(
 	const XMFLOAT3& point1, const XMFLOAT3& point2)
 {
+
 	// 创建仅包含Position3D的顶点布局
 	Dvtx::VertexBuffer vbuf(
 		Dvtx::VertexLayout{}
@@ -176,58 +173,65 @@ std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateCircleWithAdjacency(
 
 	return { std::move(vbuf), indices };
 }
-std::pair<Dvtx::VertexBuffer, std::vector<unsigned int>> CreateArcWithAdjacency(
-	const XMFLOAT3& arcStart, const XMFLOAT3& arcEnd, const XMFLOAT3& center, unsigned int segmentCount = 20)
+
+
+std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateArcWithAdjacency(
+	const XMFLOAT3& point1, const XMFLOAT3& point2, const XMFLOAT3& point3, unsigned int segmentCount)
 {
-	// 创建仅包含Position3D的顶点布局
-	Dvtx::VertexBuffer vbuf(
-		Dvtx::VertexLayout{}
-		.Append(Dvtx::VertexLayout::Position3D)
-	);
+	XMFLOAT3 center;
+	float radius;
 
-	// 将输入点转为 XMVECTOR 以便于计算
-	using namespace DirectX;
+	// 计算圆心和半径
+	//CalculateCircleCenterAndRadius(point1, point2, point3, center, radius);
+
 	XMVECTOR centerVec = XMLoadFloat3(&center);
-	XMVECTOR startVec = XMLoadFloat3(&arcStart);
-	XMVECTOR endVec = XMLoadFloat3(&arcEnd);
-
-	// 计算起点和终点的方向向量
-	XMVECTOR radiusStartVec = XMVector3Normalize(XMVectorSubtract(startVec, centerVec));
-	XMVECTOR radiusEndVec = XMVector3Normalize(XMVectorSubtract(endVec, centerVec));
+	XMVECTOR vec1 = XMLoadFloat3(&point1);
+	XMVECTOR vec2 = XMLoadFloat3(&point2);
 
 	// 计算起点与终点间的夹角（弧度）
-	float angle = XMVectorGetX(XMVector3AngleBetweenVectors(radiusStartVec, radiusEndVec));
+	XMVECTOR radiusVec1 = XMVector3Normalize(XMVectorSubtract(vec1, centerVec));
+	XMVECTOR radiusVec2 = XMVector3Normalize(XMVectorSubtract(vec2, centerVec));
+	float angle = XMVectorGetX(XMVector3AngleBetweenVectors(radiusVec1, radiusVec2));
 
-	// 判断起点和终点的方向是否一致，以确定顺时针还是逆时针
-	XMVECTOR crossProduct = XMVector3Cross(radiusStartVec, radiusEndVec);
-	if (XMVectorGetY(crossProduct) < 0)
+	// 计算旋转轴
+	XMVECTOR rotationAxis = XMVector3Cross(radiusVec1, radiusVec2);
+	rotationAxis = XMVector3Normalize(rotationAxis);
+
+	// 判断是否顺时针
+	if (XMVectorGetY(rotationAxis) < 0)
 	{
-		angle = XM_2PI - angle; // 如果叉积为负，说明是顺时针
+		angle = XM_2PI - angle;
 	}
 
 	// 计算每一段的角度步进
 	float angleStep = angle / segmentCount;
 
+	// 创建顶点布局和顶点缓冲区
+	Dvtx::VertexBuffer vbuf(
+		Dvtx::VertexLayout{}
+		.Append(Dvtx::VertexLayout::Position3D)
+	);
+
 	// 添加圆弧上的顶点
 	for (unsigned int i = 0; i <= segmentCount; ++i)
 	{
 		float currentAngle = i * angleStep;
-		// 通过旋转起始向量来生成弧上的点
-		XMMATRIX rotationMatrix = XMMatrixRotationAxis(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), currentAngle);
-		XMVECTOR currentPoint = XMVector3Transform(radiusStartVec, rotationMatrix);
-		currentPoint = XMVectorScale(currentPoint, XMVectorGetX(XMVector3Length(XMVectorSubtract(startVec, centerVec))));
-		currentPoint = XMVectorAdd(currentPoint, centerVec);
+
+		// 使用旋转矩阵计算圆弧上的点
+		XMVECTOR pointOnArc = XMVector3Transform(radiusVec1, XMMatrixRotationAxis(rotationAxis, currentAngle));
+		pointOnArc = XMVectorAdd(pointOnArc, centerVec);
 
 		// 存入顶点缓冲区
 		XMFLOAT3 vertex;
-		XMStoreFloat3(&vertex, currentPoint);
+		XMStoreFloat3(&vertex, pointOnArc);
 		vbuf.EmplaceBack(vertex);
 	}
 
 	// 构建邻接信息的indices
-	std::vector<unsigned int> indices;
-	for (unsigned int i = 0; i < segmentCount; ++i)
+	std::vector<uint16_t> indices;
+	for (uint16_t i = 0; i < segmentCount; ++i)
 	{
+		// 添加邻接信息的索引：当前顶点，当前邻接顶点（自己），下一个顶点，下一个邻接顶点（自己）
 		indices.push_back(i);         // 当前顶点
 		indices.push_back(i);         // 当前顶点邻接点（自己）
 		indices.push_back(i + 1);     // 下一个顶点
@@ -236,6 +240,7 @@ std::pair<Dvtx::VertexBuffer, std::vector<unsigned int>> CreateArcWithAdjacency(
 
 	return { std::move(vbuf), indices };
 }
+
 
 
 SpawnGeometryByInput::SpawnGeometryByInput(Window& wnd, Camera& cam, CollisionGeoManager* CGM)
@@ -309,7 +314,6 @@ bool SpawnGeometryByInput::SpawnCircleArc(screenPos pos,bool lpressed)
 	static std::vector<XMFLOAT3> perPoint;
 	XMFLOAT3 curPoint;
 	if (!num) {
-		perPoint.push_back(GetIntersectionPlaneLine(plane, line));
 		auto camTransform = cam.GetTransform();
 		XMStoreFloat3(&plane.rayDirection, camTransform.GetForwardVector());
 		if (camTransform == Camera::FrontView || camTransform == Camera::RightView || camTransform == Camera::TopView) {
@@ -323,25 +327,30 @@ bool SpawnGeometryByInput::SpawnCircleArc(screenPos pos,bool lpressed)
 
 	curPoint = GetIntersectionPlaneLine(plane, line);
 	
+
+	if (num == 1) {
+		auto [vbuf, indices] = CreateLineWithAdjacency(perPoint[0], curPoint);
+		drawingGeo = std::make_shared<WidthLine>(wnd.Gfx(), cam, vbuf, indices, XMFLOAT3{ 0.0f,0.0f,0.0f }, 0.01f);
+	}
+
+	if (num == 2) {
+		if (perPoint[1].x == curPoint.x&& perPoint[1].y == curPoint.y&& perPoint[1].z == curPoint.z)return false;
+		auto [vbuf, indices] = CreateArcWithAdjacency (perPoint[0], perPoint[1], curPoint);
+		drawingGeo = std::make_shared<WidthLine>(wnd.Gfx(), cam, vbuf, indices, XMFLOAT3{ 0.0f,0.0f,0.0f }, 0.1f);
+	}
+
+
+
 	if (lpressed) 
 	{
 		perPoint.push_back(curPoint);
 		num++;
-	}
-
-	if (num == 1) {
-		auto [vbuf, indices] = CreateArcWithAdjacency (perPoint[0], perPoint[1], curPoint);
-		//drawingGeo = std::make_shared<WidthLine>(wnd.Gfx(), cam, vbuf, indices, XMFLOAT3{ 0.0f,0.0f,0.0f }, 0.1f);
-	}
-
-
-
-
-	if (num == 2) {
-		CGM->AddGeometry(drawingGeo);
-		drawingGeo = nullptr;
-		num = 0;
-		return true;
+		if (num == 3) {
+			CGM->AddGeometry(drawingGeo);
+			drawingGeo = nullptr;
+			num = 0;
+			return true;
+		}
 	}
 	return false;
 }
@@ -354,9 +363,9 @@ bool SpawnGeometryByInput::SpawnImGuiWnd(ImVec2 windowPos)
 	ImGui::Begin("Spawn Geos");
 	selected |= ImGui::RadioButton("exit", reinterpret_cast<int*>(&mehod), static_cast<int>(SpawnGeoMehod::NONE));
 	selected |= ImGui::RadioButton("line", reinterpret_cast<int*>(&mehod), static_cast<int>(SpawnGeoMehod::LINE));
-	selected |= ImGui::RadioButton("multi line", reinterpret_cast<int*>(&mehod), static_cast<int>(SpawnGeoMehod::LINE_CONTINUE));
+	//selected |= ImGui::RadioButton("multi line", reinterpret_cast<int*>(&mehod), static_cast<int>(SpawnGeoMehod::LINE_CONTINUE));
 	selected |= ImGui::RadioButton("circle", reinterpret_cast<int*>(&mehod), static_cast<int>(SpawnGeoMehod::CIRCLE));
-	selected |= ImGui::RadioButton("circle arc", reinterpret_cast<int*>(&mehod), static_cast<int>(SpawnGeoMehod::CIRCLE_ARC));
+	//selected |= ImGui::RadioButton("circle arc", reinterpret_cast<int*>(&mehod), static_cast<int>(SpawnGeoMehod::CIRCLE_ARC));
 	ImGui::End();
 	return selected;
 }

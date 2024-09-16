@@ -135,7 +135,7 @@ void App::DoFrame()
 	ShowImguiDemoWindow();
 	//Lantern.ShowWindow();
 	//wall.ShowWindow();
-
+	Codex::DebugString();
 	// present
 	wnd.Gfx().EndFrame();
 }
