@@ -6,7 +6,7 @@
 std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateLineWithAdjacency(
 	const XMFLOAT3& point1, const XMFLOAT3& point2);
 std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateCircleWithAdjacency(
-	const XMFLOAT3& center, const XMFLOAT3& edgePoint, const XMFLOAT3& normal, unsigned int segmentCount);
+	const XMFLOAT3& center, const XMFLOAT3& edgePoint, const XMFLOAT3& normal, unsigned int segmentCount = 20);
 class SpawnGeometryByInput
 {
 	friend class SpawnGeoInputState;

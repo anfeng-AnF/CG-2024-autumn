@@ -70,8 +70,12 @@ App::App(UINT width, UINT height)
 	}
 	//ctrl.AddGeometry(std::make_shared<WidthLine>(wnd.Gfx(), cam, vbufLine, ind));
 
-	auto [v, i] = CreateLineWithAdjacency({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,10.0f });
-	ctrl.AddGeometry(std::make_shared<WidthLine>(wnd.Gfx(), cam, v, i));
+	std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> b = CreateCircleWithAdjacency({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,10.0f },{0.0f,1.0f,0.0f});
+	ctrl.AddGeometry(std::make_shared<WidthLine>(wnd.Gfx(), cam, b.first, b.second));
+
+	std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> c = CreateLineWithAdjacency({ 10.0f,0.0f,0.0f }, { 0.0f,0.0f,10.0f });
+	ctrl.AddGeometry(std::make_shared<WidthLine>(wnd.Gfx(), cam, c.first, c.second));
+
 
 	ISM.AddState(DEFAULT_STATE, std::make_unique<CollisionGeoManager::TranslationState>(ctrl.inputState));
 	ISM.AddState("CameraMove", std::make_unique<Camera::CameraMove>(cam.inputState));

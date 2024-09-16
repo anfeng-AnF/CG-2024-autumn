@@ -346,6 +346,13 @@ WidthLine::WidthLine(Graphics& gfx, Camera& cam, Dvtx::VertexBuffer& _vertexBuff
     auto it=std::find(binds.begin(), binds.end(), Bind::Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_LINELIST));
     if(it!=binds.end())
         *it = Bind::Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ);
+    //Convert linelist_adj method line to linelist for collision detection
+    std::vector<uint16_t> ind;
+    for (auto i = 0u; i < _indices.size(); i+=4) {
+        ind.push_back(_indices[i + 1]);
+        ind.push_back(_indices[i + 2]);
+    }
+    this->indices = ind;
 }
 
 std::vector<CollisionGeometry::CollisionRes> WidthLine::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix, float posOffset)

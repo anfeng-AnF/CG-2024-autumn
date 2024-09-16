@@ -15,6 +15,7 @@ void DebugGraphsMannger::Draw(Graphics& gfx)
             it->first->Draw(gfx);
 
         if (it->second.first < 0) {
+            it->first->destory();
             it = umapDebugGeoWithExistTime.erase(it);
         }
         else {

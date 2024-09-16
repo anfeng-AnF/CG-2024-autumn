@@ -18,7 +18,11 @@ public:
 	virtual void Draw(Graphics& gfx) const noexcept;
 
 	virtual ~Drawable() = default;
-	void destory() {};
+	void destory() {
+		for (auto bind : binds) {
+			bind.reset();
+		}
+	};
 protected:
 	template<class T>
 	T* QueryBindable() noexcept

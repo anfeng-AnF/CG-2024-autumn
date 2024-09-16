@@ -104,7 +104,6 @@ std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateLineWithAdjacency(
 	// 添加四个点，依次为：邻接点1, 起点, 终点, 邻接点2
 	vbuf.EmplaceBack(point1);  // 起点
 	vbuf.EmplaceBack(point2);  // 终点
-
 	// 构建带有邻接信息的线段的indices
 	std::vector<uint16_t> indices = {
 		0, 0, 1, 1  // adj1, point1, point2, adj2
@@ -113,7 +112,7 @@ std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateLineWithAdjacency(
 	return { std::move(vbuf), indices };
 }
 std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateCircleWithAdjacency(
-	const XMFLOAT3& center, const XMFLOAT3& edgePoint, const XMFLOAT3& normal, unsigned int segmentCount=20)
+	const XMFLOAT3& center, const XMFLOAT3& edgePoint, const XMFLOAT3& normal, unsigned int segmentCount)
 {
 	// 创建仅包含Position3D的顶点布局
 	Dvtx::VertexBuffer vbuf(
@@ -132,29 +131,28 @@ std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateCircleWithAdjacency(
 
 	// 计算圆所在平面的法线和基于此平面的单位向量
 	XMVECTOR norm = XMLoadFloat3(&normal);
-	XMVECTOR radiusVecVec = XMLoadFloat3(&radiusVec);
+	XMVECTOR tanget = XMVector3Normalize(XMLoadFloat3(&radiusVec));
 	XMVECTOR planeNormal = XMVector3Normalize(norm);
 	XMVECTOR circleCenter = XMLoadFloat3(&center);
+	XMVECTOR biTanget =XMVector3Normalize(XMVector3Cross(tanget, planeNormal));
 
-	// 计算圆上的所有顶点
-	std::vector<XMFLOAT3> circleVertices;
 	float angleStep = XM_2PI / segmentCount;
 
-	// 添加圆心作为中心点
-	vbuf.EmplaceBack(center);
 
 	for (unsigned int i = 0; i < segmentCount; ++i)
 	{
 		float angle = i * angleStep;
 
-		// 计算圆上的点
-		XMVECTOR rotatedVec = XMVector3TransformNormal(XMVectorSet(cosf(angle) * radius, sinf(angle) * radius, 0.0f, 0.0f),
-			XMMatrixRotationNormal(planeNormal, angle));
-		XMVECTOR point = XMVectorAdd(circleCenter, rotatedVec);
+		XMVECTOR point = XMVectorAdd(circleCenter,
+			XMVectorScale(
+			XMVectorAdd(
+				XMVectorScale(biTanget,cosf(angle)),
+				XMVectorScale(tanget,sinf(angle))
+			),radius)
+		);
 
 		XMFLOAT3 vertex;
 		XMStoreFloat3(&vertex, point);
-		circleVertices.push_back(vertex);
 
 		vbuf.EmplaceBack(vertex);
 	}
@@ -164,15 +162,16 @@ std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateCircleWithAdjacency(
 
 	for (unsigned int i = 0; i < segmentCount; ++i)
 	{
-		unsigned int currIndex = i + 1;  // 从 1 开始以便后续连接圆心
-		unsigned int prevIndex = (i + segmentCount - 1) % segmentCount + 1;
-		unsigned int nextIndex = (i + 1) % segmentCount + 1;
+		int prevIndex = (i - 1 + segmentCount) % segmentCount;
+		int currIndex = i;
+		int nextIndex = (i + 1) % segmentCount;
+		int nextNextIndex = (i + 2) % segmentCount;
 
-		// 添加 4 个索引：圆心，前一个点，当前点，下一个点
-		indices.push_back(0);       // 圆心
-		indices.push_back(prevIndex); // 前一个点
-		indices.push_back(currIndex); // 当前点
-		indices.push_back(nextIndex); // 下一个点
+		// 添加 4 个索引：前一个顶点，当前顶点，下一个顶点，再下一个顶点
+		indices.push_back(prevIndex);
+		indices.push_back(currIndex);
+		indices.push_back(nextIndex);
+		indices.push_back(nextNextIndex);
 	}
 
 	return { std::move(vbuf), indices };
@@ -286,8 +285,8 @@ bool SpawnGeometryByInput::SpawnLine(screenPos pos,bool lpressed,SpawnGeoMehod S
 			break;
 		}
 	}
-	DebugGraphsMannger::GetInstence().AddGeo(std::make_shared<DebugSphere>(wnd.Gfx(), XMFLOAT3{ 1.0f,0.0f,0.0f }, point), 0.1f);
-	DebugGraphsMannger::GetInstence().AddGeo(std::make_shared<DebugSphere>(wnd.Gfx(), XMFLOAT3{ 1.0f,0.0f,0.0f }, perPoint), 0.1f);
+	DebugGraphsMannger::GetInstence().AddGeo(std::make_shared<DebugSphere>(wnd.Gfx(), XMFLOAT3{ 1.0f,0.0f,0.0f }, point), 0.0f);
+	DebugGraphsMannger::GetInstence().AddGeo(std::make_shared<DebugSphere>(wnd.Gfx(), XMFLOAT3{ 1.0f,0.0f,0.0f }, perPoint), 0.0f);
 
 	if (lpressed) 
 	{

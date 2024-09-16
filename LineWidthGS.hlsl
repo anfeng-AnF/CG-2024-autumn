@@ -26,23 +26,46 @@ void main(lineadj VS_OUTPUT input[4], inout TriangleStream<GS_OUTPUT> OutputStre
     float4 p1 = input[2].pos;
     float4 pNext = input[3].pos;
     bool bIsBegin = false;
+    // 计算前后线段的方向向量
+    float4 dirPrev = normalize(p0 - pPrev);
+    float4 dirCur = normalize(p1 - p0);
+    float4 dirNext = normalize(pNext - p1);
     if (all(pPrev == p0))
     {
         bIsBegin = true;
+        dirPrev = dirCur;
     }
     bool bIsEnd = false;
     if (all(p1 == pNext))
     {
         bIsEnd = true;
+        dirNext = dirCur;
     }
-    // 计算前后线段的方向向量
-    float4 dirPrev = normalize(p0 - pPrev);
-    float4 dirCur = normalize(p1 - p0);
-    float4 dirNext = normalize(pNext - p1);
 
     // 计算法线方向
     float4 crossPrev = float4(normalize(cross(dirPrev.xyz, dirCur.xyz)), 0.0f);
     float4 crossNext = float4(normalize(cross(dirCur.xyz, dirNext.xyz)), 0.0f);
+    
+    // 设置一个很小的阈值，用于判断向量是否接近零
+    float epsilon = 1e-5f;
+
+    // 计算叉积向量的长度平方
+    float lenSqPrev = dot(crossPrev.xyz, crossPrev.xyz);
+    float lenSqNext = dot(crossNext.xyz, crossNext.xyz);
+
+    // 判断向量是否接近零
+    bool isCrossPrevZero = lenSqPrev < epsilon;
+    bool isCrossNextZero = lenSqNext < epsilon;
+
+    if (isCrossPrevZero)
+    {
+        crossPrev = float4(-dirCur.y, dirCur.x, 0.0f, 0.0f);
+    }
+
+    if (isCrossNextZero)
+    {
+        crossNext = float4(-dirCur.y, dirCur.x, 0.0f, 0.0f);
+    }
     
     float4 normalPrev = float4(normalize(cross(crossPrev.xyz, dirPrev.xyz)), 0.0f);
     float4 normalCurP = float4(normalize(cross(crossPrev.xyz, dirCur.xyz)), 0.0f);

@@ -15,7 +15,7 @@ float4 main(float4 pos : SV_POSITION, float3 normal : NORMAL) : SV_Target
     float3 lightDir = normalize(float3(-0.7, 3.0, -1.0)); // 示例光照方向
     float3 normalizedNormal = normalize(normal);
     float3 lightColor = float3(1.0, 1.0, 1.0); // 示例光照颜色
-    float diffuse = max(dot(normalizedNormal, lightDir), 0.0);
+    float diffuse = max(dot(normalizedNormal, lightDir), 0.0) + float4(0.1f,0.1f,0.1f,0.1f);
     return float4(diffuse * lightColor, 1.0);
 }
 
