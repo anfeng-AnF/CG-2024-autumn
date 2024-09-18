@@ -19,7 +19,18 @@ namespace Bind
 		static void DebugString() {
 			Get().printDebugMsg();
 		};
+		static void Remove(std::string bindId) {
+			Get().RemoveBind(bindId);
+		};
 	private:
+		void RemoveBind(std::string bindId) {
+			auto it = binds.find(bindId);
+			if (it != binds.end()) {
+				if (it->second.use_count() <= 2) {
+					binds.erase(it);
+				}
+			}
+		};
 		void printDebugMsg() {
 			static int size = binds.size();
 			if (binds.size() != size) {
@@ -27,7 +38,7 @@ namespace Bind
 				size = binds.size();
 				oss << "------------------------------------------" << binds.size() << std::endl;
 				for (const auto& bind : binds) {
-					oss << "Key: " << bind.first << "\n";
+					//oss << "Key: " << bind.first << "\n";
 				}
 
 				oss << "End of binds\n";

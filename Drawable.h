@@ -18,7 +18,7 @@ public:
 	virtual void Draw(Graphics& gfx) const noexcept;
 
 	virtual ~Drawable() = default;
-	void destory() {
+	virtual void destory() {
 		for (auto bind : binds) {
 			bind.reset();
 		}

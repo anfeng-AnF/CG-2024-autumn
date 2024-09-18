@@ -11,9 +11,12 @@ DebugSphere::DebugSphere(Graphics& gfx, DirectX::XMFLOAT3 color, DirectX::XMFLOA
 	auto model = Sphere::Make(r);
 
 
-	static int id = 0;
-	AddBind(VertexBuffer::Resolve(gfx, "DebugSphere" + std::to_string(id++), model.vertices));
-
+	static int idint = 0;
+	id = "DebugSphere" + std::to_string(idint++);
+	auto vbuf = VertexBuffer::Resolve(gfx, id, model.vertices);
+	id = vbuf->GetUID();
+	AddBind(vbuf);
+	
 	AddBind(IndexBuffer::Resolve(gfx, "DebugSphere", model.indices));
 
 	AddBind(PixelShader::Resolve(gfx, "DebugSpherePS.cso"));
