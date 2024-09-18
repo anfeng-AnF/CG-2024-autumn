@@ -113,9 +113,9 @@ void App::DoFrame()
 	wnd.Gfx().BeginFrame(0.07f, 0.0f, 0.12f);
 	wnd.Gfx().SetCamera(cam.GetMatrix());
 	light.Bind(wnd.Gfx(), cam.GetMatrix());
-	//Lantern.Draw(wnd.Gfx());
+	Lantern.Draw(wnd.Gfx());
 	//wall.Draw(wnd.Gfx());
-	skeletonMesh.Draw(wnd.Gfx());
+	//skeletonMesh.Draw(wnd.Gfx());
 	light.Draw(wnd.Gfx());
 	axis.Draw(wnd.Gfx());
 
@@ -134,7 +134,7 @@ void App::DoFrame()
 	cam.SpawnControlWindow();
 	light.SpawnControlWindow();
 	ShowImguiDemoWindow();
-	//Lantern.ShowWindow();
+	Lantern.ShowWindow();
 	//wall.ShowWindow();
 	Codex::DebugString();
 	// present

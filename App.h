@@ -41,8 +41,8 @@ private:
 	PointLight light;	
 	CollisionGeoManager ctrl;
 	//Model wall{ wnd.Gfx(),"Models\\RockWall\\RockWall.fbx" };
-	//Model Lantern{ wnd.Gfx(),"Models\\Lantern\\Lantern_Fixed1.fbx" };
-	Model skeletonMesh{ wnd.Gfx(),"Models\\skeletonMeshs\\testMesh.fbx" };
+	Model Lantern{ wnd.Gfx(),"Models\\Elysia\\elysiaQ1.fbx" };
+	//Model skeletonMesh{ wnd.Gfx(),"Models\\skeletonMeshs\\testMesh.fbx" };
 	Axis axis{ wnd.Gfx() };
 	InputStateMachine ISM;
 	DebugGraphsMannger &DGM=DebugGraphsMannger::GetInstence();
