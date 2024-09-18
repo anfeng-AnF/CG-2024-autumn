@@ -392,6 +392,9 @@
     <ClInclude Include="SpawnGeometryByInput.h">
       <Filter>D3DCore\Header</Filter>
     </ClInclude>
+    <ClInclude Include="SkeletonMesh.h">
+      <Filter>D3DCore\Header\Drawable</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX12Learn.rc">

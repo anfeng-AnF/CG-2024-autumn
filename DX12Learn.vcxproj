@@ -211,6 +211,7 @@
     <ClInclude Include="DebugGraphsMannger.h" />
     <ClInclude Include="GeometryShader.h" />
     <ClInclude Include="InputStateMachine.h" />
+    <ClInclude Include="SkeletonMesh.h" />
     <ClInclude Include="SpawnGeometryByInput.h" />
     <ClInclude Include="TransformCtrlComponent.h" />
     <ClInclude Include="Axis.h" />

@@ -185,6 +185,7 @@ XMMATRIX TranslateComponent::GetDeltaTransform(screenPos from, screenPos to, Win
         onTransform = true;
     }
     auto toWorldPos = this->GetIntersectionPlaneLine(plane, LineRay(to+from, wnd, cam));
+    DebugGraphsMannger::GetInstence().AddGeo(std::make_shared<DebugSphere>(gfx, XMFLOAT3{ 1.0f,1.0f,1.0f }, toWorldPos),0.0f);
     //Preparation data completed//
 
     XMMATRIX resMatrix = XMMatrixIdentity();
@@ -270,22 +271,30 @@ XMMATRIX RotationComponent::GetDeltaTransform(screenPos from, screenPos to, Wind
 
     // Select the axis of rotation
     XMVECTOR axis;
+    XMVECTOR curAxisDir;
     switch (tAxis)
     {
     case TransformComponentBase::XY:
         axis = FTransform::ForwardVector;
+        curAxisDir = transform.GetForwardVector();
         break;
     case TransformComponentBase::XZ:
         axis = FTransform::UpVector;
+        curAxisDir = transform.GetUpVector();
         break;
     case TransformComponentBase::YZ:
         axis = FTransform::RightVector;
+        curAxisDir = transform.GetRightVector();
         break;
     }
 
     float angle = acos(XMVectorGetX(XMVector3Dot(beginDirection, toDirection)));
     float dir = XMVectorGetX(XMVector3Dot(XMVector3Cross(beginDirection, toDirection), axis));
+    float dir1 = XMVectorGetX(XMVector3Dot(curAxisDir, axis));
     if (dir < 0) {
+        angle *= -1;
+    }
+    if (dir1 < 0) {
         angle *= -1;
     }
 
