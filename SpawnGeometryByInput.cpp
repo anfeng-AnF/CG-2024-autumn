@@ -90,14 +90,11 @@ void SpawnGeometryByInput::SpawnGeoInputState::Exit()
 std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateLineWithAdjacency(
 	const XMFLOAT3& point1, const XMFLOAT3& point2)
 {
-
 	// 创建仅包含Position3D的顶点布局
 	Dvtx::VertexBuffer vbuf(
 		Dvtx::VertexLayout{}
 		.Append(Dvtx::VertexLayout::Position3D)
 	);
-
-
 	// 添加四个点，依次为：邻接点1, 起点, 终点, 邻接点2
 	vbuf.EmplaceBack(point1);  // 起点
 	vbuf.EmplaceBack(point2);  // 终点

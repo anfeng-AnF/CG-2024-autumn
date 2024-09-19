@@ -162,6 +162,7 @@
     <ClCompile Include="CtrlCeomerty.cpp" />
     <ClCompile Include="DebugGraphsMannger.cpp" />
     <ClCompile Include="GeometryShader.cpp" />
+    <ClCompile Include="SkeletonMesh.cpp" />
     <ClCompile Include="SpawnGeometryByInput.cpp" />
     <ClCompile Include="TransformCtrlComponent.cpp" />
     <ClCompile Include="Axis.cpp" />
