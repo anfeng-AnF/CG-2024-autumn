@@ -20,6 +20,8 @@ namespace Dvtx
 			Float3Color,
 			Float4Color,
 			BGRAColor,
+			BoneIndex4,
+			BoneWight4,
 			Count,
 		};
 		template<ElementType> struct Map;
@@ -86,6 +88,20 @@ namespace Dvtx
 			static constexpr const char* semantic = "Color";
 			static constexpr const char* code = "C8";
 		};
+		template<> struct Map<BoneIndex4>
+		{
+			using SysType = DirectX::XMINT4;
+			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32A32_UINT;
+			static constexpr const char* semantic = "BoneIndex";
+			static constexpr const char* code = "BI4";
+		};
+		template<> struct Map<BoneWight4>
+		{
+			using SysType = DirectX::XMFLOAT4;
+			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32A32_FLOAT;
+			static constexpr const char* semantic = "BoneWight";
+			static constexpr const char* code = "BW4";
+		};
 
 		class Element
 		{
@@ -96,7 +112,7 @@ namespace Dvtx
 			size_t Size() const ;
 			static constexpr size_t SizeOf(ElementType type) ;
 			ElementType GetType() const noexcept;
-			D3D11_INPUT_ELEMENT_DESC GetDesc() const ;
+			D3D11_INPUT_ELEMENT_DESC GetDesc(const VertexLayout& layout) const ;
 			const char* GetCode() const noexcept;
 
 		private:
@@ -177,6 +193,12 @@ namespace Dvtx
 				break;
 			case VertexLayout::BGRAColor:
 				SetAttribute<VertexLayout::BGRAColor>(pAttribute, std::forward<T>(val));
+				break;
+			case VertexLayout::BoneIndex4:
+				SetAttribute<VertexLayout::BoneIndex4>(pAttribute, std::forward<T>(val));
+				break;
+			case VertexLayout::BoneWight4:
+				SetAttribute<VertexLayout::BoneWight4>(pAttribute, std::forward<T>(val));
 				break;
 			default:
 				assert("Bad element type" && false);

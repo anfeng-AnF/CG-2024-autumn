@@ -1,5 +1,5 @@
 #include "Vertex.h"
-
+#include <unordered_map>
 namespace Dvtx
 {
 	// VertexLayout
@@ -26,7 +26,12 @@ namespace Dvtx
 		desc.reserve(GetElementCount());
 		for (const auto& e : elements)
 		{
-			desc.push_back(e.GetDesc());
+			desc.push_back(e.GetDesc(*this));
+		}
+		//set InputSlot
+		std::unordered_map<LPCSTR, UINT> countElement;
+		for (auto& e : desc) {
+			e.SemanticIndex = countElement[e.SemanticName]++;
 		}
 		return desc;
 	}
@@ -72,6 +77,10 @@ namespace Dvtx
 			return sizeof(Map<Float4Color>::SysType);
 		case BGRAColor:
 			return sizeof(Map<BGRAColor>::SysType);
+		case BoneIndex4:
+			return sizeof(Map<BoneIndex4>::SysType);
+		case BoneWight4:
+			return sizeof(Map<BoneWight4>::SysType);
 		}
 		assert("Invalid element type" && false);
 		return 0u;
@@ -80,7 +89,7 @@ namespace Dvtx
 	{
 		return type;
 	}
-	D3D11_INPUT_ELEMENT_DESC VertexLayout::Element::GetDesc() const 
+	D3D11_INPUT_ELEMENT_DESC VertexLayout::Element::GetDesc(const VertexLayout &layout) const 
 	{
 		switch (type)
 		{
@@ -102,6 +111,10 @@ namespace Dvtx
 			return GenerateDesc<Float4Color>(GetOffset());
 		case BGRAColor:
 			return GenerateDesc<BGRAColor>(GetOffset());
+		case BoneIndex4:
+			return GenerateDesc<BoneIndex4>(GetOffset());
+		case BoneWight4:
+			return GenerateDesc<BoneWight4>(GetOffset());
 		}
 		assert("Invalid element type" && false);
 		return { "INVALID",0,DXGI_FORMAT_UNKNOWN,0,0,D3D11_INPUT_PER_VERTEX_DATA,0 };
@@ -116,6 +129,7 @@ namespace Dvtx
 		}
 		return code;
 	}
+
 	const char* Dvtx::VertexLayout::Element::GetCode() const noexcept
 	{
 		switch (type)
@@ -138,6 +152,10 @@ namespace Dvtx
 			return Map<Float4Color>::code;
 		case BGRAColor:
 			return Map<BGRAColor>::code;
+		case BoneIndex4:
+			return Map<BoneIndex4>::code;
+		case BoneWight4:
+			return Map<BoneWight4>::code;
 		}
 		assert("Invalid element type" && false);
 		return "Invalid";
