@@ -210,9 +210,6 @@
     <ClCompile Include="SpawnGeometryByInput.cpp">
       <Filter>D3DCore\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SkeletonMesh.cpp">
-      <Filter>Base\源文件</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChiliWin.h">

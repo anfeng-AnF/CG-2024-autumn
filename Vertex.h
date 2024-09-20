@@ -20,7 +20,6 @@ namespace Dvtx
 			Float3Color,
 			Float4Color,
 			BGRAColor,
-			BoneWight,
 			Count,
 		};
 		template<ElementType> struct Map;
@@ -86,13 +85,6 @@ namespace Dvtx
 			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 			static constexpr const char* semantic = "Color";
 			static constexpr const char* code = "C8";
-		};
-		template<> struct Map<BoneWight>
-		{
-			using SysType = FLOAT;
-			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32_FLOAT;
-			static constexpr const char* semantic = "BoneWight";
-			static constexpr const char* code = "B1";
 		};
 
 		class Element
@@ -186,9 +178,6 @@ namespace Dvtx
 			case VertexLayout::BGRAColor:
 				SetAttribute<VertexLayout::BGRAColor>(pAttribute, std::forward<T>(val));
 				break;
-			case VertexLayout::BoneWight:
-				SetAttribute<VertexLayout::BoneWight>(pAttribute, std::forward<T>(val));
-				break;
 			default:
 				assert("Bad element type" && false);
 			}
@@ -249,14 +238,6 @@ namespace Dvtx
 			assert(sizeof...(params) == layout.GetElementCount() && "Param count doesn't match number of vertex elements");
 			buffer.resize(buffer.size() + layout.Size());
 			Back().SetAttributeByIndex(0u, std::forward<Params>(params)...);
-		}
-		template<typename T, typename ...element>
-		void EmplaceBackSpread(std::vector<T>& vec, size_t pos, element&&... elements) {
-			if (pos == vec.size()) {
-				EmplaceBack(std::forward<element>(elements)...);
-				return;
-			}
-			EmplaceBackSpread(vec, pos + 1, std::forward<element>(elements)..., std::forward<T>(vec[pos]));
 		}
 		Vertex At(size_t idx);
 		Vertex Back() ;

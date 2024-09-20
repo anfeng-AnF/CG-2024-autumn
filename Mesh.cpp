@@ -187,7 +187,7 @@ Model::Model(Graphics& gfx, const std::string fileName)
 
 	Assimp::Importer imp;
 	const auto pScene = imp.ReadFile(fileName.c_str(),
-		//aiProcess_Triangulate |
+		aiProcess_Triangulate |
 		aiProcess_JoinIdenticalVertices |
 		aiProcess_ConvertToLeftHanded |
 		aiProcess_GenNormals|
@@ -227,33 +227,18 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh,const a
 	namespace dx = DirectX;
 	using Dvtx::VertexLayout;
 
-	Dvtx::VertexLayout layout;
-	layout
+	Dvtx::VertexBuffer vbuf(std::move(
+		VertexLayout{}
 		.Append(VertexLayout::Position3D)
 		.Append(VertexLayout::Normal)
 		.Append(VertexLayout::Tangent)
 		.Append(VertexLayout::Bitangent)
 		.Append(VertexLayout::Texture2D)
-		;
-
-	Dvtx::VertexBuffer vbuf(std::move(layout));
-
-	std::vector<std::vector<float>> bonesWeight(mesh.mNumVertices, std::vector<float>(mesh.mNumBones, 0.0f));
-	bonesWeight.reserve(mesh.mNumVertices);
-	for (int i = 0; i < mesh.mNumBones; i++)
-	{
-		layout.Append(VertexLayout::BoneWight);
-		auto a = mesh.mBones[i];
-		for (int j = 0; j < mesh.mBones[i]->mNumWeights; j++)
-		{
-			auto b = a->mWeights[j];
-			bonesWeight[b.mVertexId][i] = b.mWeight;
-		}
-	}
-
+	));
+	
 	for (unsigned int i = 0; i < mesh.mNumVertices; i++)
 	{
-		vbuf.EmplaceBackSpread(bonesWeight[i], 0,
+		vbuf.EmplaceBack(
 			*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mVertices[i]),
 			*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mNormals[i]),
 			*reinterpret_cast<dx::XMFLOAT3*>(&mesh.mTangents[i]),
