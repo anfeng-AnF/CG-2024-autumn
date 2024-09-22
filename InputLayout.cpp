@@ -12,7 +12,7 @@ namespace Bind
 		layout(std::move(layout_in))
 	{
 		const auto d3dLayout = layout.GetD3DLayout();
-		GetDevice(gfx)->CreateInputLayout(
+		auto hr= GetDevice(gfx)->CreateInputLayout(
 			d3dLayout.data(), (UINT)d3dLayout.size(),
 			pVertexShaderBytecode->GetBufferPointer(),
 			pVertexShaderBytecode->GetBufferSize(),

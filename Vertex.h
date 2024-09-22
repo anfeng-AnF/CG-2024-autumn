@@ -20,8 +20,8 @@ namespace Dvtx
 			Float3Color,
 			Float4Color,
 			BGRAColor,
-			BoneIndex4,
-			BoneWight4,
+			BoneIndex,
+			BoneWeight,
 			Count,
 		};
 		template<ElementType> struct Map;
@@ -88,19 +88,19 @@ namespace Dvtx
 			static constexpr const char* semantic = "Color";
 			static constexpr const char* code = "C8";
 		};
-		template<> struct Map<BoneIndex4>
+		template<> struct Map<BoneIndex>
 		{
 			using SysType = DirectX::XMINT4;
-			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32A32_UINT;
+			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32A32_SINT;
 			static constexpr const char* semantic = "BoneIndex";
-			static constexpr const char* code = "BI4";
+			static constexpr const char* code = "BI1";
 		};
-		template<> struct Map<BoneWight4>
+		template<> struct Map<BoneWeight>
 		{
 			using SysType = DirectX::XMFLOAT4;
 			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32A32_FLOAT;
-			static constexpr const char* semantic = "BoneWight";
-			static constexpr const char* code = "BW4";
+			static constexpr const char* semantic = "BoneWeight";
+			static constexpr const char* code = "BW1";
 		};
 
 		class Element
@@ -194,11 +194,11 @@ namespace Dvtx
 			case VertexLayout::BGRAColor:
 				SetAttribute<VertexLayout::BGRAColor>(pAttribute, std::forward<T>(val));
 				break;
-			case VertexLayout::BoneIndex4:
-				SetAttribute<VertexLayout::BoneIndex4>(pAttribute, std::forward<T>(val));
+			case VertexLayout::BoneIndex:
+				SetAttribute<VertexLayout::BoneIndex>(pAttribute, std::forward<T>(val));
 				break;
-			case VertexLayout::BoneWight4:
-				SetAttribute<VertexLayout::BoneWight4>(pAttribute, std::forward<T>(val));
+			case VertexLayout::BoneWeight:
+				SetAttribute<VertexLayout::BoneWeight>(pAttribute, std::forward<T>(val));
 				break;
 			default:
 				assert("Bad element type" && false);
@@ -216,7 +216,7 @@ namespace Dvtx
 		}
 		// helper to reduce code duplication in SetAttributeByIndex
 		template<VertexLayout::ElementType DestLayoutType, typename SrcType>
-		void SetAttribute(char* pAttribute, SrcType&& val) 
+		void SetAttribute(char* pAttribute, SrcType&& val)
 		{
 			using Dest = typename VertexLayout::Map<DestLayoutType>::SysType;
 			if constexpr (std::is_assignable<Dest, SrcType>::value)

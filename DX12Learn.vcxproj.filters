@@ -67,6 +67,9 @@
     <Filter Include="Shader\CG_Shader\Debugs">
       <UniqueIdentifier>{f9b34550-fa5a-4260-a280-e03db9c21a2d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader\skeletonMesh">
+      <UniqueIdentifier>{c46181f5-3091-4789-9646-f9796eec58a3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -209,6 +212,9 @@
     </ClCompile>
     <ClCompile Include="SpawnGeometryByInput.cpp">
       <Filter>D3DCore\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SkeletonMesh.cpp">
+      <Filter>D3DCore\Source Files\Drawable</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -463,6 +469,12 @@
     </FxCompile>
     <FxCompile Include="DottedLineGS.hlsl">
       <Filter>Shader\CG_Shader\Debugs</Filter>
+    </FxCompile>
+    <FxCompile Include="SkeletonMeshVS.hlsl">
+      <Filter>Shader\skeletonMesh</Filter>
+    </FxCompile>
+    <FxCompile Include="SkeletonMeshPS.hlsl">
+      <Filter>Shader\skeletonMesh</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

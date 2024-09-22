@@ -470,7 +470,6 @@
 #define GetScale(delta,vector) std::abs(XMVectorScale(XMVector3Dot(delta, rightVector),XMVector3Length(rightVector).m128_f32[0]).m128_f32[0])
  XMMATRIX CtrlComponents::Scale(XMVECTOR delta)
  {
-     XMMATRIX Translation;
      FTransform componentTransform = pTranslation->GetTransform();
      XMVECTOR forwardVector = componentTransform.GetForwardVector();//target Z
      XMVECTOR rightVector = componentTransform.GetRightVector();    //target X
@@ -513,7 +512,7 @@
      
      return XMMatrixScaling(scaleFactor.x,scaleFactor.y,scaleFactor.z);
  }
- #undef GetScale(delta,vector) XMVectorScale(XMVector3Dot(delta, rightVector),XMVector3Length(rightVector).m128_f32[0]).m128_f32[0]
+#undef GetScale(delta,vector) XMVectorScale(XMVector3Dot(delta, rightVector),XMVector3Length(rightVector).m128_f32[0]).m128_f32[0]
 
 
 #define computeAngel(vec) curPos=this->RayIntersectsPlane(line.first, line.second, transform.position, vec).value();\

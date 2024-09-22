@@ -13,7 +13,7 @@
 #include "InputStateMachine.h"
 #include "DebugGraphsMannger.h"
 #include "SpawnGeometryByInput.h"
-
+#include "SkeletonMesh.h"
 class App
 {
 public:
@@ -41,8 +41,11 @@ private:
 	PointLight light;	
 	CollisionGeoManager ctrl;
 	//Model wall{ wnd.Gfx(),"Models\\RockWall\\RockWall.fbx" };
-	Model Lantern{ wnd.Gfx(),"Models\\Elysia\\elysiaQ.fbx" };
+	//Model Lantern{ wnd.Gfx(),"Models\\Elysia\\elysiaQ.fbx" };
+	//Model Lantern{ wnd.Gfx(),"Models\\skeletonMeshs\\SkeletonMeshTest.fbx" };
 	//Model skeletonMesh{ wnd.Gfx(),"Models\\skeletonMeshs\\testMesh.fbx" };
+	SkeletonMesh elysia{ wnd.Gfx(),"Models\\Elysia\\elysiaQ2.fbx" };
+	//SkeletonMesh elysia{ wnd.Gfx(),"Models\\skeletonMeshs\\SkeletonMeshTest.fbx" };
 	Axis axis{ wnd.Gfx() };
 	InputStateMachine ISM;
 	DebugGraphsMannger &DGM=DebugGraphsMannger::GetInstence();

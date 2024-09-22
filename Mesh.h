@@ -24,7 +24,7 @@ class Node
 	friend class ModelWindow;
 public:
 	Node(int id, const std::string& name, std::vector<Mesh*> meshPtrs, const DirectX::XMMATRIX& transform);
-	void Draw(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const;
+	virtual void Draw(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const;
 	void SetAppliedTransform(DirectX::FXMMATRIX transform) noexcept;
 	int GetId() const noexcept;
 	void AddChild(std::unique_ptr<Node> pChild);
@@ -50,8 +50,8 @@ public:
 	void ShowWindow(const char* windowName = nullptr) noexcept;
 	~Model() noexcept;
 private:
-	virtual std::unique_ptr<Mesh> ParseMesh(Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials);
-	virtual std::unique_ptr<Node> ParseNode(int& nextId, const aiNode& node) noexcept;
+	std::unique_ptr<Mesh> ParseMesh(Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials);
+	std::unique_ptr<Node> ParseNode(int& nextId, const aiNode& node) noexcept;
 private:
 	std::unique_ptr<Node> pRoot;
 	std::vector<std::unique_ptr<Mesh>> meshPtrs;

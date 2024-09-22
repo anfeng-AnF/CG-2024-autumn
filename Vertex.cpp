@@ -77,10 +77,10 @@ namespace Dvtx
 			return sizeof(Map<Float4Color>::SysType);
 		case BGRAColor:
 			return sizeof(Map<BGRAColor>::SysType);
-		case BoneIndex4:
-			return sizeof(Map<BoneIndex4>::SysType);
-		case BoneWight4:
-			return sizeof(Map<BoneWight4>::SysType);
+		case BoneIndex:
+			return sizeof(Map<BoneIndex>::SysType);
+		case BoneWeight:
+			return sizeof(Map<BoneWeight>::SysType);
 		}
 		assert("Invalid element type" && false);
 		return 0u;
@@ -111,10 +111,10 @@ namespace Dvtx
 			return GenerateDesc<Float4Color>(GetOffset());
 		case BGRAColor:
 			return GenerateDesc<BGRAColor>(GetOffset());
-		case BoneIndex4:
-			return GenerateDesc<BoneIndex4>(GetOffset());
-		case BoneWight4:
-			return GenerateDesc<BoneWight4>(GetOffset());
+		case BoneIndex:
+			return GenerateDesc<BoneIndex>(GetOffset());
+		case BoneWeight:
+			return GenerateDesc<BoneWeight>(GetOffset());
 		}
 		assert("Invalid element type" && false);
 		return { "INVALID",0,DXGI_FORMAT_UNKNOWN,0,0,D3D11_INPUT_PER_VERTEX_DATA,0 };
@@ -152,10 +152,10 @@ namespace Dvtx
 			return Map<Float4Color>::code;
 		case BGRAColor:
 			return Map<BGRAColor>::code;
-		case BoneIndex4:
-			return Map<BoneIndex4>::code;
-		case BoneWight4:
-			return Map<BoneWight4>::code;
+		case BoneIndex:
+			return Map<BoneIndex>::code;
+		case BoneWeight:
+			return Map<BoneWeight>::code;
 		}
 		assert("Invalid element type" && false);
 		return "Invalid";

@@ -12,7 +12,7 @@ namespace Bind
 		void Update(Graphics& gfx, const C& consts)
 		{
 			D3D11_MAPPED_SUBRESOURCE msr;
-			GetContext(gfx)->Map(
+			auto hr = GetContext(gfx)->Map(
 				pConstantBuffer.Get(), 0u,
 				D3D11_MAP_WRITE_DISCARD, 0u,
 				&msr
