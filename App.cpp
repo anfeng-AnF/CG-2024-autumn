@@ -115,6 +115,7 @@ void App::DoFrame()
 	light.Bind(wnd.Gfx(), cam.GetMatrix());
 	//Lantern.Draw(wnd.Gfx());
 	elysia.Draw(wnd.Gfx());
+	elysia.CtrlWnd(wnd.Gfx());
 	//wall.Draw(wnd.Gfx());
 	//skeletonMesh.Draw(wnd.Gfx());
 	light.Draw(wnd.Gfx());

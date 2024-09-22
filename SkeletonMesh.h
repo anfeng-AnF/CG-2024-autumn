@@ -34,6 +34,7 @@ public:
 	SkeletonMesh(Graphics& gfx, const std::string fileName);
 	void Draw(Graphics& gfx);
 	void Bind(Graphics& gfx);
+	void CtrlWnd(Graphics& gfx);
 private:
 	std::unique_ptr<SKMesh> ParseMesh(Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials);
 	std::unique_ptr<SKNode> ParseNode(int& nextId, const aiNode& node) noexcept;

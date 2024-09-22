@@ -1,7 +1,7 @@
 #include "SkeletonMesh.h"
 #include "Transform.h"
 #include "DebugGraphsMannger.h"
-
+#include "imguiManager.h"
 namespace dx = DirectX;
 DirectX::XMMATRIX AiMatrixToXMMATRIX(const aiMatrix4x4& aiMat) {
 	DirectX::XMMATRIX xmMat = DirectX::XMMATRIX(
@@ -61,6 +61,20 @@ void SkeletonMesh::Bind(Graphics& gfx)
 	}
 	VCbufBones.Update(gfx, *data.get());
 	VCbufBones.Bind(gfx);
+}
+
+void SkeletonMesh::CtrlWnd(Graphics& gfx)
+{
+	bool changed = false;
+	static std::unordered_map<std::string, XMFLOAT3> angles;
+	ImGui::Begin("bones");
+	for(auto& bone:bones)
+	{
+		changed |= ImGui::SliderFloat3(bone.first.c_str(),reinterpret_cast<float*>(& angles[bone.first].x),-3,3);
+		bone.second.BoneTransform = dx::XMMatrixRotationRollPitchYaw(angles[bone.first].x, angles[bone.first].y, angles[bone.first].z);
+	}
+	ImGui::End();
+	if (changed)ParseBone(pRoot.get(), dx::XMMatrixIdentity());
 }
 
 std::unique_ptr<SKMesh> SkeletonMesh::ParseMesh(Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials)
@@ -214,9 +228,17 @@ void SkeletonMesh::RenewBoneInfo(std::string boneName, DirectX::XMMATRIX boneTra
 
 void SkeletonMesh::ParseBone(SKNode* p, dx::XMMATRIX transform)
 {
+	transform = transform* p->GetTransform();
 	if (bones.find(p->GetName()) != bones.end()) {
-		bones[p->GetName()].FinalTransformation = bones[p->GetName()].BoneTransform * transform;
-		transform = bones[p->GetName()].FinalTransformation;
+		//transform*= bones[p->GetName()].BoneOffset;
+		auto inv = dx::XMMatrixInverse(nullptr, transform);
+
+		bones[p->GetName()].FinalTransformation =bones[p->GetName()].BoneTransform;
+
+		transform = transform* bones[p->GetName()].BoneTransform;
+		auto a = FTransform(bones[p->GetName()].BoneOffset);
+		auto b = FTransform(p->GetTransform());
+		int c = 0;
 	}
 	for (auto& child : p->GetChild()) {
 		ParseBone(static_cast<SKNode*>(child.get()), transform);
