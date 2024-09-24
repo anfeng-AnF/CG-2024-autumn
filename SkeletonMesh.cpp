@@ -247,9 +247,7 @@ void SkeletonMesh::ParseBone(SKNode* p, dx::XMMATRIX transform)
 	}
 	next = next * transform;
 	auto t = FTransform(next);
-	DebugGraphsMannger::GetInstence().AddGeo(std::make_shared<DebugSphere>(
-	gfx,XMFLOAT3(),XMFLOAT3(t.position.m128_f32[0], t.position.m128_f32[1], t.position.m128_f32[2]),0.1f
-	),0.0f);
+
 	if (bones.find(p->GetName()) != bones.end()) {
 		bones[p->GetName()].FinalTransformation = bones[p->GetName()].BoneOffset * next;
 	}

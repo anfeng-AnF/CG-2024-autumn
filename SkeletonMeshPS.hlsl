@@ -28,6 +28,6 @@ float4 main(PSIn input) : SV_Target
 
     // 最终颜色计算
     float4 finalColor = saturate(diff + 0.2) * texColor; // 仅考虑漫反射
-    //return finalColor;
-    return diff * float4(1.0f, 1.0f, 1.0f,1.0f);
+    return finalColor;
+    //return diff * float4(1.0f, 1.0f, 1.0f,1.0f);
 }
