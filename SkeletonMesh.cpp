@@ -43,7 +43,7 @@ SkeletonMesh::SkeletonMesh(Graphics& gfx, const std::string fileName)
 	
 	int nextId = 0;
 	pRoot = ParseNode(nextId, *pScene->mRootNode);
-	ParseBone(pRoot.get(), dx::XMMatrixIdentity());
+	UpdateBoneInfo(pRoot.get(), dx::XMMatrixIdentity());
 }
 
 void SkeletonMesh::Draw(Graphics& gfx)
@@ -77,7 +77,21 @@ void SkeletonMesh::CtrlWnd(Graphics& gfx)
 			a[bone.first].BoneTransform;
 	}
 	ImGui::End();
-	if (changed)ParseBone(pRoot.get(), dx::XMMatrixIdentity());
+	if (changed)UpdateBoneInfo(pRoot.get(), dx::XMMatrixIdentity());
+}
+
+void SkeletonMesh::SetBonesTransform(std::unordered_map<std::string, DirectX::XMMATRIX>& transforms)
+{
+	for (auto bone : transforms) {
+		if (this->bones.find(bone.first) != bones.end()) {
+			bones[bone.first].BoneTransform = bone.second;
+		}
+		else
+		{
+			assert(0);
+		}
+	}
+	this->UpdateBoneInfo(pRoot.get(), dx::XMMatrixIdentity());
 }
 
 std::unique_ptr<SKMesh> SkeletonMesh::ParseMesh(Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials)
@@ -236,23 +250,29 @@ void SkeletonMesh::RenewBoneInfo(std::string boneName, DirectX::XMMATRIX boneTra
 	if (bones.find(boneName) != bones.end()) {
 		bones[boneName].BoneTransform = boneTransform;
 	}
-	ParseBone(pRoot.get(), dx::XMMatrixIdentity());
+	UpdateBoneInfo(pRoot.get(), dx::XMMatrixIdentity());
 }
 
-void SkeletonMesh::ParseBone(SKNode* p, dx::XMMATRIX transform)
+void SkeletonMesh::UpdateBoneInfo(SKNode* p, dx::XMMATRIX transform)
 {
 	XMMATRIX next = p->GetTransform();
 	if (bones.find(p->GetName()) != bones.end()) {
 		next = bones[p->GetName()].BoneTransform;
 	}
 	next = next * transform;
-	auto t = FTransform(next);
+	auto t = FTransform(next).position;
+	auto pt = FTransform(transform).position;
+	DebugGraphsMannger::GetInstence().AddGeo(
+		std::make_unique<DebugLine>(gfx, XMFLOAT3(dx::XMVectorGetX(t), dx::XMVectorGetY(t),dx::XMVectorGetZ(t)),
+			XMFLOAT3(dx::XMVectorGetX(pt), dx::XMVectorGetY(pt), dx::XMVectorGetZ(pt)),
+			XMFLOAT3(0, 1, 0)),0.0f
+	);
 
 	if (bones.find(p->GetName()) != bones.end()) {
 		bones[p->GetName()].FinalTransformation = bones[p->GetName()].BoneOffset * next;
 	}
 	for (auto& child : p->GetChild()) {
-		ParseBone(static_cast<SKNode*>(child.get()), next);
+		UpdateBoneInfo(static_cast<SKNode*>(child.get()), next);
 	}
 }
 

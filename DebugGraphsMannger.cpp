@@ -9,10 +9,14 @@ void DebugGraphsMannger::Draw(Graphics& gfx)
             continue;
         }
         it->second.first -= time.Peek();
+
+        Bind::DepthStencilState d(gfx);
+        d.Bind(gfx);
 #ifndef _DEBUG
         if (it->second.second != DEBUG)
 #endif // _DEBUG
             it->first->Draw(gfx);
+        d.UnBind(gfx);
         if (it->second.first < 0) {
             it->first->destory();
             it = umapDebugGeoWithExistTime.erase(it);

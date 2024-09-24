@@ -1,3 +1,4 @@
+#pragma once
 #include"Mesh.h"
 
 struct BoneInfo {
@@ -22,12 +23,6 @@ public:
 private:
 };
 
-class Animate
-{
-public:
-
-};
-
 class SkeletonMesh
 {
 public:
@@ -35,11 +30,12 @@ public:
 	void Draw(Graphics& gfx);
 	void Bind(Graphics& gfx);
 	void CtrlWnd(Graphics& gfx);
+	void SetBonesTransform(std::unordered_map<std::string, DirectX::XMMATRIX>& transforms);
 private:
 	std::unique_ptr<SKMesh> ParseMesh(Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials);
 	std::unique_ptr<SKNode> ParseNode(int& nextId, const aiNode& node) noexcept;
 	void RenewBoneInfo(std::string boneName, DirectX::XMMATRIX boneTransform);
-	void ParseBone(SKNode*p,DirectX::XMMATRIX transform);
+	void UpdateBoneInfo(SKNode*p,DirectX::XMMATRIX transform);
 private:
 	std::unique_ptr<SKNode> pRoot;
 	std::vector<std::unique_ptr<SKMesh>> meshPtrs;

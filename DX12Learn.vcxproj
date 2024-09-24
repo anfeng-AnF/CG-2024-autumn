@@ -157,6 +157,8 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AnimAssert.cpp" />
+    <ClCompile Include="AnimInstance.cpp" />
     <ClCompile Include="App.cpp" />
     <ClCompile Include="CtrlableGeometry.cpp" />
     <ClCompile Include="CtrlCeomerty.cpp" />
@@ -207,6 +209,9 @@
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AnimAssert.h" />
+    <ClInclude Include="AnimInstance.h" />
+    <ClInclude Include="AnimStateMachine.h" />
     <ClInclude Include="App.h" />
     <ClInclude Include="CtrlableGeometry.h" />
     <ClInclude Include="DebugGraphsMannger.h" />

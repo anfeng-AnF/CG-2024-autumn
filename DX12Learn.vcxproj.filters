@@ -70,6 +70,15 @@
     <Filter Include="Shader\skeletonMesh">
       <UniqueIdentifier>{c46181f5-3091-4789-9646-f9796eec58a3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Animation">
+      <UniqueIdentifier>{4b706072-c429-450f-afe4-841237f0530f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Animation\Header">
+      <UniqueIdentifier>{fcc69b95-d794-4701-a7b3-b6eaa3b5ebd9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Animation\Sourse Files">
+      <UniqueIdentifier>{8d687785-09aa-4727-86f9-0019a7976f2a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -215,6 +224,12 @@
     </ClCompile>
     <ClCompile Include="SkeletonMesh.cpp">
       <Filter>D3DCore\Source Files\Drawable</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimAssert.cpp">
+      <Filter>Animation\Sourse Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimInstance.cpp">
+      <Filter>Animation\Sourse Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -400,6 +415,15 @@
     </ClInclude>
     <ClInclude Include="SkeletonMesh.h">
       <Filter>D3DCore\Header\Drawable</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimAssert.h">
+      <Filter>Animation\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimStateMachine.h">
+      <Filter>Base\头文件\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimInstance.h">
+      <Filter>Animation\Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

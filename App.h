@@ -14,6 +14,7 @@
 #include "DebugGraphsMannger.h"
 #include "SpawnGeometryByInput.h"
 #include "SkeletonMesh.h"
+#include "AnimInstance.h"
 class App
 {
 public:
@@ -45,7 +46,8 @@ private:
 	//Model Lantern{ wnd.Gfx(),"Models\\skeletonMeshs\\SkeletonMeshTest.fbx" };
 	//Model skeletonMesh{ wnd.Gfx(),"Models\\skeletonMeshs\\testMesh.fbx" };
 	SkeletonMesh elysia{ wnd.Gfx(),"Models\\Elysia\\elysiaQ2.fbx" };
-	//SkeletonMesh elysia{ wnd.Gfx(),"Models\\skeletonMeshs\\SkeletonMeshTest.fbx" };
+	//SkeletonMesh elysia{ wnd.Gfx(),"Models\\Lantern\\Lantern_Fixed1.fbx" };
+	AnimInstance Anim;
 	Axis axis{ wnd.Gfx() };
 	InputStateMachine ISM;
 	DebugGraphsMannger &DGM=DebugGraphsMannger::GetInstence();

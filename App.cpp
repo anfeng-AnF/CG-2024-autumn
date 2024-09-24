@@ -20,7 +20,8 @@ App::App(UINT width, UINT height)
 	threadPool(10),
 	cam(wnd),
 	ctrl(wnd,cam),
-	SG(wnd,cam,&ctrl)
+	SG(wnd,cam,&ctrl),
+	Anim(elysia)
 {
 	wnd.Gfx().SetProjection(Perspective);
 	wnd.DisableCursor();
@@ -81,6 +82,8 @@ App::App(UINT width, UINT height)
 	ISM.AddState("CameraMove", std::make_unique<Camera::CameraMove>(cam.inputState));
 	ISM.AddState("SpawnGeo", std::make_unique<SpawnGeometryByInput::SpawnGeoInputState>(SG.inputState));
 	ISM.SetState(DEFAULT_STATE);
+
+	Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\Elysia\\elysiaAnim.fbx")[0];
 }
 int App::Go()
 {
@@ -101,6 +104,7 @@ App::~App()
 
 void App::DoFrame()
 {
+	float deltaTime = timer.Mark();
 	//first set Projection matrix
 	if (isPerspective) {
 		wnd.Gfx().SetProjection(Perspective);
@@ -114,6 +118,7 @@ void App::DoFrame()
 	wnd.Gfx().SetCamera(cam.GetMatrix());
 	light.Bind(wnd.Gfx(), cam.GetMatrix());
 	//Lantern.Draw(wnd.Gfx());
+	Anim.Update(deltaTime);
 	elysia.Draw(wnd.Gfx());
 	elysia.CtrlWnd(wnd.Gfx());
 	//wall.Draw(wnd.Gfx());
@@ -121,7 +126,7 @@ void App::DoFrame()
 	light.Draw(wnd.Gfx());
 	axis.Draw(wnd.Gfx());
 
-	ISM.DoFrame(timer.Mark());
+	ISM.DoFrame(deltaTime);
 	DGM.Draw(wnd.Gfx());
 
 	//ctrl.Draw(wnd.Gfx());
