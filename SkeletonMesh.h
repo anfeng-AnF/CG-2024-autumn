@@ -43,6 +43,7 @@ private:
 	std::string filePatch = "..\\";
 
 	std::unordered_map<std::string, BoneInfo> bones;
+	std::unordered_map<std::string, DirectX::XMMATRIX> ctrlInfo;
 	std::vector<std::string> bonesName;
 
 	struct VCBufData

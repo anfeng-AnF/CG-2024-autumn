@@ -122,7 +122,7 @@ void App::DoFrame()
 	if (wnd.Kbd.KeyIsPressed(VK_F1)) {
 		Anim.Update(deltaTime);
 	}
-	//elysia.CtrlWnd(wnd.Gfx());
+	elysia.CtrlWnd(wnd.Gfx());
 	elysia.Draw(wnd.Gfx());
 	//wall.Draw(wnd.Gfx());
 	//skeletonMesh.Draw(wnd.Gfx());
@@ -139,6 +139,19 @@ void App::DoFrame()
 	const char* proj = "current: Perspective";
 	if (!isPerspective)proj = "current: Orthographic";
 	ImGui::Text(proj);
+	//FPS
+	static int frame = 0;
+	static const int framesPerUpdate = 20;  // 每 20 帧更新一次
+	static float accumulatedTime = 0.0f;    // 累积的时间
+	accumulatedTime += deltaTime;
+	static float fps = 0;
+	if (frame % framesPerUpdate == 0) {
+		fps = framesPerUpdate / accumulatedTime;  // 计算 FPS
+		accumulatedTime = 0.0f;  // 重置时间
+	}
+	ImGui::Text("FPS: %.2f", fps);
+	frame++;
+
 	ctrl.DrawImGui(wnd.Gfx());
 	ImGui::End();
 	cam.SpawnControlWindow();

@@ -2,6 +2,7 @@
 #include "Transform.h"
 #include "DebugGraphsMannger.h"
 #include "imguiManager.h"
+#include <stack>
 #pragma warning(disable : 4996)
 
 namespace dx = DirectX;
@@ -64,31 +65,85 @@ void SkeletonMesh::Bind(Graphics& gfx)
 
 void SkeletonMesh::CtrlWnd(Graphics& gfx)
 {
-	bool changed = false;
-	static std::unordered_map<std::string, XMFLOAT3> angles;
-	static auto a = bones;
-	ImGui::Begin("bones");
-	for (auto& bone : bones) {
-		std::ostringstream oss;
-		auto pos = FTransform(bone.second.BoneTransform).position;
-		auto rotation = FTransform(bone.second.BoneTransform).GetRotationEuler();
-		oss << bone.first.c_str() << "--------------------------------\n";
-		oss << pos.m128_f32[0] << "  " << pos.m128_f32[1] << "  " << pos.m128_f32[2] << "  " << pos.m128_f32[3] << "  \n";
-		oss << rotation.x *180<<"  " << rotation.y*180 << "  " << rotation.z*180 << "  "<< "  \n";
-		ImGui::Text(oss.str().c_str());
+	struct StackItem {
+		Node* node;
+		bool expanded;
+		size_t childIndex;
+	};
+	static std::optional<int> selectedIndex=0;
+	static Node* pSelectedNode = pRoot.get();
+	static std::unordered_map<int, DirectX::XMMATRIX> transforms;
+
+	// 栈，用来模拟递归。初始状态栈中存储根节点
+	std::stack<StackItem> stack;
+	stack.push({ pRoot.get(), false, 0});
+	ImGui::Begin(pRoot->GetName().c_str());
+	ImGui::Columns(2, nullptr, true);
+
+	while (!stack.empty()) {
+		auto& current = stack.top();  // 获取栈顶元素
+
+		// 如果该节点还没有展开处理，则执行节点的展示逻辑
+		if (!current.expanded) {
+			// 生成当前节点的标志位
+			const auto node_flags = ImGuiTreeNodeFlags_OpenOnArrow
+				| ((current.node->GetId() == selectedIndex.value_or(-1)) ? ImGuiTreeNodeFlags_Selected : 0)
+				| ((current.node->GetChild().size()== 0) ? ImGuiTreeNodeFlags_Leaf : 0);
+
+			// 渲染节点，并判断是否展开
+			current.expanded = ImGui::TreeNodeEx(
+				(void*)(intptr_t)current.node->GetId(), node_flags, static_cast<SKNode*>(current.node)->GetName().c_str()
+			);
+
+			// 如果点击了该节点，设置选中状态
+			if (ImGui::IsItemClicked()) {
+				selectedIndex = current.node->GetId();
+				pSelectedNode = const_cast<Node*>(current.node);
+			}
+		}
+
+		// 如果节点展开，处理它的子节点
+		if (current.expanded && current.childIndex < current.node->GetChild().size()) {
+			// 递归处理子节点：将子节点压入栈中
+			stack.push({ current.node->GetChild()[current.childIndex].get(), false, 0});
+			current.childIndex++;  // 递增子节点索引，标记下次要处理的子节点
+		}
+		else {
+			// 当前节点的子节点处理完毕，弹出栈顶元素
+			if (current.expanded) {
+				ImGui::TreePop();
+			}
+			stack.pop();
+		}
 	}
-	
+	auto pSkNode = static_cast<SKNode*>(pSelectedNode);
 	ImGui::NextColumn();
-	for(auto& bone:bones)
-	{
-		changed |= ImGui::SliderFloat3(bone.first.c_str(),reinterpret_cast<float*>(& angles[bone.first].x),-3,3);
-		auto t = FTransform(a[bone.first].BoneTransform);
-		bone.second.BoneTransform =
-			dx::XMMatrixRotationRollPitchYaw(angles[bone.first].x, angles[bone.first].y, angles[bone.first].z) *
-			a[bone.first].BoneTransform;
+	if (transforms.find(selectedIndex.value()) == transforms.end()) {
+		transforms[selectedIndex.value()] = dx::XMMatrixIdentity();
 	}
+	FTransform t(transforms[selectedIndex.value()]);
+	bool Changed = false;
+
+	ImGui::Text("Orientation");
+	Changed|= ImGui::SliderFloat("w", &t.rotation.m128_f32[0], -2.0f, 2.0f);
+	Changed|= ImGui::SliderFloat("x", &t.rotation.m128_f32[1], -2.0f, 2.0f);
+	Changed|= ImGui::SliderFloat("y", &t.rotation.m128_f32[2], -2.0f, 2.0f);
+	Changed|= ImGui::SliderFloat("z", &t.rotation.m128_f32[3], -2.0f, 2.0f);
+	ImGui::Text("Position");
+	Changed|= ImGui::SliderFloat("X", &t.position.m128_f32[0], -20.0f, 20.0f);
+	Changed|= ImGui::SliderFloat("Y", &t.position.m128_f32[1], -20.0f, 20.0f);
+	Changed|= ImGui::SliderFloat("Z", &t.position.m128_f32[2], -20.0f, 20.0f);
+	ImGui::Text("Scale");
+	Changed |= ImGui::SliderFloat("w", &t.scale.m128_f32[0], -2.0f, 2.0f);
+	Changed |= ImGui::SliderFloat("x", &t.scale.m128_f32[1], -2.0f, 2.0f);
+	Changed |= ImGui::SliderFloat("y", &t.scale.m128_f32[2], -2.0f, 2.0f);
+	t.rotation = dx::XMVector4Normalize(t.rotation);
+	ctrlInfo[pSkNode->GetName()] = t.GetRotationMatrix() * t.GetTranslateMatrix();
+	transforms[selectedIndex.value()] = t.GetMatrix();
 	ImGui::End();
-	if (changed)UpdateBoneInfo(pRoot.get(), dx::XMMatrixIdentity());
+	if (Changed) {
+		UpdateBoneInfo(pRoot.get(), dx::XMMatrixIdentity());
+	}
 }
 
 void SkeletonMesh::SetBonesTransform(std::unordered_map<std::string, DirectX::XMMATRIX>& transforms)
@@ -102,7 +157,7 @@ void SkeletonMesh::SetBonesTransform(std::unordered_map<std::string, DirectX::XM
 		else
 		{
 			a++;
-			//bones[bone.first].BoneTransform = bone.second;
+			bones[bone.first].BoneTransform = bone.second;
 		}
 	}
 	this->UpdateBoneInfo(pRoot.get(), dx::XMMatrixIdentity());
@@ -250,6 +305,7 @@ std::unique_ptr<SKNode> SkeletonMesh::ParseNode(int& nextId, const aiNode& node)
 	if (bones.find(curName) != bones.end()) {
 		if (node.mParent && bones.find(std::string(node.mParent->mName.C_Str())) != bones.end()) {
 			std::string parentName = node.mParent->mName.C_Str();
+			ctrlInfo[curName] = dx::XMMatrixIdentity();
 			bones[curName].BoneTransform =
 				dx::XMMatrixInverse(nullptr, bones[curName].BoneOffset)
 				* bones[parentName].BoneOffset;
@@ -271,7 +327,7 @@ void SkeletonMesh::UpdateBoneInfo(SKNode* p, dx::XMMATRIX transform)
 {
 	XMMATRIX next = p->GetTransform();
 	if (bones.find(p->GetName()) != bones.end()) {
-		next = bones[p->GetName()].BoneTransform;
+		next = ctrlInfo[p->GetName()]* bones[p->GetName()].BoneTransform;
 	}
 	next = next * transform;
 	auto t = FTransform(next).position;
@@ -324,3 +380,4 @@ std::string SKNode::GetName()
 {
 	return this->name;
 }
+

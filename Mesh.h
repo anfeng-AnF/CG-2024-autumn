@@ -32,7 +32,7 @@ public:
 	std::vector<Mesh*>& GetMeshPtrs()noexcept;
 	DirectX::XMMATRIX GetTransform()noexcept;
 protected:
-	void ShowTree(std::optional<int>& selectedIndex, Node*& pSelectedNode) const noexcept;
+	virtual void ShowTree(std::optional<int>& selectedIndex, Node*& pSelectedNode) const noexcept;
 protected:
 	std::string name;
 	int id;

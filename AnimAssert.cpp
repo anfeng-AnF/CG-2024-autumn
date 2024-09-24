@@ -4,7 +4,7 @@ dx::XMVECTOR ConvertToXMVECTOR(const aiVector3D& vec) {
     return dx::XMVectorSet(vec.x, vec.y, vec.z, 0.0f);
 }
 dx::XMVECTOR ConvertToXMVECTOR(const aiQuaternion& quat) {
-    return dx::XMVectorSet(quat.x, quat.y, quat.z, quat.w);
+    return dx::XMVectorSet(quat.x, quat.y,quat.z, quat.w);
 }
 std::vector<AnimAsset> AnimAsset::ReadAnimAssertFromFile(std::string fileName)
 {
