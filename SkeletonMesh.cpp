@@ -68,6 +68,17 @@ void SkeletonMesh::CtrlWnd(Graphics& gfx)
 	static std::unordered_map<std::string, XMFLOAT3> angles;
 	static auto a = bones;
 	ImGui::Begin("bones");
+	for (auto& bone : bones) {
+		std::ostringstream oss;
+		auto pos = FTransform(bone.second.BoneTransform).position;
+		auto rotation = FTransform(bone.second.BoneTransform).GetRotationEuler();
+		oss << bone.first.c_str() << "--------------------------------\n";
+		oss << pos.m128_f32[0] << "  " << pos.m128_f32[1] << "  " << pos.m128_f32[2] << "  " << pos.m128_f32[3] << "  \n";
+		oss << rotation.x *180<<"  " << rotation.y*180 << "  " << rotation.z*180 << "  "<< "  \n";
+		ImGui::Text(oss.str().c_str());
+	}
+	
+	ImGui::NextColumn();
 	for(auto& bone:bones)
 	{
 		changed |= ImGui::SliderFloat3(bone.first.c_str(),reinterpret_cast<float*>(& angles[bone.first].x),-3,3);
@@ -82,13 +93,16 @@ void SkeletonMesh::CtrlWnd(Graphics& gfx)
 
 void SkeletonMesh::SetBonesTransform(std::unordered_map<std::string, DirectX::XMMATRIX>& transforms)
 {
+	static int a = 0;
+	a = 0;
 	for (auto bone : transforms) {
 		if (this->bones.find(bone.first) != bones.end()) {
 			bones[bone.first].BoneTransform = bone.second;
 		}
 		else
 		{
-			assert(0);
+			a++;
+			//bones[bone.first].BoneTransform = bone.second;
 		}
 	}
 	this->UpdateBoneInfo(pRoot.get(), dx::XMMatrixIdentity());
@@ -262,10 +276,11 @@ void SkeletonMesh::UpdateBoneInfo(SKNode* p, dx::XMMATRIX transform)
 	next = next * transform;
 	auto t = FTransform(next).position;
 	auto pt = FTransform(transform).position;
+	std::string name = p->GetName();
 	DebugGraphsMannger::GetInstence().AddGeo(
 		std::make_unique<DebugLine>(gfx, XMFLOAT3(dx::XMVectorGetX(t), dx::XMVectorGetY(t),dx::XMVectorGetZ(t)),
 			XMFLOAT3(dx::XMVectorGetX(pt), dx::XMVectorGetY(pt), dx::XMVectorGetZ(pt)),
-			XMFLOAT3(0, 1, 0)),0.0f
+			XMFLOAT3(0, 1, 1)),0.0f
 	);
 
 	if (bones.find(p->GetName()) != bones.end()) {

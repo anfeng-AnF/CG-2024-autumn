@@ -83,7 +83,8 @@ App::App(UINT width, UINT height)
 	ISM.AddState("SpawnGeo", std::make_unique<SpawnGeometryByInput::SpawnGeoInputState>(SG.inputState));
 	ISM.SetState(DEFAULT_STATE);
 
-	Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\Elysia\\elysiaAnim.fbx")[0];
+	Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\Lantern\\LanternAnim.fbx")[0];
+	//Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\skeletonMeshs\\SkeletonMeshTestAnim.fbx")[0];
 }
 int App::Go()
 {
@@ -118,9 +119,11 @@ void App::DoFrame()
 	wnd.Gfx().SetCamera(cam.GetMatrix());
 	light.Bind(wnd.Gfx(), cam.GetMatrix());
 	//Lantern.Draw(wnd.Gfx());
-	Anim.Update(deltaTime);
+	if (wnd.Kbd.KeyIsPressed(VK_F1)) {
+		Anim.Update(deltaTime);
+	}
+	//elysia.CtrlWnd(wnd.Gfx());
 	elysia.Draw(wnd.Gfx());
-	elysia.CtrlWnd(wnd.Gfx());
 	//wall.Draw(wnd.Gfx());
 	//skeletonMesh.Draw(wnd.Gfx());
 	light.Draw(wnd.Gfx());

@@ -57,9 +57,9 @@ std::unordered_map<std::string, dx::XMMATRIX> AnimAsset::GetTransformBoneName_tm
 
     for (int i = 0; i < anim.size(); i++) {
         transforms[anim[i].boneName] =
-            InterpolateTranslation(i, time) *
+            InterpolateScale(i, time) *
             InterpolateRotation(i, time) *
-            InterpolateScale(i, time);
+            InterpolateTranslation(i, time);
     }
 
     return transforms;

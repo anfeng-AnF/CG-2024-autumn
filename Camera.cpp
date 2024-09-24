@@ -33,27 +33,25 @@ DirectX::XMMATRIX Camera::GetMatrix() const noexcept
 
 void Camera::SpawnControlWindow() noexcept
 {
-	if (ImGui::Begin("Camera"))
+	ImGui::Begin("Camera");
+
+	// 提取各个分量
+	float x = XMVectorGetX(transform.position);
+	float y = XMVectorGetY(transform.position);
+	float z = XMVectorGetZ(transform.position);
+
+	// 使用 ImGui 显示位置
+	ImGui::Text("Position: %f, %f, %f", x, y, z);
+	XMFLOAT3 euler = transform.GetRotationEuler();
+	ImGui::Text("Rotation (Pitch,Roll,Yaw): %.2f, %.2f, %.2f", euler.x, euler.y, euler.z);
+	ImGui::Text("Travel Speed: %f", travelSpeed);
+
+	if (ImGui::Button("Reset"))
 	{
-
-		// 提取各个分量
-		float x = XMVectorGetX(transform.position);
-		float y = XMVectorGetY(transform.position);
-		float z = XMVectorGetZ(transform.position);
-
-		// 使用 ImGui 显示位置
-		ImGui::Text("Position: %f, %f, %f", x, y, z);
-		XMFLOAT3 euler = transform.GetRotationEuler();
-		ImGui::Text("Rotation (Pitch,Roll,Yaw): %.2f, %.2f, %.2f", euler.x, euler.y, euler.z);
-		ImGui::Text("Travel Speed: %f", travelSpeed);
-
-		if (ImGui::Button("Reset"))
-		{
-			Reset();
-		}
-
-		ImGui::End();
+		Reset();
 	}
+
+	ImGui::End();
 }
 
 void Camera::Reset() noexcept
