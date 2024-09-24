@@ -41,7 +41,7 @@ VSOut main(VSIn input)
 
     float4 skinnedPos = float4(0, 0, 0, 0);
     float4 skinnedNormal = float4(0, 0, 0, 0);
-
+    
     if (totalWeight > 0.0)
     {
         // 遍历所有 8 个骨骼影响

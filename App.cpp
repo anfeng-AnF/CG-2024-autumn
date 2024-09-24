@@ -124,7 +124,7 @@ void App::DoFrame()
 	ISM.DoFrame(timer.Mark());
 	DGM.Draw(wnd.Gfx());
 
-	ctrl.Draw(wnd.Gfx());
+	//ctrl.Draw(wnd.Gfx());
 	// imgui windows
 	ImGui::Begin("Menu");
 	ImGui::Checkbox("Use Perspective", &isPerspective);

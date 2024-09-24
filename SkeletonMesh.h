@@ -55,4 +55,5 @@ private:
 	};
 	std::unique_ptr<VCBufData> data = std::make_unique<VCBufData>();
 	Bind::VertexConstantBuffer<VCBufData> VCbufBones;
+	Graphics& gfx;
 };

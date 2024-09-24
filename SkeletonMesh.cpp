@@ -2,6 +2,8 @@
 #include "Transform.h"
 #include "DebugGraphsMannger.h"
 #include "imguiManager.h"
+#pragma warning(disable : 4996)
+
 namespace dx = DirectX;
 DirectX::XMMATRIX AiMatrixToXMMATRIX(const aiMatrix4x4& aiMat) {
 	DirectX::XMMATRIX xmMat = DirectX::XMMATRIX(
@@ -10,12 +12,13 @@ DirectX::XMMATRIX AiMatrixToXMMATRIX(const aiMatrix4x4& aiMat) {
 		aiMat.a3, aiMat.b3, aiMat.c3, aiMat.d3,
 		aiMat.a4, aiMat.b4, aiMat.c4, aiMat.d4
 	);
-	return DirectX::XMMatrixTranspose(xmMat);
+	return xmMat;
 }
 
 SkeletonMesh::SkeletonMesh(Graphics& gfx, const std::string fileName)
 	:
-	VCbufBones(gfx,1u)
+	VCbufBones(gfx,1u),
+	gfx(gfx)
 {
 	//get and save file patch
 	std::size_t pos = fileName.find_last_of('\\');
@@ -53,11 +56,7 @@ void SkeletonMesh::Bind(Graphics& gfx)
 {
 	assert(bonesName.size() <= 1024 && "Bone count over 1024");
 	for (int i = 0; i < bonesName.size(); i++) {
-		data->bones[i] =bones[bonesName[i]].FinalTransformation;
-		//auto pos = FTransform(data->bones[i]).position;
-		//XMFLOAT3 posi;
-		//DirectX::XMStoreFloat3(&posi, pos);
-		//DebugGraphsMannger::GetInstence().AddGeo(std::make_shared<DebugSphere>(gfx, DirectX::XMFLOAT3{ 0,0,0 },posi));
+		data->bones[i] =dx::XMMatrixTranspose(bones[bonesName[i]].FinalTransformation);
 	}
 	VCbufBones.Update(gfx, *data.get());
 	VCbufBones.Bind(gfx);
@@ -67,11 +66,15 @@ void SkeletonMesh::CtrlWnd(Graphics& gfx)
 {
 	bool changed = false;
 	static std::unordered_map<std::string, XMFLOAT3> angles;
+	static auto a = bones;
 	ImGui::Begin("bones");
 	for(auto& bone:bones)
 	{
 		changed |= ImGui::SliderFloat3(bone.first.c_str(),reinterpret_cast<float*>(& angles[bone.first].x),-3,3);
-		bone.second.BoneTransform = dx::XMMatrixRotationRollPitchYaw(angles[bone.first].x, angles[bone.first].y, angles[bone.first].z);
+		auto t = FTransform(a[bone.first].BoneTransform);
+		bone.second.BoneTransform =
+			dx::XMMatrixRotationRollPitchYaw(angles[bone.first].x, angles[bone.first].y, angles[bone.first].z) *
+			a[bone.first].BoneTransform;
 	}
 	ImGui::End();
 	if (changed)ParseBone(pRoot.get(), dx::XMMatrixIdentity());
@@ -196,7 +199,7 @@ std::unique_ptr<SKMesh> SkeletonMesh::ParseMesh(Graphics& gfx, const aiMesh& mes
 std::unique_ptr<SKNode> SkeletonMesh::ParseNode(int& nextId, const aiNode& node) noexcept
 {
 	namespace dx = DirectX;
-	auto transform = dx::XMMatrixTranspose(dx::XMLoadFloat4x4(
+	auto transform =dx::XMMatrixTranspose(dx::XMLoadFloat4x4(
 		reinterpret_cast<const dx::XMFLOAT4X4*>(&node.mTransformation)
 	));
 
@@ -215,6 +218,16 @@ std::unique_ptr<SKNode> SkeletonMesh::ParseNode(int& nextId, const aiNode& node)
 		pNode->AddChild(ParseNode(nextId, *node.mChildren[i]));
 	}
 
+	std::string curName = node.mName.C_Str();
+	if (bones.find(curName) != bones.end()) {
+		if (node.mParent && bones.find(std::string(node.mParent->mName.C_Str())) != bones.end()) {
+			std::string parentName = node.mParent->mName.C_Str();
+			bones[curName].BoneTransform =
+				dx::XMMatrixInverse(nullptr, bones[curName].BoneOffset)
+				* bones[parentName].BoneOffset;
+		}
+	}
+	
 	return pNode;
 }
 
@@ -228,20 +241,20 @@ void SkeletonMesh::RenewBoneInfo(std::string boneName, DirectX::XMMATRIX boneTra
 
 void SkeletonMesh::ParseBone(SKNode* p, dx::XMMATRIX transform)
 {
-	transform = transform* p->GetTransform();
+	XMMATRIX next = p->GetTransform();
 	if (bones.find(p->GetName()) != bones.end()) {
-		//transform*= bones[p->GetName()].BoneOffset;
-		auto inv = dx::XMMatrixInverse(nullptr, transform);
-
-		bones[p->GetName()].FinalTransformation =bones[p->GetName()].BoneTransform;
-
-		transform = transform* bones[p->GetName()].BoneTransform;
-		auto a = FTransform(bones[p->GetName()].BoneOffset);
-		auto b = FTransform(p->GetTransform());
-		int c = 0;
+		next = bones[p->GetName()].BoneTransform;
+	}
+	next = next * transform;
+	auto t = FTransform(next);
+	DebugGraphsMannger::GetInstence().AddGeo(std::make_shared<DebugSphere>(
+	gfx,XMFLOAT3(),XMFLOAT3(t.position.m128_f32[0], t.position.m128_f32[1], t.position.m128_f32[2]),0.1f
+	),0.0f);
+	if (bones.find(p->GetName()) != bones.end()) {
+		bones[p->GetName()].FinalTransformation = bones[p->GetName()].BoneOffset * next;
 	}
 	for (auto& child : p->GetChild()) {
-		ParseBone(static_cast<SKNode*>(child.get()), transform);
+		ParseBone(static_cast<SKNode*>(child.get()), next);
 	}
 }
 
@@ -263,10 +276,10 @@ void SKNode::Draw(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const
 		DirectX::XMLoadFloat4x4(&appliedTransform) *
 		DirectX::XMLoadFloat4x4(&transform) *
 		accumulatedTransform;
-
 	for (const auto pm : meshPtrs)
 	{
-		pm->Draw(gfx,built);
+		auto a = FTransform(built);
+		pm->Draw(gfx, dx::XMMatrixIdentity());
 	}
 	for (const auto& pc : childPtrs)
 	{
