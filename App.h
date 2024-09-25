@@ -46,8 +46,8 @@ private:
 	//Model Lantern{ wnd.Gfx(),"Models\\skeletonMeshs\\SkeletonMeshTest.fbx" };
 	//Model skeletonMesh{ wnd.Gfx(),"Models\\skeletonMeshs\\testMesh.fbx" };
 	//SkeletonMesh elysia{ wnd.Gfx(),"Models\\Elysia\\elysiaQ2.fbx" };
-	SkeletonMesh elysia{ wnd.Gfx(),"Models\\Lantern\\Lantern_Fixed1.fbx" };
-	//SkeletonMesh elysia{ wnd.Gfx(),"Models\\skeletonMeshs\\SkeletonMeshTestAnim.fbx" };
+	//SkeletonMesh elysia{ wnd.Gfx(),"Models\\Lantern\\Lantern_Fixed1.fbx" };
+	SkeletonMesh elysia{ wnd.Gfx(),"Models\\skeletonMeshs\\SkeletonMeshTestAnim.fbx" };
 	AnimInstance Anim;
 	Axis axis{ wnd.Gfx() };
 	InputStateMachine ISM;

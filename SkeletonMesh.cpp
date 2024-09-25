@@ -72,7 +72,7 @@ void SkeletonMesh::CtrlWnd(Graphics& gfx)
 	};
 	static std::optional<int> selectedIndex=0;
 	static Node* pSelectedNode = pRoot.get();
-	static std::unordered_map<int, DirectX::XMMATRIX> transforms;
+	static std::unordered_map<int, FTransform> transforms;
 
 	// 栈，用来模拟递归。初始状态栈中存储根节点
 	std::stack<StackItem> stack;
@@ -121,26 +121,50 @@ void SkeletonMesh::CtrlWnd(Graphics& gfx)
 	if (transforms.find(selectedIndex.value()) == transforms.end()) {
 		transforms[selectedIndex.value()] = dx::XMMatrixIdentity();
 	}
-	FTransform t(transforms[selectedIndex.value()]);
+	FTransform& t=transforms[selectedIndex.value()];
 	bool Changed = false;
-
-	ImGui::Text("Orientation");
-	Changed|= ImGui::SliderFloat("w", &t.rotation.m128_f32[0], -2.0f, 2.0f);
-	Changed|= ImGui::SliderFloat("x", &t.rotation.m128_f32[1], -2.0f, 2.0f);
-	Changed|= ImGui::SliderFloat("y", &t.rotation.m128_f32[2], -2.0f, 2.0f);
-	Changed|= ImGui::SliderFloat("z", &t.rotation.m128_f32[3], -2.0f, 2.0f);
 	ImGui::Text("Position");
-	Changed|= ImGui::SliderFloat("X", &t.position.m128_f32[0], -20.0f, 20.0f);
-	Changed|= ImGui::SliderFloat("Y", &t.position.m128_f32[1], -20.0f, 20.0f);
-	Changed|= ImGui::SliderFloat("Z", &t.position.m128_f32[2], -20.0f, 20.0f);
-	ImGui::Text("Scale");
-	Changed |= ImGui::SliderFloat("w", &t.scale.m128_f32[0], -2.0f, 2.0f);
-	Changed |= ImGui::SliderFloat("x", &t.scale.m128_f32[1], -2.0f, 2.0f);
-	Changed |= ImGui::SliderFloat("y", &t.scale.m128_f32[2], -2.0f, 2.0f);
+	Changed |= ImGui::SliderFloat("X", &reinterpret_cast<float*>(&t.position)[0], -20.0f, 20.0f);
+	Changed |= ImGui::SliderFloat("Y", &reinterpret_cast<float*>(&t.position)[1], -20.0f, 20.0f);
+	Changed |= ImGui::SliderFloat("Z", &reinterpret_cast<float*>(&t.position)[2], -20.0f, 20.0f);
+	ImGui::Text("Orientation");
+	Changed |= ImGui::SliderFloat("w", &reinterpret_cast<float*>(&t.rotation)[3], -2.0f, 2.0f);
+	Changed |= ImGui::SliderFloat("x", &reinterpret_cast<float*>(&t.rotation)[0], -2.0f, 2.0f);
+	Changed |= ImGui::SliderFloat("y", &reinterpret_cast<float*>(&t.rotation)[1], -2.0f, 2.0f);
+	Changed |= ImGui::SliderFloat("z", &reinterpret_cast<float*>(&t.rotation)[2], -2.0f, 2.0f);
 	t.rotation = dx::XMVector4Normalize(t.rotation);
-	ctrlInfo[pSkNode->GetName()] = t.GetRotationMatrix() * t.GetTranslateMatrix();
-	transforms[selectedIndex.value()] = t.GetMatrix();
+	ctrlInfo[pSkNode->GetName()] =t.GetRotationMatrix() * t.GetTranslateMatrix();
+	if (bones.find(pSkNode->GetName()) != bones.end()) {
+		DirectX::XMFLOAT4X4 floatMatrix;
+		DirectX::XMStoreFloat4x4(&floatMatrix, bones[pSkNode->GetName()].BoneTransform);
+		//ImGui::Text("Matrix:");
+		//ImGui::Text("[ %.3f, %.3f, %.3f, %.3f ]", floatMatrix._11, floatMatrix._12, floatMatrix._13, floatMatrix._14);
+		//ImGui::Text("[ %.3f, %.3f, %.3f, %.3f ]", floatMatrix._21, floatMatrix._22, floatMatrix._23, floatMatrix._24);
+		//ImGui::Text("[ %.3f, %.3f, %.3f, %.3f ]", floatMatrix._31, floatMatrix._32, floatMatrix._33, floatMatrix._34);
+		//ImGui::Text("[ %.3f, %.3f, %.3f, %.3f ]", floatMatrix._41, floatMatrix._42, floatMatrix._43, floatMatrix._44);
+		auto trs = FTransform(ctrlInfo[pSkNode->GetName()]*bones[pSkNode->GetName()].BoneTransform);
+		XMFLOAT3 pos, rot, scl;
+		XMStoreFloat3(&pos, trs.position);
+		XMStoreFloat3(&scl, trs.scale);
+
+		// 获取欧拉角旋转
+		rot = trs.GetRotationEuler(); // 假设 GetRotationEuler() 返回 XMFLOAT3
+
+		// 显示 position, rotation, scale
+		ImGui::Text("FTransform:");
+
+		// 显示位置 (Position)
+		ImGui::Text("Position: [%.3f, %.3f, %.3f]", pos.x, pos.y, pos.z);
+
+		// 显示旋转 (Rotation in Euler angles)
+		ImGui::Text("Rotation (Euler): [%.3f, %.3f, %.3f]", rot.x, rot.y, rot.z);
+
+		// 显示缩放 (Scale)
+		ImGui::Text("Scale: [%.3f, %.3f, %.3f]", scl.x, scl.y, scl.z);
+	}
+
 	ImGui::End();
+
 	if (Changed) {
 		UpdateBoneInfo(pRoot.get(), dx::XMMatrixIdentity());
 	}
@@ -295,7 +319,7 @@ std::unique_ptr<SKNode> SkeletonMesh::ParseNode(int& nextId, const aiNode& node)
 	}
 
 	auto pNode = std::make_unique<SKNode>(nextId++, node.mName.C_Str(), std::move(curMeshPtrs), transform);
-
+	numNode++;
 	for (size_t i = 0; i < node.mNumChildren; i++)
 	{
 		pNode->AddChild(ParseNode(nextId, *node.mChildren[i]));
@@ -305,13 +329,13 @@ std::unique_ptr<SKNode> SkeletonMesh::ParseNode(int& nextId, const aiNode& node)
 	if (bones.find(curName) != bones.end()) {
 		if (node.mParent && bones.find(std::string(node.mParent->mName.C_Str())) != bones.end()) {
 			std::string parentName = node.mParent->mName.C_Str();
-			ctrlInfo[curName] = dx::XMMatrixIdentity();
-			bones[curName].BoneTransform =
+			bones[curName].defaultPose = 
 				dx::XMMatrixInverse(nullptr, bones[curName].BoneOffset)
 				* bones[parentName].BoneOffset;
+			bones[curName].BoneTransform = bones[curName].defaultPose;
 		}
 	}
-	
+	ctrlInfo[curName] = dx::XMMatrixIdentity();
 	return pNode;
 }
 
@@ -327,7 +351,7 @@ void SkeletonMesh::UpdateBoneInfo(SKNode* p, dx::XMMATRIX transform)
 {
 	XMMATRIX next = p->GetTransform();
 	if (bones.find(p->GetName()) != bones.end()) {
-		next = ctrlInfo[p->GetName()]* bones[p->GetName()].BoneTransform;
+		next = ctrlInfo[p->GetName()]*bones[p->GetName()].BoneTransform;
 	}
 	next = next * transform;
 	auto t = FTransform(next).position;

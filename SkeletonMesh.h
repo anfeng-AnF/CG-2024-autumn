@@ -2,9 +2,10 @@
 #include"Mesh.h"
 
 struct BoneInfo {
-	DirectX::XMMATRIX BoneOffset;
+	DirectX::XMMATRIX BoneOffset = DirectX::XMMatrixIdentity();
 	DirectX::XMMATRIX BoneTransform = DirectX::XMMatrixIdentity();
-	DirectX::XMMATRIX FinalTransformation;
+	DirectX::XMMATRIX defaultPose = DirectX::XMMatrixIdentity();
+	DirectX::XMMATRIX FinalTransformation = DirectX::XMMatrixIdentity();
 };
 
 class SKMesh :public Mesh
@@ -37,6 +38,7 @@ private:
 	void RenewBoneInfo(std::string boneName, DirectX::XMMATRIX boneTransform);
 	void UpdateBoneInfo(SKNode*p,DirectX::XMMATRIX transform);
 private:
+	UINT numNode = 0;
 	std::unique_ptr<SKNode> pRoot;
 	std::vector<std::unique_ptr<SKMesh>> meshPtrs;
 

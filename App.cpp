@@ -83,8 +83,9 @@ App::App(UINT width, UINT height)
 	ISM.AddState("SpawnGeo", std::make_unique<SpawnGeometryByInput::SpawnGeoInputState>(SG.inputState));
 	ISM.SetState(DEFAULT_STATE);
 
-	Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\Lantern\\LanternAnim.fbx")[0];
-	//Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\skeletonMeshs\\SkeletonMeshTestAnim.fbx")[0];
+	//Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\Lantern\\LanternAnim.fbx")[0];
+	Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\skeletonMeshs\\SkeletonMeshTestAnim.fbx")[0];
+	auto aaaa = AnimAsset::ReadAnimAssertFromFile("Models\\Elysia\\\\elysiaAnim.fbx")[0];
 }
 int App::Go()
 {

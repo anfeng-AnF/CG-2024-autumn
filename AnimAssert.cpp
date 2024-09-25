@@ -1,7 +1,7 @@
 #include "AnimAssert.h"
 
 dx::XMVECTOR ConvertToXMVECTOR(const aiVector3D& vec) {
-    return dx::XMVectorSet(vec.x, vec.y, vec.z, 0.0f);
+    return dx::XMVectorSet(vec.x, vec.y, vec.z, 1.0f);
 }
 dx::XMVECTOR ConvertToXMVECTOR(const aiQuaternion& quat) {
     return dx::XMVectorSet(quat.x, quat.y,quat.z, quat.w);
