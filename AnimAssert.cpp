@@ -30,6 +30,9 @@ std::vector<AnimAsset> AnimAsset::ReadAnimAssertFromFile(std::string fileName)
         for (unsigned int j = 0; j < animation->mNumChannels; j++) {
             const aiNodeAnim* channel = animation->mChannels[j];
             AAsset[i].anim[j].boneName = channel->mNodeName.C_Str();
+            if (AAsset[i].anim[j].boneName == "UpperBody") {
+                int a = 0;
+            }
 
             // Position
             for (unsigned int k = 0; k < channel->mNumPositionKeys; k++) {
