@@ -84,9 +84,8 @@ App::App(UINT width, UINT height)
 	ISM.SetState(DEFAULT_STATE);
 
 	//Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\Lantern\\LanternAnim.fbx")[0];
-	Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\Elysia\\elysiaAnim.fbx")[0];
-	//Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\skeletonMeshs\\SkeletonMeshTestAnim.fbx")[0];
-	//auto aaaa = AnimAsset::ReadAnimAssertFromFile("Models\\Elysia\\\\elysiaAnim.fbx")[0];
+	Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\skeletonMeshs\\SkeletonMeshTestAnim.fbx")[0];
+	auto aaaa = AnimAsset::ReadAnimAssertFromFile("Models\\Elysia\\\\elysiaAnim.fbx")[0];
 }
 int App::Go()
 {
@@ -133,7 +132,7 @@ void App::DoFrame()
 
 	ISM.DoFrame(deltaTime);
 	DGM.Draw(wnd.Gfx());
-	Bind::Codex::DebugString();
+
 	//ctrl.Draw(wnd.Gfx());
 	// imgui windows
 	ImGui::Begin("Menu");

@@ -55,7 +55,4 @@ private:
 	std::unique_ptr<VCBufData> data = std::make_unique<VCBufData>();
 	Bind::VertexConstantBuffer<VCBufData> VCbufBones;
 	Graphics& gfx;
-
-	//test
-	std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMFLOAT3>> boneLine;
 };

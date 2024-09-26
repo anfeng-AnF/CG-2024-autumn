@@ -51,9 +51,6 @@ void SkeletonMesh::Draw(Graphics& gfx)
 {
 	this->Bind(gfx);
 	pRoot->Draw(gfx, DirectX::XMMatrixIdentity());
-	for (auto& line : boneLine) {
-		DebugGraphsMannger::GetInstence().AddGeo(std::make_shared<DebugLine>(gfx, line.first, line.second, XMFLOAT3(0, 1, 1)), 0.0f);
-	}
 }
 
 void SkeletonMesh::Bind(Graphics& gfx)
@@ -146,12 +143,12 @@ void SkeletonMesh::CtrlWnd(Graphics& gfx)
 		//ImGui::Text("[ %.3f, %.3f, %.3f, %.3f ]", floatMatrix._31, floatMatrix._32, floatMatrix._33, floatMatrix._34);
 		//ImGui::Text("[ %.3f, %.3f, %.3f, %.3f ]", floatMatrix._41, floatMatrix._42, floatMatrix._43, floatMatrix._44);
 		auto trs = FTransform(ctrlInfo[pSkNode->GetName()]*bones[pSkNode->GetName()].BoneTransform);
-		XMFLOAT3 pos, scl;
+		XMFLOAT3 pos, rot, scl;
 		XMStoreFloat3(&pos, trs.position);
 		XMStoreFloat3(&scl, trs.scale);
 
 		// 获取欧拉角旋转
-		auto rot = trs.rotation; // 假设 GetRotationEuler() 返回 XMFLOAT3
+		rot = trs.GetRotationEuler(); // 假设 GetRotationEuler() 返回 XMFLOAT3
 
 		// 显示 position, rotation, scale
 		ImGui::Text("FTransform:");
@@ -160,7 +157,7 @@ void SkeletonMesh::CtrlWnd(Graphics& gfx)
 		ImGui::Text("Position: [%.3f, %.3f, %.3f]", pos.x, pos.y, pos.z);
 
 		// 显示旋转 (Rotation in Euler angles)
-		ImGui::Text("Rotation: [%.3f, %.3f, %.3f, %.3f]", rot.m128_f32[0], rot.m128_f32[1], rot.m128_f32[2], rot.m128_f32[3]);
+		ImGui::Text("Rotation (Euler): [%.3f, %.3f, %.3f]", rot.x, rot.y, rot.z);
 
 		// 显示缩放 (Scale)
 		ImGui::Text("Scale: [%.3f, %.3f, %.3f]", scl.x, scl.y, scl.z);
@@ -169,7 +166,6 @@ void SkeletonMesh::CtrlWnd(Graphics& gfx)
 	ImGui::End();
 
 	if (Changed) {
-		boneLine.clear();
 		UpdateBoneInfo(pRoot.get(), dx::XMMatrixIdentity());
 	}
 }
@@ -188,7 +184,6 @@ void SkeletonMesh::SetBonesTransform(std::unordered_map<std::string, DirectX::XM
 			bones[bone.first].BoneTransform = bone.second;
 		}
 	}
-	boneLine.clear();
 	this->UpdateBoneInfo(pRoot.get(), dx::XMMatrixIdentity());
 }
 
@@ -356,18 +351,19 @@ void SkeletonMesh::UpdateBoneInfo(SKNode* p, dx::XMMATRIX transform)
 {
 	XMMATRIX next = p->GetTransform();
 	if (bones.find(p->GetName()) != bones.end()) {
-		next = p->GetTransform()*ctrlInfo[p->GetName()]*bones[p->GetName()].BoneTransform;
+		next = ctrlInfo[p->GetName()]*bones[p->GetName()].BoneTransform;
 	}
 	next = next * transform;
 	auto t = FTransform(next).position;
 	auto pt = FTransform(transform).position;
 	std::string name = p->GetName();
-	boneLine.push_back({
-			XMFLOAT3(dx::XMVectorGetX(t), dx::XMVectorGetY(t),dx::XMVectorGetZ(t)),
-			XMFLOAT3(dx::XMVectorGetX(pt), dx::XMVectorGetY(pt), dx::XMVectorGetZ(pt))
-		});
+	DebugGraphsMannger::GetInstence().AddGeo(
+		std::make_unique<DebugLine>(gfx, XMFLOAT3(dx::XMVectorGetX(t), dx::XMVectorGetY(t),dx::XMVectorGetZ(t)),
+			XMFLOAT3(dx::XMVectorGetX(pt), dx::XMVectorGetY(pt), dx::XMVectorGetZ(pt)),
+			XMFLOAT3(0, 1, 1)),0.0f
+	);
 
-		if (bones.find(p->GetName()) != bones.end()) {
+	if (bones.find(p->GetName()) != bones.end()) {
 		bones[p->GetName()].FinalTransformation = bones[p->GetName()].BoneOffset * next;
 	}
 	for (auto& child : p->GetChild()) {

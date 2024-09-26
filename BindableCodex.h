@@ -32,20 +32,20 @@ namespace Bind
 			}
 		};
 		void printDebugMsg() {
-			static int size = binds.size();
-			if (binds.size() != size) {
-				std::ostringstream oss; 
-				size = binds.size();
-				oss << "------------------------------------------" << binds.size() << std::endl;
-				for (const auto& bind : binds) {
-					//oss << "Key: " << bind.first << "\n";
-				}
+			//static int size = binds.size();
+			//if (binds.size() != size) {
+			//	std::ostringstream oss; 
+			//	size = binds.size();
+			//	oss << "------------------------------------------" << binds.size() << std::endl;
+			//	for (const auto& bind : binds) {
+			//		//oss << "Key: " << bind.first << "\n";
+			//	}
 
-				//oss << "End of binds\n";
+			//	oss << "End of binds\n";
 
-				// 使用 DebugStringA 输出调试信息
-				OutputDebugStringA(oss.str().c_str());
-			}
+			//	// 使用 DebugStringA 输出调试信息
+			//	OutputDebugStringA(oss.str().c_str());
+			//}
 		};
 		template<class T, typename...Params>
 		std::shared_ptr<T> Resolve_(Graphics& gfx, Params&&...p)

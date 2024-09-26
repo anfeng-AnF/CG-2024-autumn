@@ -18,7 +18,7 @@ DebugLine::DebugLine(Graphics& gfx, DirectX::XMFLOAT3 begin, DirectX::XMFLOAT3 e
 	);
 	std::vector<uint16_t> indices = { 0,1 };
 	vbf.EmplaceBack(begin, color);
-	vbf.EmplaceBack(end, XMFLOAT3(color.x*0.5,color.y*0.5,color.z*0.f));
+	vbf.EmplaceBack(end, color);
 	id = "Line_" + XMFLOAT3ToString(begin) + "----" + XMFLOAT3ToString(end) + "----" + XMFLOAT3ToString(color);
 	auto vbufBind = VertexBuffer::Resolve(gfx, id, vbf);
 	id = vbufBind->GetUID();
