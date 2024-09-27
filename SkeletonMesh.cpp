@@ -50,6 +50,9 @@ SkeletonMesh::SkeletonMesh(Graphics& gfx, const std::string fileName)
 void SkeletonMesh::Draw(Graphics& gfx)
 {
 	this->Bind(gfx);
+	//for (auto& mesh : meshPtrs) {
+	//	mesh->Draw(gfx,dx::XMMatrixIdentity());
+	//}
 	pRoot->Draw(gfx, DirectX::XMMatrixIdentity());
 }
 
@@ -133,7 +136,7 @@ void SkeletonMesh::CtrlWnd(Graphics& gfx)
 	Changed |= ImGui::SliderFloat("y", &reinterpret_cast<float*>(&t.rotation)[1], -2.0f, 2.0f);
 	Changed |= ImGui::SliderFloat("z", &reinterpret_cast<float*>(&t.rotation)[2], -2.0f, 2.0f);
 	t.rotation = dx::XMVector4Normalize(t.rotation);
-	ctrlInfo[pSkNode->GetName()] =t.GetRotationMatrix() * t.GetTranslateMatrix();
+	ctrlInfo[pSkNode->GetName()] = t.GetRotationMatrix() * t.GetTranslateMatrix();
 	if (bones.find(pSkNode->GetName()) != bones.end()) {
 		DirectX::XMFLOAT4X4 floatMatrix;
 		DirectX::XMStoreFloat4x4(&floatMatrix, bones[pSkNode->GetName()].BoneTransform);
@@ -306,9 +309,9 @@ std::unique_ptr<SKMesh> SkeletonMesh::ParseMesh(Graphics& gfx, const aiMesh& mes
 std::unique_ptr<SKNode> SkeletonMesh::ParseNode(int& nextId, const aiNode& node) noexcept
 {
 	namespace dx = DirectX;
-	auto transform =dx::XMMatrixTranspose(dx::XMLoadFloat4x4(
+	auto transform =dx::XMLoadFloat4x4(
 		reinterpret_cast<const dx::XMFLOAT4X4*>(&node.mTransformation)
-	));
+	);
 
 	std::vector<Mesh*> curMeshPtrs;
 	curMeshPtrs.reserve(node.mNumMeshes);
@@ -354,14 +357,6 @@ void SkeletonMesh::UpdateBoneInfo(SKNode* p, dx::XMMATRIX transform)
 		next = ctrlInfo[p->GetName()]*bones[p->GetName()].BoneTransform;
 	}
 	next = next * transform;
-	auto t = FTransform(next).position;
-	auto pt = FTransform(transform).position;
-	std::string name = p->GetName();
-	DebugGraphsMannger::GetInstence().AddGeo(
-		std::make_unique<DebugLine>(gfx, XMFLOAT3(dx::XMVectorGetX(t), dx::XMVectorGetY(t),dx::XMVectorGetZ(t)),
-			XMFLOAT3(dx::XMVectorGetX(pt), dx::XMVectorGetY(pt), dx::XMVectorGetZ(pt)),
-			XMFLOAT3(0, 1, 1)),0.0f
-	);
 
 	if (bones.find(p->GetName()) != bones.end()) {
 		bones[p->GetName()].FinalTransformation = bones[p->GetName()].BoneOffset * next;
