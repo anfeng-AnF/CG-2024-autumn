@@ -24,6 +24,7 @@ wchar_t* charToWchar(const char* charArray) {
 	return wCharArray;
 }
 
+using namespace DirectX;
 int CALLBACK WinMain(
 	HINSTANCE hInstance,
 	HINSTANCE hPrevInstance,
@@ -32,7 +33,7 @@ int CALLBACK WinMain(
 {
 	try
 	{
-		return App(2560,1440).Go();
+		return App(1080,640).Go();
 	}
 	catch (const std::exception& e)
 	{

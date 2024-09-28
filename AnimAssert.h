@@ -7,6 +7,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+
 #include "SkeletonMesh.h"
 namespace dx = DirectX;
 
@@ -25,7 +26,7 @@ public:
     static std::vector<AnimAsset> ReadAnimAssertFromFile(std::string fileName);
     std::unordered_map<std::string, dx::XMMATRIX> GetTransformBoneName_tm(float time);
     float GetDuration();
-
+    float GetTickPerSecond();
 private:
     dx::XMMATRIX InterpolateTranslation(int boneIdx, float time);
     dx::XMMATRIX InterpolateScale(int boneIdx, float time);
@@ -33,6 +34,7 @@ private:
 
 
 private:
+public:
     std::string name;
     std::vector<BoneAnimInfo> anim;
     float tickPerSecond;

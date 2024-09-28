@@ -84,8 +84,10 @@ App::App(UINT width, UINT height)
 	ISM.SetState(DEFAULT_STATE);
 
 	//Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\Lantern\\LanternAnim.fbx")[0];
-	Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\skeletonMeshs\\SkeletonMeshTestAnim.fbx")[0];
-	auto aaaa = AnimAsset::ReadAnimAssertFromFile("Models\\Elysia\\\\elysiaAnim.fbx")[0];
+	Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\Elysia\\elysiaAnim.fbx")[0];
+	//Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\GLInstance\\dancing_vampire.dae")[0];
+	//Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\skeletonMeshs\\SkeletonMeshTestAnim.fbx")[0];
+
 }
 int App::Go()
 {
@@ -120,9 +122,7 @@ void App::DoFrame()
 	wnd.Gfx().SetCamera(cam.GetMatrix());
 	light.Bind(wnd.Gfx(), cam.GetMatrix());
 	//Lantern.Draw(wnd.Gfx());
-	if (wnd.Kbd.KeyIsPressed(VK_F1)) {
-		Anim.Update(deltaTime);
-	}
+	Anim.Update(deltaTime);
 	elysia.CtrlWnd(wnd.Gfx());
 	elysia.Draw(wnd.Gfx());
 	//wall.Draw(wnd.Gfx());

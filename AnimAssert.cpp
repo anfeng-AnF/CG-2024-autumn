@@ -10,7 +10,7 @@ std::vector<AnimAsset> AnimAsset::ReadAnimAssertFromFile(std::string fileName)
 {
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(fileName.c_str(),
-        aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
+        aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices| aiProcess_MakeLeftHanded);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
         throw std::runtime_error(std::string("Error loading file: ") + importer.GetErrorString());
@@ -18,12 +18,12 @@ std::vector<AnimAsset> AnimAsset::ReadAnimAssertFromFile(std::string fileName)
     }
 
     std::vector<AnimAsset> AAsset(scene->mNumAnimations);
-
+    
     for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
         const aiAnimation* animation = scene->mAnimations[i];
 
         AAsset[i].name = animation->mName.C_Str();
-        AAsset[i].duration = animation->mDuration/ animation->mTicksPerSecond;
+        AAsset[i].duration = animation->mDuration;
         AAsset[i].tickPerSecond = animation->mTicksPerSecond;
         AAsset[i].anim.resize(animation->mNumChannels);
 
@@ -33,17 +33,17 @@ std::vector<AnimAsset> AnimAsset::ReadAnimAssertFromFile(std::string fileName)
 
             // Position
             for (unsigned int k = 0; k < channel->mNumPositionKeys; k++) {
-                AAsset[i].anim[j].translation[channel->mPositionKeys[k].mTime / animation->mTicksPerSecond] = ConvertToXMVECTOR(channel->mPositionKeys[k].mValue);
+                AAsset[i].anim[j].translation[channel->mPositionKeys[k].mTime] = ConvertToXMVECTOR(channel->mPositionKeys[k].mValue);
             }
 
             // Scale
             for (unsigned int k = 0; k < channel->mNumScalingKeys; k++) {
-                AAsset[i].anim[j].scale[channel->mScalingKeys[k].mTime/ animation->mTicksPerSecond] = ConvertToXMVECTOR(channel->mScalingKeys[k].mValue);
+                AAsset[i].anim[j].scale[channel->mScalingKeys[k].mTime] = ConvertToXMVECTOR(channel->mScalingKeys[k].mValue);
             }
 
             // Rotation
             for (unsigned int k = 0; k < channel->mNumRotationKeys; k++) {
-                AAsset[i].anim[j].rotation[channel->mRotationKeys[k].mTime/ animation->mTicksPerSecond] = ConvertToXMVECTOR(channel->mRotationKeys[k].mValue);
+                AAsset[i].anim[j].rotation[channel->mRotationKeys[k].mTime] = ConvertToXMVECTOR(channel->mRotationKeys[k].mValue);
             }
         }
     }
@@ -57,9 +57,9 @@ std::unordered_map<std::string, dx::XMMATRIX> AnimAsset::GetTransformBoneName_tm
 
     for (int i = 0; i < anim.size(); i++) {
         transforms[anim[i].boneName] =
-            InterpolateScale(i, time) *
-            InterpolateRotation(i, time) *
-            InterpolateTranslation(i, time);
+            InterpolateScale(i, time * tickPerSecond) *
+            InterpolateRotation(i, time * tickPerSecond) *
+            InterpolateTranslation(i, time * tickPerSecond);
     }
 
     return transforms;
@@ -68,6 +68,11 @@ std::unordered_map<std::string, dx::XMMATRIX> AnimAsset::GetTransformBoneName_tm
 float AnimAsset::GetDuration()
 {
     return duration;
+}
+
+float AnimAsset::GetTickPerSecond()
+{
+    return tickPerSecond;
 }
 
 dx::XMMATRIX AnimAsset::InterpolateTranslation(int boneIdx, float time)
@@ -88,7 +93,6 @@ dx::XMMATRIX AnimAsset::InterpolateTranslation(int boneIdx, float time)
     float factor = (time - prev->first) / deltaTime;
 
     auto interpolatedTranslation = dx::XMVectorLerp(prev->second, up->second, factor);
-
     return dx::XMMatrixTranslationFromVector(interpolatedTranslation);
 }
 

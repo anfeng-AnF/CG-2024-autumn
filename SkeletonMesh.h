@@ -44,6 +44,7 @@ private:
 
 	std::string filePatch = "..\\";
 
+public:
 	std::unordered_map<std::string, BoneInfo> bones;
 	std::unordered_map<std::string, DirectX::XMMATRIX> ctrlInfo;
 	std::vector<std::string> bonesName;

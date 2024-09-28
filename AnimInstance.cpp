@@ -9,10 +9,10 @@ AnimInstance::AnimInstance(SkeletonMesh& mesh)
 void AnimInstance::Update(float deltaTime)
 {
 	currentTime += deltaTime;
-	currentTime =std::fmod(currentTime,currentAnim.GetDuration());
+	currentTime =std::fmod(currentTime,currentAnim.GetDuration()/currentAnim.GetTickPerSecond());
 	OutputDebugStringA(std::to_string(currentTime).c_str());
 	OutputDebugStringA("\n");
-	auto curentPose = currentAnim.GetTransformBoneName_tm(currentTime);
+	auto curentPose =currentAnim.GetTransformBoneName_tm(currentTime);
 	mesh.SetBonesTransform(curentPose);
 }
 
