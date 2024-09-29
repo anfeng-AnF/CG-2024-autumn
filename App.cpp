@@ -7,6 +7,7 @@
 #include "Vertex.h"
 #include "VertexBuffer.h"
 #include "Sphere.h"
+#include <unordered_set>
 GDIPlusManager gdipm;
 namespace dx = DirectX;
 
@@ -163,25 +164,78 @@ void App::DoFrame()
 	Codex::DebugString();
 
 	//reprocess
-	D3D11_MAPPED_SUBRESOURCE msr = {};
-	wnd.Gfx().ReadBackBuffer(msr);
-	// 获取图像的宽度和高度信息
-	D3D11_TEXTURE2D_DESC desc = {};
-	wnd.Gfx().pBackBuffer->GetDesc(&desc);
 
-	// 修改左上角区域的像素为蓝色
-	int cornerWidth = 100;  // 你可以调整这个值来定义填充区域的大小
-	int cornerHeight = 100; // 同样调整这个值
-	for (int y = 0; y < cornerHeight; ++y) {
-		for (int x = 0; x < cornerWidth; ++x) {
-			// 将像素颜色设为蓝色 (RGBA 格式, 8位无符号整数)
-			unsigned int* pixel = (unsigned int*)((BYTE*)msr.pData + y * msr.RowPitch) + x;
-			*pixel = 0xFF0000FF; // Blue color in RGBA (Alpha = 255, Red = 0, Green = 0, Blue = 255)
+	auto f = [](D3D11_MAPPED_SUBRESOURCE msrf, int width, int height, int x, int y, UINT32 fillColor) {
+		// 检查种子点是否在有效范围内
+		if (x < 0 || x >= width || y < 0 || y >= height) {
+			return;
 		}
-	}
 
-	// 写回修改后的数据
-	wnd.Gfx().WriteToBackBuffer(msr);
+		// 获取图像数据指针
+		UINT32* data = reinterpret_cast<UINT32*>(msrf.pData);
+
+		// 获取 RowPitch
+		size_t rowPitch = msrf.RowPitch / sizeof(UINT32);
+
+		// 获取种子点的初始颜色
+		UINT32 targetColor = data[y * rowPitch + x];
+
+		// 如果种子点颜色与填充颜色相同，直接返回
+		if (targetColor == fillColor) {
+			return;
+		}
+
+		// 用于处理填充区域的队列
+		std::queue<std::pair<int, int>> pixelQueue;
+		pixelQueue.push({ x, y });
+
+		// 记录已经访问的像素
+		std::unordered_set<int> visited;
+		visited.insert(y * rowPitch + x);
+
+		while (!pixelQueue.empty()) {
+			auto [currentX, currentY] = pixelQueue.front();
+			pixelQueue.pop();
+
+			// 填充颜色
+			data[currentY * rowPitch + currentX] = fillColor;
+
+			// 上
+			if (currentY > 0 && data[(currentY - 1) * rowPitch + currentX] == targetColor) {
+				int upIndex = (currentY - 1) * rowPitch + currentX;
+				if (visited.find(upIndex) == visited.end()) {
+					pixelQueue.push({ currentX, currentY - 1 });
+					visited.insert(upIndex);
+				}
+			}
+			// 下
+			if (currentY < height - 1 && data[(currentY + 1) * rowPitch + currentX] == targetColor) {
+				int downIndex = (currentY + 1) * rowPitch + currentX;
+				if (visited.find(downIndex) == visited.end()) {
+					pixelQueue.push({ currentX, currentY + 1 });
+					visited.insert(downIndex);
+				}
+			}
+			// 左
+			if (currentX > 0 && data[currentY * rowPitch + (currentX - 1)] == targetColor) {
+				int leftIndex = currentY * rowPitch + (currentX - 1);
+				if (visited.find(leftIndex) == visited.end()) {
+					pixelQueue.push({ currentX - 1, currentY });
+					visited.insert(leftIndex);
+				}
+			}
+			// 右
+			if (currentX < width - 1 && data[currentY * rowPitch + (currentX + 1)] == targetColor) {
+				int rightIndex = currentY * rowPitch + (currentX + 1);
+				if (visited.find(rightIndex) == visited.end()) {
+					pixelQueue.push({ currentX + 1, currentY });
+					visited.insert(rightIndex);
+				}
+			}
+		}
+		
+		};
+	//wnd.Gfx().PostProcessingOnCPU(f,1080/2,640/2,0xff0000ff);
 
 	// present
 	wnd.Gfx().EndFrame();
