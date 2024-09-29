@@ -5,10 +5,9 @@
 #pragma comment(lib,"d3d11.lib")
 #pragma comment(lib,"D3DCompiler.lib")
 namespace wrl = Microsoft::WRL;
-
+#define SMAACount 1u;
 Graphics::Graphics(HWND hWnd, int width, int height)
 {
-	UINT SMAACount = 4u;
 	UINT Quality = 0u;
 
 	DXGI_SWAP_CHAIN_DESC sd = {};
@@ -52,7 +51,7 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 	// gain access to texture subresource in swap chain (back buffer)
 	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = {};
 	rtvDesc.Format = sd.BufferDesc.Format;
-	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS; // 确保使用多重采样视图
+	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
 	rtvDesc.Texture2D.MipSlice = 0;
 
 	wrl::ComPtr<ID3D11Resource> pBackBuffer;
@@ -195,5 +194,44 @@ void Graphics::DisableImgui() noexcept
 bool Graphics::IsImguiEnabled() const noexcept
 {
 	return imguiEnabled;
+}
+
+void Graphics::ReadBackBuffer(D3D11_MAPPED_SUBRESOURCE& msr)
+{
+	if (!pBackBuffer) {
+		pSwap->GetBuffer(0, __uuidof(ID3D11Texture2D), &pBackBuffer);
+	}
+
+	D3D11_TEXTURE2D_DESC desc = {};
+	pBackBuffer->GetDesc(&desc);
+	desc.Usage = D3D11_USAGE_STAGING;
+	desc.BindFlags = 0;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	desc.SampleDesc.Count = SMAACount;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> pStagingTexture;
+	pDevice->CreateTexture2D(&desc, nullptr, &pStagingTexture);
+
+	pContext->CopyResource(pStagingTexture.Get(), pBackBuffer.Get());
+
+	pContext->Map(pStagingTexture.Get(), 0, D3D11_MAP_READ, 0, &msr);
+}
+
+void Graphics::WriteToBackBuffer(D3D11_MAPPED_SUBRESOURCE& msr)
+{
+	if (!pBackBuffer) {
+		pSwap->GetBuffer(0, __uuidof(ID3D11Texture2D), &pBackBuffer);
+	}
+
+	D3D11_TEXTURE2D_DESC desc = {};
+	pBackBuffer->GetDesc(&desc);
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	desc.CPUAccessFlags = 0;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> pProcessedTexture;
+	pDevice->CreateTexture2D(&desc, nullptr, &pProcessedTexture);
+
+	pContext->UpdateSubresource(pProcessedTexture.Get(), 0, nullptr, msr.pData, msr.RowPitch, 0);
+
+	pContext->CopyResource(pBackBuffer.Get(), pProcessedTexture.Get());
 }
 

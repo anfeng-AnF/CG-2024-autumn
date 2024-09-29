@@ -161,6 +161,28 @@ void App::DoFrame()
 	//Lantern.ShowWindow();
 	//wall.ShowWindow();
 	Codex::DebugString();
+
+	//reprocess
+	D3D11_MAPPED_SUBRESOURCE msr = {};
+	wnd.Gfx().ReadBackBuffer(msr);
+	// 获取图像的宽度和高度信息
+	D3D11_TEXTURE2D_DESC desc = {};
+	wnd.Gfx().pBackBuffer->GetDesc(&desc);
+
+	// 修改左上角区域的像素为蓝色
+	int cornerWidth = 100;  // 你可以调整这个值来定义填充区域的大小
+	int cornerHeight = 100; // 同样调整这个值
+	for (int y = 0; y < cornerHeight; ++y) {
+		for (int x = 0; x < cornerWidth; ++x) {
+			// 将像素颜色设为蓝色 (RGBA 格式, 8位无符号整数)
+			unsigned int* pixel = (unsigned int*)((BYTE*)msr.pData + y * msr.RowPitch) + x;
+			*pixel = 0xFF0000FF; // Blue color in RGBA (Alpha = 255, Red = 0, Green = 0, Blue = 255)
+		}
+	}
+
+	// 写回修改后的数据
+	wnd.Gfx().WriteToBackBuffer(msr);
+
 	// present
 	wnd.Gfx().EndFrame();
 }

@@ -32,7 +32,11 @@ public:
 	void EnableImgui() noexcept;
 	void DisableImgui() noexcept;
 	bool IsImguiEnabled() const noexcept;
-private:
+
+	void ReadBackBuffer(D3D11_MAPPED_SUBRESOURCE& msr);
+	void WriteToBackBuffer(D3D11_MAPPED_SUBRESOURCE& msr);
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> pBackBuffer;
+//private:
 	DirectX::XMMATRIX projection;
 	DirectX::XMMATRIX camera;	
 	bool imguiEnabled = true;
@@ -41,4 +45,5 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pContext;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pTarget;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> pDSV;
+
 };
