@@ -79,6 +79,9 @@
     <Filter Include="Animation\Sourse Files">
       <UniqueIdentifier>{8d687785-09aa-4727-86f9-0019a7976f2a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Base\头文件\InputStates">
+      <UniqueIdentifier>{0d089b22-8191-499e-ba9b-7a9538fbf52a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -230,6 +233,9 @@
     </ClCompile>
     <ClCompile Include="AnimInstance.cpp">
       <Filter>Animation\Sourse Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FloodFill.cpp">
+      <Filter>Base\头文件\InputStates</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -424,6 +430,9 @@
     </ClInclude>
     <ClInclude Include="AnimInstance.h">
       <Filter>Animation\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="FloodFill.h">
+      <Filter>Base\头文件\InputStates</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

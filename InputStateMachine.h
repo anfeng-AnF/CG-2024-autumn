@@ -16,6 +16,7 @@ public:
     virtual void Enter() = 0;
     virtual void Update(float deltaTime) = 0;
     virtual void Exit() = 0;
+    virtual void Draw() = 0;
     virtual ~InputState() = default;
 protected:
     Window& wnd;
@@ -29,6 +30,7 @@ public:
 
     void DoFrame(float deltaTime) {
         if (currentState) {
+            currentState->Draw();
             currentState->Update(deltaTime);
         }
     }

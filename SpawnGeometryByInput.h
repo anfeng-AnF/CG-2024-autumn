@@ -22,6 +22,7 @@ public:
 		void Enter() override;
 		void Update(float deltaTime) override;
 		void Exit() override;
+		void Draw() override;
 
 	private:
 		SpawnGeometryByInput* pSpawnGeo;
@@ -29,6 +30,7 @@ public:
 		bool choosedMehod = false;
 		bool onDrawing = false;
 		bool drawingEnd = false;
+
 	}inputState;
 	enum SpawnGeoMehod
 	{

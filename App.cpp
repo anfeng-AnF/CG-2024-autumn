@@ -7,6 +7,7 @@
 #include "Vertex.h"
 #include "VertexBuffer.h"
 #include "Sphere.h"
+#include "FloodFill.h"
 #include <unordered_set>
 GDIPlusManager gdipm;
 namespace dx = DirectX;
@@ -82,6 +83,7 @@ App::App(UINT width, UINT height)
 	ISM.AddState(DEFAULT_STATE, std::make_unique<CollisionGeoManager::TranslationState>(ctrl.inputState));
 	ISM.AddState("CameraMove", std::make_unique<Camera::CameraMove>(cam.inputState));
 	ISM.AddState("SpawnGeo", std::make_unique<SpawnGeometryByInput::SpawnGeoInputState>(SG.inputState));
+	ISM.AddState("FloodFill", std::make_unique<InputStates::FloodFill>(wnd));
 	ISM.SetState(DEFAULT_STATE);
 
 	//Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\Lantern\\LanternAnim.fbx")[0];
@@ -165,77 +167,7 @@ void App::DoFrame()
 
 	//reprocess
 
-	auto f = [](D3D11_MAPPED_SUBRESOURCE msrf, int width, int height, int x, int y, UINT32 fillColor) {
-		// 检查种子点是否在有效范围内
-		if (x < 0 || x >= width || y < 0 || y >= height) {
-			return;
-		}
-
-		// 获取图像数据指针
-		UINT32* data = reinterpret_cast<UINT32*>(msrf.pData);
-
-		// 获取 RowPitch
-		size_t rowPitch = msrf.RowPitch / sizeof(UINT32);
-
-		// 获取种子点的初始颜色
-		UINT32 targetColor = data[y * rowPitch + x];
-
-		// 如果种子点颜色与填充颜色相同，直接返回
-		if (targetColor == fillColor) {
-			return;
-		}
-
-		// 用于处理填充区域的队列
-		std::queue<std::pair<int, int>> pixelQueue;
-		pixelQueue.push({ x, y });
-
-		// 记录已经访问的像素
-		std::unordered_set<int> visited;
-		visited.insert(y * rowPitch + x);
-
-		while (!pixelQueue.empty()) {
-			auto [currentX, currentY] = pixelQueue.front();
-			pixelQueue.pop();
-
-			// 填充颜色
-			data[currentY * rowPitch + currentX] = fillColor;
-
-			// 上
-			if (currentY > 0 && data[(currentY - 1) * rowPitch + currentX] == targetColor) {
-				int upIndex = (currentY - 1) * rowPitch + currentX;
-				if (visited.find(upIndex) == visited.end()) {
-					pixelQueue.push({ currentX, currentY - 1 });
-					visited.insert(upIndex);
-				}
-			}
-			// 下
-			if (currentY < height - 1 && data[(currentY + 1) * rowPitch + currentX] == targetColor) {
-				int downIndex = (currentY + 1) * rowPitch + currentX;
-				if (visited.find(downIndex) == visited.end()) {
-					pixelQueue.push({ currentX, currentY + 1 });
-					visited.insert(downIndex);
-				}
-			}
-			// 左
-			if (currentX > 0 && data[currentY * rowPitch + (currentX - 1)] == targetColor) {
-				int leftIndex = currentY * rowPitch + (currentX - 1);
-				if (visited.find(leftIndex) == visited.end()) {
-					pixelQueue.push({ currentX - 1, currentY });
-					visited.insert(leftIndex);
-				}
-			}
-			// 右
-			if (currentX < width - 1 && data[currentY * rowPitch + (currentX + 1)] == targetColor) {
-				int rightIndex = currentY * rowPitch + (currentX + 1);
-				if (visited.find(rightIndex) == visited.end()) {
-					pixelQueue.push({ currentX + 1, currentY });
-					visited.insert(rightIndex);
-				}
-			}
-		}
-		
-		};
-	//wnd.Gfx().PostProcessingOnCPU(f,1080/2,640/2,0xff0000ff);
+		//wnd.Gfx().PostProcessingOnCPU(f,1080/2,640/2,0xff0000ff);
 
 	// present
 	wnd.Gfx().EndFrame();

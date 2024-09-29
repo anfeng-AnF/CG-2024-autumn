@@ -800,6 +800,7 @@ CollisionGeoManager::TranslationState::TranslationState(Window& window, Collisio
 
 void CollisionGeoManager::TranslationState::Enter()
 {
+    menuSelected = 0;
     wnd.EnableCursor();
     wnd.mouse.DisableRaw();
     wnd.Kbd.FlushChar();
@@ -897,5 +898,23 @@ void CollisionGeoManager::TranslationState::Update(float deltaTime)
 void CollisionGeoManager::TranslationState::Exit()
 {
 
+}
+
+void CollisionGeoManager::TranslationState::Draw()
+{
+    ImGui::Begin("Menu");
+    ImGui::RadioButton("selected Geometry", &menuSelected, 0);
+    ImGui::RadioButton("Fill Color   ", &menuSelected, 1);
+    ImGui::RadioButton("create Geometry", &menuSelected, 2);
+    ImGui::End();
+    switch (menuSelected)
+    {
+    case 1:
+        this->Machine->SetState("FloodFill");
+        break;
+    case 2:
+        this->Machine->SetState("SpawnGeo");
+        break;
+    }
 }
 

@@ -130,6 +130,7 @@ public:
 		void Enter() override;
 		void Update(float deltaTime) override;
 		void Exit() override;
+		void Draw() override;
 	private:
 		CollisionGeoManager& collisionManager;
 		std::unordered_map<char, TransformationMethod>shortcutKeyTransformationMethod = {
@@ -148,6 +149,11 @@ public:
 			{VK_NUMPAD7, FTransform{{0.0f, 30.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, XMQuaternionRotationRollPitchYaw(XM_PI / 2, 0.0f, 0.0f)}}, // Top View
 		};
 		bool selectedComponent = false;
+
+		int menuSelected = 0;
+		//0 this
+		//1 floodFill
+		//2 spawn Geo
 	}inputState;
 
 public:

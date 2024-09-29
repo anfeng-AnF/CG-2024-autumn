@@ -248,3 +248,7 @@ void Camera::CameraMove::Exit()
 	wnd.EnableCursor();
 	wnd.mouse.DisableRaw();
 }
+
+void Camera::CameraMove::Draw()
+{
+}
