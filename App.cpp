@@ -7,6 +7,8 @@
 #include "Vertex.h"
 #include "VertexBuffer.h"
 #include "Sphere.h"
+#include "FloodFill.h"
+#include <unordered_set>
 GDIPlusManager gdipm;
 namespace dx = DirectX;
 
@@ -81,6 +83,7 @@ App::App(UINT width, UINT height)
 	ISM.AddState(DEFAULT_STATE, std::make_unique<CollisionGeoManager::TranslationState>(ctrl.inputState));
 	ISM.AddState("CameraMove", std::make_unique<Camera::CameraMove>(cam.inputState));
 	ISM.AddState("SpawnGeo", std::make_unique<SpawnGeometryByInput::SpawnGeoInputState>(SG.inputState));
+	ISM.AddState("FloodFill", std::make_unique<InputStates::FloodFill>(wnd));
 	ISM.SetState(DEFAULT_STATE);
 
 	//Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\Lantern\\LanternAnim.fbx")[0];
@@ -163,25 +166,8 @@ void App::DoFrame()
 	Codex::DebugString();
 
 	//reprocess
-	D3D11_MAPPED_SUBRESOURCE msr = {};
-	wnd.Gfx().ReadBackBuffer(msr);
-	// 获取图像的宽度和高度信息
-	D3D11_TEXTURE2D_DESC desc = {};
-	wnd.Gfx().pBackBuffer->GetDesc(&desc);
 
-	// 修改左上角区域的像素为蓝色
-	int cornerWidth = 100;  // 你可以调整这个值来定义填充区域的大小
-	int cornerHeight = 100; // 同样调整这个值
-	for (int y = 0; y < cornerHeight; ++y) {
-		for (int x = 0; x < cornerWidth; ++x) {
-			// 将像素颜色设为蓝色 (RGBA 格式, 8位无符号整数)
-			unsigned int* pixel = (unsigned int*)((BYTE*)msr.pData + y * msr.RowPitch) + x;
-			*pixel = 0xFF0000FF; // Blue color in RGBA (Alpha = 255, Red = 0, Green = 0, Blue = 255)
-		}
-	}
-
-	// 写回修改后的数据
-	wnd.Gfx().WriteToBackBuffer(msr);
+		//wnd.Gfx().PostProcessingOnCPU(f,1080/2,640/2,0xff0000ff);
 
 	// present
 	wnd.Gfx().EndFrame();

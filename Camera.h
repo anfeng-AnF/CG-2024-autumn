@@ -17,6 +17,9 @@ public:
 
 	private:
 		Camera* cam;
+
+		// Í¨¹ý InputState ¼Ì³Ð
+		void Draw() override;
 	}inputState;
 public:
 	Camera(Window& window);

@@ -19,21 +19,6 @@ void SpawnGeometryByInput::SpawnGeoInputState::Enter()
 
 void SpawnGeometryByInput::SpawnGeoInputState::Update(float deltaTime)
 {
-	pSpawnGeo->draw(wnd.Gfx());
-
-	//should exit state?
-	//spawn ctrl wnd
-	if (!choosedMehod) {
-		choosedMehod = pSpawnGeo->SpawnImGuiWnd(wndPos);
-	}
-
-	if (choosedMehod && pSpawnGeo->mehod == NONE
-		|| wnd.Kbd.KeyIsPressed(VK_ESCAPE)
-		|| drawingEnd)
-	{
-		this->Machine->SetState(PERVIOUS_STATE);
-	}bool methodIsNone = (pSpawnGeo->mehod == NONE);
-
 	//Handle keyboard input
 
 	//Handling of mouse input
@@ -84,6 +69,24 @@ void SpawnGeometryByInput::SpawnGeoInputState::Update(float deltaTime)
 
 void SpawnGeometryByInput::SpawnGeoInputState::Exit()
 {
+}
+
+void SpawnGeometryByInput::SpawnGeoInputState::Draw()
+{
+	pSpawnGeo->draw(wnd.Gfx());
+
+	//should exit state?
+	//spawn ctrl wnd
+	if (!choosedMehod) {
+		choosedMehod = pSpawnGeo->SpawnImGuiWnd(wndPos);
+	}
+
+	if (choosedMehod && pSpawnGeo->mehod == NONE
+		|| wnd.Kbd.KeyIsPressed(VK_ESCAPE)
+		|| drawingEnd)
+	{
+		this->Machine->SetState(PERVIOUS_STATE);
+	}bool methodIsNone = (pSpawnGeo->mehod == NONE);
 }
 
 

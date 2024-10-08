@@ -21,13 +21,22 @@ float4 main(PSIn input) : SV_Target
     float3 norm = normalize(input.normal); // 法线归一化
 
     // 漫反射分量
-    float diff = max(dot(norm, lightDir), 0.0);
+    float diff;
+    float dotVal = dot(norm, lightDir);
+    if (dotVal> 0.4)
+    {
+        diff = 0.8;
+    }
+    else
+    {
+        diff = 0.4;
+    }
     
     // 纹理采样
     float4 texColor = textureMap.Sample(samplerState, input.tc);
 
     // 最终颜色计算
-    float4 finalColor = saturate(diff + 0.2) * texColor; // 仅考虑漫反射
+    float4 finalColor = saturate(diff) * texColor; // 仅考虑漫反射
     return finalColor;
-    return diff * float4(1.0f, 1.0f, 1.0f,1.0f);
+    //return diff * float4(1.0f, 1.0f, 1.0f,1.0f);
 }

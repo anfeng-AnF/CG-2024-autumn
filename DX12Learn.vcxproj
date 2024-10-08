@@ -165,6 +165,7 @@
     <ClCompile Include="CtrlableGeometry.cpp" />
     <ClCompile Include="CtrlCeomerty.cpp" />
     <ClCompile Include="DebugGraphsMannger.cpp" />
+    <ClCompile Include="FloodFill.cpp" />
     <ClCompile Include="GeometryShader.cpp" />
     <ClCompile Include="APawn.cpp" />
     <ClCompile Include="SkeletonMesh.cpp" />
@@ -229,6 +230,7 @@
     <ClInclude Include="CtrlableGeometry.h" />
     <ClInclude Include="DebugGraphsMannger.h" />
     <ClInclude Include="GameModeBase.h" />
+    <ClInclude Include="FloodFill.h" />
     <ClInclude Include="GeometryShader.h" />
     <ClInclude Include="InputStateMachine.h" />
     <ClInclude Include="APawn.h" />
