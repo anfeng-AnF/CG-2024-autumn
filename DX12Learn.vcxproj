@@ -157,13 +157,16 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AActor.cpp" />
     <ClCompile Include="AnimAssert.cpp" />
     <ClCompile Include="AnimInstance.cpp" />
     <ClCompile Include="App.cpp" />
+    <ClCompile Include="ACharacter.cpp" />
     <ClCompile Include="CtrlableGeometry.cpp" />
     <ClCompile Include="CtrlCeomerty.cpp" />
     <ClCompile Include="DebugGraphsMannger.cpp" />
     <ClCompile Include="GeometryShader.cpp" />
+    <ClCompile Include="APawn.cpp" />
     <ClCompile Include="SkeletonMesh.cpp" />
     <ClCompile Include="SpawnGeometryByInput.cpp" />
     <ClCompile Include="TransformCtrlComponent.cpp" />
@@ -202,23 +205,36 @@
     <ClCompile Include="Topology.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="TransformCbuf.cpp" />
+    <ClCompile Include="UCameraComponent.cpp" />
+    <ClCompile Include="UCharacterMovementComponent.cpp" />
+    <ClCompile Include="USpringArmComponent.cpp" />
     <ClCompile Include="Vertex.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="VertexShader.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="WinMain.cpp" />
+    <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AActor.h" />
     <ClInclude Include="AnimAssert.h" />
     <ClInclude Include="AnimInstance.h" />
     <ClInclude Include="AnimStateMachine.h" />
     <ClInclude Include="App.h" />
+    <ClInclude Include="UActorComponent.h" />
+    <ClInclude Include="UAnimationComponent.h" />
+    <ClInclude Include="UCameraComponent.h" />
+    <ClInclude Include="ACharacter.h" />
+    <ClInclude Include="UCharacterMovementComponent.h" />
     <ClInclude Include="CtrlableGeometry.h" />
     <ClInclude Include="DebugGraphsMannger.h" />
+    <ClInclude Include="GameModeBase.h" />
     <ClInclude Include="GeometryShader.h" />
     <ClInclude Include="InputStateMachine.h" />
+    <ClInclude Include="APawn.h" />
     <ClInclude Include="SkeletonMesh.h" />
     <ClInclude Include="SpawnGeometryByInput.h" />
+    <ClInclude Include="USpringArmComponent.h" />
     <ClInclude Include="TransformCtrlComponent.h" />
     <ClInclude Include="Axis.h" />
     <ClInclude Include="Bindable.h" />
@@ -269,10 +285,13 @@
     <ClInclude Include="Topology.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="TransformCbuf.h" />
+    <ClInclude Include="USkeletalMeshComponent.h" />
+    <ClInclude Include="UStaticMeshComponent.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="VertexShader.h" />
     <ClInclude Include="Window.h" />
+    <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX12Learn.rc" />

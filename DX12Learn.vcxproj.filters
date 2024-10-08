@@ -79,6 +79,30 @@
     <Filter Include="Animation\Sourse Files">
       <UniqueIdentifier>{8d687785-09aa-4727-86f9-0019a7976f2a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game">
+      <UniqueIdentifier>{47663ed0-80f1-48bc-8686-2ede204d0793}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Components">
+      <UniqueIdentifier>{6f417025-f61b-4e39-a68c-830cb1a994da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Classes">
+      <UniqueIdentifier>{1b3c6340-804d-409e-9ef6-a0ec2561bea0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Classes\Sources">
+      <UniqueIdentifier>{39a3c9f5-2368-4a0e-8f72-2d350a17129b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Classes\Header">
+      <UniqueIdentifier>{b1ae3f3d-bc28-434e-9bf9-885fe113980e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Physical">
+      <UniqueIdentifier>{2e024ce5-5687-4473-88c8-df9d07ff2e61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Components\Header">
+      <UniqueIdentifier>{7ccb9367-e066-4e8e-a07c-7915ce1daf6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Components\Source">
+      <UniqueIdentifier>{af180a80-28e8-43bd-bd69-e2eef85bc8fb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -230,6 +254,27 @@
     </ClCompile>
     <ClCompile Include="AnimInstance.cpp">
       <Filter>Animation\Sourse Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AActor.cpp">
+      <Filter>Game\Classes\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="APawn.cpp">
+      <Filter>Game\Classes\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ACharacter.cpp">
+      <Filter>Game\Classes\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="World.cpp">
+      <Filter>Game\Classes\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="USpringArmComponent.cpp">
+      <Filter>Game\Components\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="UCameraComponent.cpp">
+      <Filter>Game\Components\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="UCharacterMovementComponent.cpp">
+      <Filter>Game\Components\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -424,6 +469,42 @@
     </ClInclude>
     <ClInclude Include="AnimInstance.h">
       <Filter>Animation\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="GameModeBase.h">
+      <Filter>Game\Classes\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="AActor.h">
+      <Filter>Game\Classes\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="APawn.h">
+      <Filter>Game\Classes\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ACharacter.h">
+      <Filter>Game\Classes\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="World.h">
+      <Filter>Game\Classes\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="UCameraComponent.h">
+      <Filter>Game\Components\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="UCharacterMovementComponent.h">
+      <Filter>Game\Components\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="USpringArmComponent.h">
+      <Filter>Game\Components\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="USkeletalMeshComponent.h">
+      <Filter>Game\Components\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="UStaticMeshComponent.h">
+      <Filter>Game\Components\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="UAnimationComponent.h">
+      <Filter>Game\Components\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="UActorComponent.h">
+      <Filter>Game\Components\Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
