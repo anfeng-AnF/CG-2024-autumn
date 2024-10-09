@@ -23,6 +23,9 @@ public:
     // 检查动画是否正在播放
     bool IsPlaying() const;
 
+public:
+    const static std::string name;
+
 private:
     std::shared_ptr<UAnimation> CurrentAnimation; // 当前动画
     float PlaybackSpeed; // 播放速度

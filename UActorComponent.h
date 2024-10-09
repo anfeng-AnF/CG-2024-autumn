@@ -11,7 +11,7 @@ public:
     virtual void Initialize() {}
 
     // 更新组件
-    virtual void Update(float DeltaTime) {}
+    virtual void Update(float DeltaTime) = 0;
 
     // 渲染组件
     virtual void Render() {}

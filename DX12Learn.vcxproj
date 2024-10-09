@@ -206,6 +206,7 @@
     <ClCompile Include="Topology.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="TransformCbuf.cpp" />
+    <ClCompile Include="UAnimationComponent.cpp" />
     <ClCompile Include="UCameraComponent.cpp" />
     <ClCompile Include="UCharacterMovementComponent.cpp" />
     <ClCompile Include="USpringArmComponent.cpp" />

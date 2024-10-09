@@ -22,7 +22,8 @@ public:
 
     // 渲染函数
     void Render();
-
+public:
+    const static std::string name;
 private:
     std::shared_ptr<SkeletonMesh> SkeletalMesh; // 骨骼网格体
     std::vector<std::shared_ptr<UAnimationComponent>> AnimationComponents; // 动画组件

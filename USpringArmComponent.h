@@ -14,7 +14,8 @@ public:
     void Update(const FTransform& OwnerTransform);
 
     FTransform GetCurrentTransform() const;
-
+public:
+    const static std::string name;
 private:
     float ArmLength;
     FTransform CurrentTransform;

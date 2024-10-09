@@ -19,7 +19,8 @@ public:
 
     // äÖÈ¾º¯Êı
     void Render();
-
+public:
+    const static std::string name;
 private:
     std::shared_ptr<UStaticMesh> StaticMesh; // ¾²Ì¬Íø¸ñÌå
     DirectX::XMMATRIX Transform; // ±ä»»¾ØÕó

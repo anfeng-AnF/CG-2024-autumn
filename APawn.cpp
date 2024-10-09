@@ -2,13 +2,6 @@
 
 void APawn::Tick(float DeltaTime) {
     AActor::Tick(DeltaTime); // 调用基类的 Tick 函数
-
-    // 更新位置
-    Transform.position += MovementDirection * MoveSpeed * DeltaTime;
-    Transform.position += Velocity * DeltaTime;
-
-    // 更新跳跃状态
-    UpdateJump(DeltaTime);
 }
 
 // 设置移动方向

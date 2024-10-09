@@ -23,7 +23,8 @@ public:
 
     // 获取当前速度
     XMVECTOR GetVelocity() const;
-
+public:
+    const static std::string name;
 protected:
     // 当前速度
     XMVECTOR Velocity;
