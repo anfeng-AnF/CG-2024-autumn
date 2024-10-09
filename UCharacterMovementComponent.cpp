@@ -1,5 +1,7 @@
 #include "UCharacterMovementComponent.h"
 
+const std::string UCharacterMovementComponent::name = "UCharacterMovementComponent";
+
 // 构造函数
 UCharacterMovementComponent::UCharacterMovementComponent()
     : Velocity(XMVectorZero()), // 初始化速度为零向量
@@ -28,19 +30,12 @@ void UCharacterMovementComponent::SetMovementInput(const XMFLOAT3& Direction) {
 
 // 跳跃
 void UCharacterMovementComponent::Jump() {
-    if (bIsOnGround) {
-        // 施加跳跃力
-        Velocity.y = JumpHeight; // 这里简单地将Y轴速度设置为跳跃高度
-        bIsOnGround = false; // 跳跃后不再在地面上
-    }
+
 }
 
 // 施加重力
 void UCharacterMovementComponent::ApplyGravity(float DeltaTime) {
-    if (!bIsOnGround) {
-        // 每帧施加重力
-        Velocity.y -= GravityScale * DeltaTime; // 更新Y轴速度
-    }
+
 }
 
 // 获取当前速度
@@ -50,11 +45,5 @@ XMVECTOR UCharacterMovementComponent::GetVelocity() const {
 
 // 更新位置
 void UCharacterMovementComponent::UpdatePosition(float DeltaTime) {
-    // 计算新的位置
-    XMVECTOR Movement = XMVectorSet(MovementInput.x, 0.0f, MovementInput.z, 0.0f);
-    Velocity += Movement; // 更新速度
 
-    // 更新位置（可以根据需要进行碰撞检测）
-    XMVECTOR NewPosition = GetOwner()->GetTransform().GetMatrix().r[3] + (Velocity * DeltaTime);
-    GetOwner()->SetTransform(FTransform(NewPosition)); // 更新变换
 }

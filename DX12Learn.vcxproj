@@ -207,9 +207,11 @@
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="TransformCbuf.cpp" />
     <ClCompile Include="UAnimationComponent.cpp" />
+    <ClCompile Include="UBoxComponent.cpp" />
     <ClCompile Include="UCameraComponent.cpp" />
     <ClCompile Include="UCharacterMovementComponent.cpp" />
     <ClCompile Include="USpringArmComponent.cpp" />
+    <ClCompile Include="UStaticMeshComponent.cpp" />
     <ClCompile Include="Vertex.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="VertexShader.cpp" />
@@ -225,8 +227,10 @@
     <ClInclude Include="App.h" />
     <ClInclude Include="UActorComponent.h" />
     <ClInclude Include="UAnimationComponent.h" />
+    <ClInclude Include="UBoxComponent.h" />
     <ClInclude Include="UCameraComponent.h" />
     <ClInclude Include="ACharacter.h" />
+    <ClInclude Include="UCapsuleComponent.h" />
     <ClInclude Include="UCharacterMovementComponent.h" />
     <ClInclude Include="CtrlableGeometry.h" />
     <ClInclude Include="DebugGraphsMannger.h" />
@@ -237,6 +241,9 @@
     <ClInclude Include="APawn.h" />
     <ClInclude Include="SkeletonMesh.h" />
     <ClInclude Include="SpawnGeometryByInput.h" />
+    <ClInclude Include="UCollisionComponent.h" />
+    <ClInclude Include="UConvexComponent.h" />
+    <ClInclude Include="USphereComponent.h" />
     <ClInclude Include="USpringArmComponent.h" />
     <ClInclude Include="TransformCtrlComponent.h" />
     <ClInclude Include="Axis.h" />

@@ -2,6 +2,7 @@
 #include "UActorComponent.h"
 #include "Transform.h"
 #include <memory>
+#include <string>
 using namespace DirectX;
 
 class UCharacterMovementComponent : public UActorComponent {
@@ -26,20 +27,11 @@ public:
 public:
     const static std::string name;
 protected:
-    // 当前速度
-    XMVECTOR Velocity;
-
-    // 移动方向
-    XMFLOAT3 MovementInput;
-
-    // 跳跃高度
-    float JumpHeight;
-
-    // 是否在地面上
-    bool bIsOnGround;
-
-    // 重力加速度
-    float GravityScale;
+    XMVECTOR Velocity;         // 当前速度
+    XMFLOAT3 MovementInput;    // 移动方向
+    float JumpHeight;          // 跳跃高度
+    bool bIsOnGround;          // 是否在地面上
+    float GravityScale;        // 重力加速度
 
     // 更新位置
     void UpdatePosition(float DeltaTime);

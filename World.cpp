@@ -14,7 +14,7 @@ void UWorld::RemoveActor(std::shared_ptr<AActor> Actor) {
 void UWorld::Tick(float DeltaTime) {
     for (const auto& Actor : ActiveGroupActors) {
         if (Actor) {
-            Actor->Tick(DeltaTime); // 假设 AActor 类有一个 Tick 函数
+
         }
     }
 }
@@ -23,7 +23,7 @@ void UWorld::Tick(float DeltaTime) {
 void UWorld::Render() {
     for (const auto& Actor : ActiveGroupActors) {
         if (Actor) {
-            Actor->Render(); // 假设 AActor 类有一个 Render 函数
+
         }
     }
 }

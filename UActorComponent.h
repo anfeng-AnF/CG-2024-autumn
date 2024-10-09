@@ -1,5 +1,5 @@
 #pragma once
-
+#include <DirectXCollision.h>
 class AActor;
 
 class UActorComponent {

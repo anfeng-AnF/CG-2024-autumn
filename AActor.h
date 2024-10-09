@@ -6,6 +6,7 @@
 #include "Transform.h"
 #include "UActorComponent.h"
 #include "vector"
+#include "CollisionManager.h"
 
 struct Component
 {
@@ -35,6 +36,8 @@ public:
 
     // 处理碰撞（如果需要）
     virtual void OnCollision();
+
+    virtual void CheckCollision();
 
     // 添加组件
     void AddComponent(std::string name, std::shared_ptr<UActorComponent> NewComponent,std::string ComponentName);

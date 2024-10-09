@@ -106,6 +106,12 @@
     <Filter Include="Game\Components\Source">
       <UniqueIdentifier>{af180a80-28e8-43bd-bd69-e2eef85bc8fb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Components\Header\Collision">
+      <UniqueIdentifier>{4d28b7c2-154b-4670-99fa-cb75bc88f523}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Components\Source\Collision">
+      <UniqueIdentifier>{6fb2684b-ca4f-41a2-ad73-d656d99f689e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -257,6 +263,39 @@
     </ClCompile>
     <ClCompile Include="AnimInstance.cpp">
       <Filter>Animation\Sourse Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FloodFill.cpp">
+      <Filter>Base\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="UAnimationComponent.cpp">
+      <Filter>Game\Components\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="UCameraComponent.cpp">
+      <Filter>Game\Components\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="UCharacterMovementComponent.cpp">
+      <Filter>Game\Components\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="USpringArmComponent.cpp">
+      <Filter>Game\Components\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="AActor.cpp">
+      <Filter>Game\Classes\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ACharacter.cpp">
+      <Filter>Game\Classes\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="APawn.cpp">
+      <Filter>Game\Classes\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="World.cpp">
+      <Filter>Game\Classes\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="UStaticMeshComponent.cpp">
+      <Filter>Game\Components\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="UBoxComponent.cpp">
+      <Filter>Game\Components\Source\Collision</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -451,6 +490,60 @@
     </ClInclude>
     <ClInclude Include="AnimInstance.h">
       <Filter>Animation\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="FloodFill.h">
+      <Filter>Base\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="UActorComponent.h">
+      <Filter>Game\Components\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="UAnimationComponent.h">
+      <Filter>Game\Components\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="UCameraComponent.h">
+      <Filter>Game\Components\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="UCharacterMovementComponent.h">
+      <Filter>Game\Components\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="USkeletalMeshComponent.h">
+      <Filter>Game\Components\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="USpringArmComponent.h">
+      <Filter>Game\Components\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="UStaticMeshComponent.h">
+      <Filter>Game\Components\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="AActor.h">
+      <Filter>Game\Classes\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ACharacter.h">
+      <Filter>Game\Classes\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="APawn.h">
+      <Filter>Game\Classes\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="GameModeBase.h">
+      <Filter>Game\Classes\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="World.h">
+      <Filter>Game\Classes\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="UCapsuleComponent.h">
+      <Filter>Game\Components\Header\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="UBoxComponent.h">
+      <Filter>Game\Components\Header\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="USphereComponent.h">
+      <Filter>Game\Components\Header\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="UConvexComponent.h">
+      <Filter>Game\Components\Header\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="UCollisionComponent.h">
+      <Filter>Game\Components\Header\Collision</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
