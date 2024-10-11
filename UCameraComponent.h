@@ -24,6 +24,7 @@ public:
 
     void SetCamera(Camera* cam);
 
+    XMMATRIX GetMatrix();
 public:
     const static std::string name;
 private:

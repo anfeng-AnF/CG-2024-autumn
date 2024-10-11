@@ -14,10 +14,10 @@ public:
     void SetMovementDirection(const DirectX::XMFLOAT3& NewDirection);
 
     // 执行跳跃
-    void Jump();
+    virtual void Jump();
 
     // 更新跳跃状态
-    void UpdateJump(float DeltaTime);
+    virtual void UpdateJump(float DeltaTime);
 
 protected:
     // 移动速度

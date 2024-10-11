@@ -45,3 +45,8 @@ void UCameraComponent::SetCamera(Camera* cam)
 {
     this->cam = cam;
 }
+
+XMMATRIX UCameraComponent::GetMatrix()
+{
+    return cam->GetMatrix();
+}

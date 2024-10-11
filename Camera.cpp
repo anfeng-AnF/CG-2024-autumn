@@ -80,7 +80,6 @@ void Camera::RotatePitchYaw(float dx, float dy) noexcept
 		UpVector = {0.0f,XMVectorGetY(UpVector),0.0f,0.0f};
 	}
 
-
 	XMVECTOR deltaYawRotation = XMQuaternionRotationNormal(UpVector, dx * rotationSpeed);
 	XMVECTOR deltaPitchRotation = XMQuaternionRotationNormal(RightVector, dy * rotationSpeed);
 	transform.rotation = DirectX::XMQuaternionMultiply(transform.rotation, deltaPitchRotation);

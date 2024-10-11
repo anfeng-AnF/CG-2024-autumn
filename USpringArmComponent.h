@@ -15,7 +15,7 @@ public:
 
     FTransform GetCurrentTransform() const;
 public:
-    const static std::string name;
+    const static std::string Name;
 private:
     float ArmLength;
     FTransform CurrentTransform;

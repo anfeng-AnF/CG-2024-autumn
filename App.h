@@ -15,6 +15,8 @@
 #include "SpawnGeometryByInput.h"
 #include "SkeletonMesh.h"
 #include "AnimInstance.h"
+#include "MyGameMode.h"
+
 class App
 {
 public:
@@ -54,4 +56,7 @@ private:
 	InputStateMachine ISM;
 	DebugGraphsMannger &DGM=DebugGraphsMannger::GetInstence();
 	SpawnGeometryByInput SG;
+
+	MyGameMode Game;
+
 };

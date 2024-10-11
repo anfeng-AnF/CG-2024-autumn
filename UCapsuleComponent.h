@@ -15,7 +15,8 @@ public:
 
     // 实现检查碰撞的函数
     virtual FHitResult CheckCollision(const UCollisionComponent& Other) const override;
-
+public:
+    const static std::string name;
 private:
     float Radius; // 胶囊体的半径
     float Height; // 胶囊体的高度

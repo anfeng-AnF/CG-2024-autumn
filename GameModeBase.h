@@ -6,7 +6,7 @@
 class GameInput :public InputState
 {
 public:
-    GameInput(Window& wnd) :InputState(wnd) {}
+    GameInput(Window& wnd, std::shared_ptr<ACharacter> playerCharacter) :InputState(wnd),playerCharacter(std::move(playerCharacter)) {}
     // Í¨¹ý InputState ¼Ì³Ð
     void Enter() override;
     void Update(float deltaTime) override;
@@ -15,7 +15,6 @@ public:
 
 public:
     std::shared_ptr<ACharacter> playerCharacter;
-
 };
 
 class GameModeBase
@@ -23,18 +22,13 @@ class GameModeBase
 public:
 	GameModeBase();
 	~GameModeBase();
-
+    virtual void Tick(float DeltaTime);
+    virtual void Begin();
+    virtual void End();
 protected:
-    std::shared_ptr<ACharacter> PlayerCharacter;
-
+    std::shared_ptr<ACharacter> DefaultCharacter;
+    std::shared_ptr<UWorld> DefaultWorld;
 private:
 
 };
 
-GameModeBase::GameModeBase()
-{
-}
-
-GameModeBase::~GameModeBase()
-{
-}

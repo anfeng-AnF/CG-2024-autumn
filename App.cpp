@@ -23,7 +23,8 @@ App::App(UINT width, UINT height)
 	cam(wnd),
 	ctrl(wnd,cam),
 	SG(wnd,cam,&ctrl),
-	Anim(elysia)
+	Anim(elysia),
+	Game(wnd,ISM)
 {
 	wnd.Gfx().SetProjection(Perspective);
 	wnd.DisableCursor();
@@ -111,8 +112,10 @@ App::~App()
 
 void App::DoFrame()
 {
+	static bool StartGame = false;
 	float deltaTime = timer.Mark();
 	//first set Projection matrix
+
 	if (isPerspective) {
 		wnd.Gfx().SetProjection(Perspective);
 	}
@@ -121,28 +124,46 @@ void App::DoFrame()
 		wnd.Gfx().SetProjection(Orthographic);
 	}
 
-	wnd.Gfx().BeginFrame(0.07f, 0.0f, 0.12f);
-	wnd.Gfx().SetCamera(cam.GetMatrix());
-	light.Bind(wnd.Gfx(), cam.GetMatrix());
-	//Lantern.Draw(wnd.Gfx());
-	Anim.Update(deltaTime);
-	elysia.CtrlWnd(wnd.Gfx());
-	elysia.Draw(wnd.Gfx());
-	//wall.Draw(wnd.Gfx());
-	//skeletonMesh.Draw(wnd.Gfx());
-	light.Draw(wnd.Gfx());
-	axis.Draw(wnd.Gfx());
+	wnd.Gfx().BeginFrame(0.07f, 0.0f, 0.12f);//Default background color
+	if (!StartGame) {
+		wnd.Gfx().SetCamera(cam.GetMatrix());
+		light.Bind(wnd.Gfx(), cam.GetMatrix());
+		//Lantern.Draw(wnd.Gfx());
+		Anim.Update(deltaTime);
+		elysia.CtrlWnd(wnd.Gfx());
+		elysia.Draw(wnd.Gfx());
+		//wall.Draw(wnd.Gfx());
+		//skeletonMesh.Draw(wnd.Gfx());
+		light.Draw(wnd.Gfx());
+		axis.Draw(wnd.Gfx());
 
-	ISM.DoFrame(deltaTime);
-	DGM.Draw(wnd.Gfx());
-
+		ISM.DoFrame(deltaTime);
+		DGM.Draw(wnd.Gfx());
+	}
+	else
+	{
+		Game.Tick(deltaTime);
+	}
 	//ctrl.Draw(wnd.Gfx());
 	// imgui windows
 	ImGui::Begin("Menu");
-	ImGui::Checkbox("Use Perspective", &isPerspective);
-	const char* proj = "current: Perspective";
-	if (!isPerspective)proj = "current: Orthographic";
-	ImGui::Text(proj);
+	bool ModeChanged = ImGui::RadioButton("Play Game", &StartGame);
+	if (StartGame) {
+		if (ModeChanged)
+		{
+			Game.Begin();
+		}
+		else
+		{
+			Game.End();
+		}
+	}
+	if (!StartGame) {
+		ImGui::Checkbox("Use Perspective", &isPerspective);
+		const char* proj = "current: Perspective";
+		if (!isPerspective)proj = "current: Orthographic";
+		ImGui::Text(proj);
+	}
 	//FPS
 	static int frame = 0;
 	static const int framesPerUpdate = 20;  // 每 20 帧更新一次
@@ -156,11 +177,15 @@ void App::DoFrame()
 	ImGui::Text("FPS: %.2f", fps);
 	frame++;
 
-	ctrl.DrawImGui(wnd.Gfx());
+	if (!StartGame) {
+		ctrl.DrawImGui(wnd.Gfx());
+	}
 	ImGui::End();
-	cam.SpawnControlWindow();
-	light.SpawnControlWindow();
-	ShowImguiDemoWindow();
+	if (!StartGame) {
+		cam.SpawnControlWindow();
+		light.SpawnControlWindow();
+		ShowImguiDemoWindow();
+	}
 	//Lantern.ShowWindow();
 	//wall.ShowWindow();
 	Codex::DebugString();

@@ -1,6 +1,6 @@
 #include "UCharacterMovementComponent.h"
 #include <DirectXMathVector.inl>
-
+#include "ACharacter.h"
 const std::string UCharacterMovementComponent::name = "UCharacterMovementComponent";
 
 // 构造函数
@@ -25,8 +25,8 @@ void UCharacterMovementComponent::Update(float DeltaTime) {
 }
 
 // 设置移动输入
-void UCharacterMovementComponent::SetMovementInput(const XMFLOAT3& Direction) {
-    MovementInput = XMVectorSet(Direction.x, Direction.y, Direction.z, 0.0f);
+void UCharacterMovementComponent::SetMovementInput(const XMVECTOR& Direction) {
+    MovementInput = Direction;
 }
 
 // 跳跃
@@ -53,9 +53,22 @@ bool UCharacterMovementComponent::IsWalkableSurface(const DirectX::XMVECTOR& Nor
 }
 // 更新位置
 void UCharacterMovementComponent::UpdatePosition(float DeltaTime) {
+
     auto transform = Owner->GetTransform();
     transform.position += Velocity * Speed * DeltaTime + transform.position;
     Owner->SetTransform(transform);
+
+    if (auto character = dynamic_cast<ACharacter*>(Owner.get())) {
+        if (!bIsOnGround) {
+            character->UpdateState(ACharacter::ECharacterState::Jumping);
+        }
+        else if (bIsOnGround && XMVectorGetX(XMVector3Length(Velocity))) {
+            character->UpdateState(ACharacter::ECharacterState::Walking);
+        }
+        else if (XMVectorGetX(XMVector3Length(Velocity)) == 0) {
+            character->UpdateState(ACharacter::ECharacterState::Idle);
+        }
+    }
 }
 
 void UCharacterMovementComponent::UpdateVelocity(float DeltaTime)
@@ -112,5 +125,6 @@ void UCharacterMovementComponent::UpdateVelocity(float DeltaTime)
         Velocity += GravityDirection * GravityScale * DeltaTime;
     }
     Velocity = XMVector3Normalize(Velocity);
+    bIsOnGround = bOnGround;
 }
 

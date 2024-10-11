@@ -14,7 +14,7 @@ void UWorld::RemoveActor(std::shared_ptr<AActor> Actor) {
 void UWorld::Tick(float DeltaTime) {
     for (const auto& Actor : ActiveGroupActors) {
         if (Actor) {
-
+            Actor->Tick(DeltaTime);
         }
     }
 }

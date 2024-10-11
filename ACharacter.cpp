@@ -1,7 +1,14 @@
 #include "ACharacter.h"
+#include "USpringArmComponent.h"
+#include "UCameraComponent.h"
+#include "UCapsuleComponent.h"
 #include <DirectXMathVector.inl>
 ACharacter::ACharacter()
 {
+    //默认添加弹簧臂组建和摄像机组件
+    AddComponent("", std::make_shared<UCapsuleComponent>(), UCapsuleComponent::name);                       //root
+    AddComponent("Root", std::make_shared<USpringArmComponent>(), USpringArmComponent::Name);
+    AddComponent(USpringArmComponent::Name, std::make_shared<UCameraComponent>(), UCameraComponent::name);
 }
 
 ACharacter::~ACharacter()
@@ -12,8 +19,6 @@ ACharacter::~ACharacter()
 void ACharacter::Tick(float DeltaTime) {
     APawn::Tick(DeltaTime); // 调用基类的 Tick 函数
 
-    // 更新角色状态
-    UpdateState();
 }
 
 // 设置角色移动的输入
@@ -29,25 +34,54 @@ void ACharacter::Turn(float Angle) {
     Transform.rotation = DirectX::XMQuaternionMultiply(Transform.rotation, rotationQuaternion); // 更新角色旋转
 }
 
-void ACharacter::Input(int x, int y)
+void ACharacter::AddYawInput(int x)
 {
-    auto forward = Transform.GetForwardVector()* x;
-    auto right = Transform.GetRightVector()* y;
+    XMVECTOR deltaRotation = XMQuaternionRotationNormal(Transform.GetUpVector(), x);
+    Transform.rotation = DirectX::XMQuaternionMultiply(Transform.rotation, deltaRotation);
+}
+
+void ACharacter::AddPitchInput(int x)
+{
+    XMVECTOR deltaRotation = XMQuaternionRotationNormal(Transform.GetRightVector(), x);
+    Transform.rotation = DirectX::XMQuaternionMultiply(Transform.rotation, deltaRotation);
+}
+
+void ACharacter::AddRollInput(int x)
+{
+    XMVECTOR deltaRotation = XMQuaternionRotationNormal(Transform.GetForwardVector(), x);
+    Transform.rotation = DirectX::XMQuaternionMultiply(Transform.rotation, deltaRotation);
+}
+
+void ACharacter::MoveInput(int x, int y)
+{
+    int length = x * x + y * y;
+    x = x * x / length;
+    y = y * y / length;
+    XMVECTOR forward = Transform.GetForwardVector()* x;
+    XMVECTOR right = Transform.GetRightVector()* y;
+    CharacterMovementComponent->SetMovementInput(forward + right);
+}
+
+void ACharacter::Jump()
+{
+    CharacterMovementComponent->Jump();
+}
+
+void ACharacter::UpdateJump(float DeltaTime)
+{
 }
 
 // 更新角色状态
-void ACharacter::UpdateState() {
-    // 根据当前移动和跳跃状态更新角色的状态
-    if (bIsJumping) {
-        CurrentState = ECharacterState::Jumping;
-    }
-    else if (MovementDirection.x != 0.0f || MovementDirection.z != 0.0f) {
-        CurrentState = ECharacterState::Walking;
-    }
-    else {
-        CurrentState = ECharacterState::Idle;
-    }
+void ACharacter::UpdateState(ECharacterState state) {
+    CurrentState = state;
+}
 
-    // 这里可以扩展更多的状态逻辑，例如播放不同的动画等
+XMMATRIX ACharacter::GetCameraMatrix()
+{
+    if (Components.find(UCameraComponent::name) != Components.end()) {
+        if (auto camComp = dynamic_cast<UCameraComponent*>(Components[UCameraComponent::name]->ActorComponent.get())) {
+            return camComp->GetMatrix();
+        }
+    }
 }
 

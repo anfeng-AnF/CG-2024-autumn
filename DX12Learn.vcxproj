@@ -169,6 +169,7 @@
     <ClCompile Include="GameModeBase.cpp" />
     <ClCompile Include="GeometryShader.cpp" />
     <ClCompile Include="APawn.cpp" />
+    <ClCompile Include="MyGameMode.cpp" />
     <ClCompile Include="SkeletonMesh.cpp" />
     <ClCompile Include="SpawnGeometryByInput.cpp" />
     <ClCompile Include="TransformCtrlComponent.cpp" />
@@ -227,6 +228,7 @@
     <ClInclude Include="AnimInstance.h" />
     <ClInclude Include="AnimStateMachine.h" />
     <ClInclude Include="App.h" />
+    <ClInclude Include="MyGameMode.h" />
     <ClInclude Include="UActorComponent.h" />
     <ClInclude Include="UAnimationComponent.h" />
     <ClInclude Include="UBoxComponent.h" />
