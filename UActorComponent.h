@@ -1,6 +1,7 @@
 #pragma once
 #include <DirectXCollision.h>
-class AActor;
+#include <memory>
+#include "AActor.h"
 
 class UActorComponent {
 public:
@@ -20,8 +21,8 @@ public:
     void SetOwner(AActor* NewOwner);
 
     // 获取所属的 Actor
-    AActor* GetOwner() const;
+    std::shared_ptr<AActor> GetOwner() const;
 
 protected:
-    AActor* Owner; // 指向所属的 Actor
+    std::shared_ptr<AActor> Owner; // 指向所属的 Actor
 };

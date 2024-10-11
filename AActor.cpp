@@ -46,6 +46,11 @@ void AActor::AddComponent(std::string AttachName, std::shared_ptr<UActorComponen
     }
 }
 
+std::shared_ptr<UWorld> AActor::GetWorld()
+{
+    return World;
+}
+
 std::unordered_map<std::string, DirectX::XMMATRIX>& AActor::GetComponentFinalTransform()
 {
     return ComponentFinalTransform;

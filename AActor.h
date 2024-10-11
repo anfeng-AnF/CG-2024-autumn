@@ -2,11 +2,12 @@
 #include <DirectXMath.h>
 #include <memory>
 #include <string>
-#include "unordered_map"
+#include <unordered_map>
 #include "Transform.h"
 #include "UActorComponent.h"
 #include "vector"
-#include "CollisionManager.h"
+#include "World.h"
+#include "Window.h"
 
 struct Component
 {
@@ -37,14 +38,14 @@ public:
     // 处理碰撞（如果需要）
     virtual void OnCollision();
 
-    virtual void CheckCollision();
-
     // 添加组件
     void AddComponent(std::string name, std::shared_ptr<UActorComponent> NewComponent,std::string ComponentName);
 
+    std::shared_ptr<UWorld> GetWorld();
+
     std::unordered_map<std::string, DirectX::XMMATRIX>& GetComponentFinalTransform();
 protected:
-
+    std::shared_ptr<UWorld> World;
     FTransform Transform; // 变换
     std::unordered_map<std::string, std::shared_ptr<Component>> Components{std::make_pair("Root",nullptr)};
     std::unordered_map<std::string, DirectX::XMMATRIX> ComponentFinalTransform;

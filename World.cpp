@@ -27,3 +27,8 @@ void UWorld::Render() {
         }
     }
 }
+
+std::vector<FCollisionResult> UWorld::QuaryCollision(std::shared_ptr<AActor> Actor)
+{
+    return {};
+}

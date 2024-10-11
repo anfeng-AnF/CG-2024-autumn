@@ -27,12 +27,19 @@ public:
 public:
     const static std::string name;
 protected:
-    XMVECTOR Velocity;         // 当前速度
-    XMFLOAT3 MovementInput;    // 移动方向
+    XMVECTOR Velocity;         // 速度方向
+    XMVECTOR Speed;            // 速度大小
+    XMVECTOR GravityDirection; // 重力方向
+    XMVECTOR MovementInput;    // 移动方向
     float JumpHeight;          // 跳跃高度
     bool bIsOnGround;          // 是否在地面上
     float GravityScale;        // 重力加速度
-
+    float MaxSlopeAngle = 45.0f;// 最大爬坡坡度
+    float FloorDetectionThreshold = 0.7f; // 用于检测地板的法线阈值
     // 更新位置
     void UpdatePosition(float DeltaTime);
+    void UpdateVelocity(float DeltaTime);
+
+private:
+    bool IsWalkableSurface(const DirectX::XMVECTOR& Normal, float MaxSlopeAngle);
 };

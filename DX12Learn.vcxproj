@@ -166,6 +166,7 @@
     <ClCompile Include="CtrlCeomerty.cpp" />
     <ClCompile Include="DebugGraphsMannger.cpp" />
     <ClCompile Include="FloodFill.cpp" />
+    <ClCompile Include="GameModeBase.cpp" />
     <ClCompile Include="GeometryShader.cpp" />
     <ClCompile Include="APawn.cpp" />
     <ClCompile Include="SkeletonMesh.cpp" />
@@ -206,6 +207,7 @@
     <ClCompile Include="Topology.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="TransformCbuf.cpp" />
+    <ClCompile Include="UActorComponent.cpp" />
     <ClCompile Include="UAnimationComponent.cpp" />
     <ClCompile Include="UBoxComponent.cpp" />
     <ClCompile Include="UCameraComponent.cpp" />

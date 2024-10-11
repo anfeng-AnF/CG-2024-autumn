@@ -2,6 +2,7 @@
 #include "APawn.h"
 #include "UCharacterMovementComponent.h"
 
+
 class ACharacter : public APawn {
 public:
     ACharacter();
@@ -16,9 +17,14 @@ public:
     // 设置角色转向的输入
     void Turn(float Angle);
 
+    // x+ 为向前，y+为向右
+    void Input(int x, int y);
+
 protected:
     // 角色的旋转速度
     float TurnSpeed;
+
+    GameInput* PlayerController;
 
     // 角色的状态（例如行走、跳跃等）
     enum class ECharacterState {
@@ -27,10 +33,13 @@ protected:
         Jumping
     };
 
+public:
     ECharacterState CurrentState;
 
     UCharacterMovementComponent* CharacterMovementComponent;
 
+
+private:
     // 处理角色状态更新
     void UpdateState();
 };

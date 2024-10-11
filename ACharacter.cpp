@@ -1,5 +1,5 @@
 #include "ACharacter.h"
-
+#include <DirectXMathVector.inl>
 ACharacter::ACharacter()
 {
 }
@@ -29,6 +29,12 @@ void ACharacter::Turn(float Angle) {
     Transform.rotation = DirectX::XMQuaternionMultiply(Transform.rotation, rotationQuaternion); // 更新角色旋转
 }
 
+void ACharacter::Input(int x, int y)
+{
+    auto forward = Transform.GetForwardVector()* x;
+    auto right = Transform.GetRightVector()* y;
+}
+
 // 更新角色状态
 void ACharacter::UpdateState() {
     // 根据当前移动和跳跃状态更新角色的状态
@@ -44,3 +50,4 @@ void ACharacter::UpdateState() {
 
     // 这里可以扩展更多的状态逻辑，例如播放不同的动画等
 }
+

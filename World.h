@@ -2,8 +2,14 @@
 #include <memory>
 #include <algorithm>
 #include <iostream>
-
+#include "UCollisionComponent.h"
 class AActor; // 前向声明 AActor 类
+
+struct FCollisionResult
+{
+    FHitResult HitResult;
+    std::shared_ptr<AActor>HitActor;
+};
 
 class UWorld {
 public:
@@ -14,7 +20,7 @@ public:
     void RemoveActor(std::shared_ptr<AActor> Actor); // 移除 Actor
     void Tick(float DeltaTime); // 每帧更新所有 Actor
     void Render(); // 渲染所有 Actor
-
+    std::vector<FCollisionResult> QuaryCollision(std::shared_ptr<AActor> Actor);
 private:
     std::unordered_set<std::shared_ptr<AActor>> ActiveGroupActors; // 存储活跃的 Actor
 
