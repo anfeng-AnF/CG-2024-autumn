@@ -13,30 +13,45 @@ struct PSIn
 Texture2D textureMap : register(t0);
 SamplerState samplerState : register(s0);
 
-// 像素着色器
 float4 main(PSIn input) : SV_Target
 {
-    // 计算简单的漫反射光照
-    float3 lightDir = normalize(float3(0.0, 1.0, -1.0)); // 假设光源在(0, 1, -1)位置
-    float3 norm = normalize(input.normal); // 法线归一化
+    float3 lightDir = normalize(float3(0.0, 1.0, -1.0));
+    float3 norm = normalize(input.normal);
 
-    // 漫反射分量
-    float diff;
+    // 计算漫反射光照分量
     float dotVal = dot(norm, lightDir);
-    if (dotVal> 0.4)
+
+    // 定义阴影过渡带边界
+    float shadowEdge0 = 0.4;
+    float shadowEdge1 = 0.5;
+    float diff = smoothstep(shadowEdge0, shadowEdge1, dotVal) * 0.4 + 0.4; // 使 diff 从 0.4 到 0.8 平滑过渡
+
+    // 定义颜色过渡边界区间
+    float colorEdge0 = 0.5;
+    float colorEdge1 = 0.4;
+    float transitionFactor = 0.0;
+
+    // 如果 dotVal 在颜色过渡区间内，则计算过渡因子
+    if (dotVal > colorEdge1 && dotVal < colorEdge0)
     {
-        diff = 0.8;
+        transitionFactor = smoothstep(colorEdge0, colorEdge1, dotVal)*0.5+0.3; // 调整边界顺序以反向过渡
     }
-    else
-    {
-        diff = 0.4;
-    }
-    
+
+    // 定义过渡颜色
+    float4 transitionColor = float4(0.8, 0.6, 0.5, 1.0)*0.5;
+
     // 纹理采样
     float4 texColor = textureMap.Sample(samplerState, input.tc);
 
-    // 最终颜色计算
-    float4 finalColor = saturate(diff) * texColor; // 仅考虑漫反射
+    // 计算基础颜色
+    float4 baseColor = diff * texColor;
+
+    // 在过渡区域内混合基础颜色和过渡颜色
+    float4 finalColor = lerp(baseColor, transitionColor, transitionFactor);
+
     return finalColor;
-    //return diff * float4(1.0f, 1.0f, 1.0f,1.0f);
 }
+
+
+
+
