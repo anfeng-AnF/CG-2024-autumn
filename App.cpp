@@ -173,7 +173,9 @@ void App::DoFrame()
 		fps = framesPerUpdate / accumulatedTime;  // 计算 FPS
 		accumulatedTime = 0.0f;  // 重置时间
 	}
+	static float runTime = 0;
 	ImGui::Text("FPS: %.2f", fps);
+	ImGui::Text("runtime %.0f", runTime+=deltaTime);
 	frame++;
 
 	if (!StartGame) {

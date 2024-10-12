@@ -22,27 +22,27 @@ void GameInput::Update(float deltaTime)
             wnd.EnableCursor();
             wnd.mouse.DisableRaw();
         }
-        else if (e->IsRelease() && e->GetCode() == VK_MENU)
+        if (e->IsRelease() && e->GetCode() == VK_MENU)
         {
             wnd.DisableCursor();
             wnd.mouse.EnableRaw();
         }
     }
-    if (wnd.Kbd.KeyIsPressed('w')) {
-        x = 1;
+    if (wnd.Kbd.KeyIsPressed('W')) {
+        x += -1;
     }
-    else if (wnd.Kbd.KeyIsPressed('s')) {
-        x = -1;
+    if (wnd.Kbd.KeyIsPressed('S')) {
+        x += 1;
     }
-    else if (wnd.Kbd.KeyIsPressed('d'))
+    if (wnd.Kbd.KeyIsPressed('D'))
     {
-        y = 1;
+        y += 1;
     }
-    else if (wnd.Kbd.KeyIsPressed('a'))
+    if (wnd.Kbd.KeyIsPressed('A'))
     {
-        y = -1;
+        y += -1;
     }
-    //playerCharacter->MoveInput(x, y);
+    playerCharacter->MoveInput(x, y);
     //Handling of mouse input
     while (auto RawDelta = wnd.mouse.ReadRawDelta())
     {

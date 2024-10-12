@@ -47,4 +47,10 @@ XMFLOAT3 operator/(const XMFLOAT3& lhs, float scalar);
 
 bool ArePointsEqual(const DirectX::XMFLOAT3& point1, const DirectX::XMFLOAT3& point2, float epsilon = 1e-6f);
 
+XMVECTOR FindBetweenNormals(const XMVECTOR& quatA, const XMVECTOR& quatB);
 
+bool IsQuaternionNaN(const XMVECTOR& quat);
+
+float CalculateAngleBetweenVectors(DirectX::XMVECTOR vectorA, DirectX::XMVECTOR vectorB);
+
+bool IsVectorNearZero(DirectX::XMVECTOR vector, float tolerance = 1e-6f);

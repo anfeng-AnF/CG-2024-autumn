@@ -7,6 +7,7 @@ MyGameMode::MyGameMode(Window& wnd, InputStateMachine& ISM):
 {
 	DefaultWorld = std::make_shared<UWorld>();
 	DefaultCharacter = std::make_shared<MyCharacter>(wnd.Gfx());
+	DefaultCharacter->SetWorld(DefaultWorld);
 	DefaultWorld->AddActor(DefaultCharacter);
 	ISM.AddState("Game", std::make_unique<GameInput>(wnd, DefaultCharacter));
 }

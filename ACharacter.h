@@ -21,7 +21,7 @@ public:
     void Move(const DirectX::XMFLOAT3& Direction);
 
     // 设置角色转向的输入
-    void Turn(float Angle);
+    void Turn(XMVECTOR deltaQuat);
 
     void AddYawInput(int x);
     void AddPitchInput(int x);
@@ -42,7 +42,7 @@ public:
     XMMATRIX GetCameraMatrix();
 protected:
     // 角色的旋转速度
-    float TurnSpeed = 90.f;
+    float TurnSpeed = XM_PI/8; //rad per frame
 
 public:
     ECharacterState CurrentState=ECharacterState::Idle;

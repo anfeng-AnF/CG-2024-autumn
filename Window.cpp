@@ -296,6 +296,7 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 		return 0;
 	case WM_KILLFOCUS:
 		Kbd.ClearState();
+		OutputDebugStringA("WM_KILLFOCUS\n");
 		break;
 	case WM_ACTIVATE:
 

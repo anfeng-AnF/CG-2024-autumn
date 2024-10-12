@@ -120,6 +120,7 @@ void Mouse::OnMouseEnter() noexcept
 
 void Mouse::OnRawDelta(int dx, int dy) noexcept
 {
+	if(rawEnabled)
 	rawDeltaBuffer.push({ dx,dy });
 	TrimBuffer();
 }

@@ -1,4 +1,5 @@
 #include "Transform.h"
+#include <algorithm>
 
 FTransform::FTransform()
 	: position(XMVectorZero()),
@@ -180,3 +181,69 @@ bool ArePointsEqual(const DirectX::XMFLOAT3& point1, const DirectX::XMFLOAT3& po
 	return distance < epsilon;
 }
 
+XMVECTOR FindBetweenNormals(const XMVECTOR& A, const XMVECTOR& B) {
+	float W = 1.f + XMVectorGetX(XMVector4Dot(A, B));
+	XMVECTOR Result;
+
+	if (W >= 1e-6f * 1.f)
+	{
+		//Result = FVector::CrossProduct(A, B);
+		Result = {
+			XMVectorGetY(A)* XMVectorGetZ(B) - XMVectorGetZ(A) * XMVectorGetY(B),
+			XMVectorGetZ(A)* XMVectorGetX(B) - XMVectorGetX(A) * XMVectorGetZ(B),
+			XMVectorGetX(A)* XMVectorGetY(B) - XMVectorGetY(A) * XMVectorGetX(B),
+			W };
+	}
+	else
+	{
+		// A and B point in opposite directions
+		W = 0.f;
+		const float X = std::abs(XMVectorGetY(A));
+		const float Y = std::abs(XMVectorGetZ(A));
+		const float Z = std::abs(XMVectorGetX(A));
+
+		// Find orthogonal basis. 
+		const XMVECTOR Basis = (X > Y && X > Z) ? XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f) : XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+
+		//Result = FVector::CrossProduct(A, Basis);
+		Result = {
+			XMVectorGetY(A) * XMVectorGetZ(Basis) - XMVectorGetZ(A) * XMVectorGetY(Basis),
+			XMVectorGetZ(A) * XMVectorGetX(Basis) - XMVectorGetX(A) * XMVectorGetZ(Basis),
+			XMVectorGetX(A) * XMVectorGetY(Basis) - XMVectorGetY(A) * XMVectorGetX(Basis),
+			W };
+	}
+
+	return XMQuaternionNormalize(Result);
+}
+
+bool IsQuaternionNaN(const XMVECTOR& quat)
+{
+	return std::isnan(XMVectorGetX(quat)) ||
+		std::isnan(XMVectorGetY(quat)) ||
+		std::isnan(XMVectorGetZ(quat)) ||
+		std::isnan(XMVectorGetW(quat));
+}
+
+float CalculateAngleBetweenVectors(DirectX::XMVECTOR vectorA, DirectX::XMVECTOR vectorB)
+
+{
+	vectorA = DirectX::XMVector3Normalize(vectorA);
+	vectorB = DirectX::XMVector3Normalize(vectorB);
+
+	float dotProduct = DirectX::XMVectorGetX(DirectX::XMVector3Dot(vectorA, vectorB));
+
+	dotProduct = std::clamp(dotProduct, -1.0f, 1.0f);
+
+	float angle = acosf(dotProduct);
+
+	return angle; // ª°∂»÷µ
+}
+
+bool IsVectorNearZero(DirectX::XMVECTOR vector, float tolerance)
+
+{
+	DirectX::XMVECTOR zeroVector = DirectX::XMVectorZero();
+	DirectX::XMVECTOR epsilon = DirectX::XMVectorReplicate(tolerance);
+
+	return DirectX::XMVector3NearEqual(vector, zeroVector, epsilon);
+}

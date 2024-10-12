@@ -2,10 +2,11 @@
 #include "USpringArmComponent.h"
 #include "UCameraComponent.h"
 #include "UCapsuleComponent.h"
+#include "USkeletalMeshComponent.h"
 #include <DirectXMathVector.inl>
 ACharacter::ACharacter()
     :
-    CharacterMovementComponent(std::make_shared<UCharacterMovementComponent>()),
+    CharacterMovementComponent(std::make_shared<UCharacterMovementComponent>(this)),
     APawn()
 {
     //默认添加弹簧臂组建和摄像机组件
@@ -17,11 +18,51 @@ ACharacter::ACharacter()
 ACharacter::~ACharacter()
 {
 }
-
+#include"imguiManager.h"
 // 每帧更新
 void ACharacter::Tick(float DeltaTime) {
     APawn::Tick(DeltaTime); // 调用基类的 Tick 函数
+    CharacterMovementComponent->Update(DeltaTime);
 
+    ImGui::Begin("Gravity dir");
+    ImGui::SliderFloat3("", CharacterMovementComponent->GravityDirection.m128_f32, -2.f, 2.f);
+    CharacterMovementComponent->GravityDirection = XMVector3Normalize(CharacterMovementComponent->GravityDirection);
+    XMFLOAT3 velocityFloat3;
+    DirectX::XMStoreFloat3(&velocityFloat3, CharacterMovementComponent->Velocity);
+
+    // 打印 Velocity 的分量
+    ImGui::Text("Velocity: X: %.3f, Y: %.3f, Z: %.3f", velocityFloat3.x, velocityFloat3.y, velocityFloat3.z);
+
+    // 计算并打印 Velocity 的长度
+    float velocityLength = DirectX::XMVectorGetX(DirectX::XMVector3Length(CharacterMovementComponent->Velocity));
+    ImGui::Text("Velocity Length: %.3f", velocityLength);
+    ImGui::End();
+
+    if (Components.find(USkeletalMeshComponent::name) != Components.end()) {
+        if (IsVectorNearZero(CharacterMovementComponent->Velocity))
+        {
+            return;
+        }
+        //计算角色的朝向
+        auto VelocityForwardDirection = XMVector3Normalize(
+            XMVector3Cross(
+                CharacterMovementComponent->GravityDirection,
+                XMVector3Cross(
+                    CharacterMovementComponent->Velocity,
+                    CharacterMovementComponent->GravityDirection
+                )
+            ));
+
+        //模型的前方向
+        auto MeshForward = Components[USkeletalMeshComponent::name]->ActorComponent->RelationTransform.GetForwardVector();
+
+        if (float deltaAngel = CalculateAngleBetweenVectors(MeshForward, VelocityForwardDirection))
+        {
+            auto quat = FindBetweenNormals(MeshForward, VelocityForwardDirection);
+            auto deltaQuat = XMQuaternionSlerp(XMQuaternionIdentity(), quat, min(1.0f, TurnSpeed / deltaAngel));
+            Turn(deltaQuat);
+        }
+    }
 }
 
 // 设置角色移动的输入
@@ -31,11 +72,12 @@ void ACharacter::Move(const DirectX::XMFLOAT3& Direction) {
 }
 
 // 设置角色转向的输入
-void ACharacter::Turn(float Angle) {
-
-
-    DirectX::XMVECTOR rotationQuaternion = DirectX::XMQuaternionRotationRollPitchYaw(0.0f, Angle * TurnSpeed, 0.0f);
-    Transform.rotation = DirectX::XMQuaternionMultiply(Transform.rotation, rotationQuaternion); // 更新角色旋转
+void ACharacter::Turn(XMVECTOR deltaQuat) {
+    if (IsQuaternionNaN(deltaQuat)) {
+        int a = 0;
+    }
+    auto& rotation = Components[USkeletalMeshComponent::name]->ActorComponent->RelationTransform.rotation;
+    rotation =XMQuaternionNormalize(DirectX::XMQuaternionMultiply(rotation, deltaQuat)); // 更新角色旋转
 }
 
 void ACharacter::AddYawInput(int x)
@@ -63,12 +105,9 @@ void ACharacter::AddRollInput(int x)
 
 void ACharacter::MoveInput(int x, int y)
 {
-    float length = x * x + y * y;
-    float dx = x * x / length;
-    float dy = y * y / length;
-    XMVECTOR forward = Transform.GetForwardVector()* dx;
-    XMVECTOR right = Transform.GetRightVector()* dy;
-    CharacterMovementComponent->SetMovementInput(forward + right);
+    //x+ 向前 y+ 向右
+    XMVECTOR input = { x,y,0.0f,0.0f };
+    CharacterMovementComponent->SetMovementInput(input);
 }
 
 void ACharacter::Jump()

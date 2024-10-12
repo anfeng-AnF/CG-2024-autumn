@@ -49,6 +49,8 @@ public:
     std::unordered_map<std::string, DirectX::XMMATRIX>& GetComponentFinalTransform();
 
     std::shared_ptr<Component> GetComponentInfo(std::string ComponentName);
+
+    void SetWorld(std::shared_ptr<UWorld> World);
 public:
     const static std::string RootComponentName;
 protected:

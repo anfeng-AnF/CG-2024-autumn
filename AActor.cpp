@@ -80,6 +80,11 @@ std::shared_ptr<Component> AActor::GetComponentInfo(std::string ComponentName)
     }
 }
 
+void AActor::SetWorld(std::shared_ptr<UWorld> World)
+{
+    this->World = World;
+}
+
 void AActor::ProcessComponentTree(float DeltaTime)
 {
     ComponentFinalTransform[AActor::RootComponentName] = Transform.GetMatrix();
