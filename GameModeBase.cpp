@@ -11,20 +11,24 @@ void GameInput::Update(float deltaTime)
 {
     //Handle keyboard input
     int x = 0, y = 0;
-    while (auto c = wnd.Kbd.ReadKey())
+    while (auto e = wnd.Kbd.ReadKey())
     {
-        if (c.value().GetCode() == VK_SPACE&&c.value().IsPress())
+        if (e.value().GetCode() == VK_SPACE && e.value().IsPress())
         {
             playerCharacter->Jump();
         }
-        else if (c.value().GetCode() == VK_MENU && c.value().IsRelease()) {
+        if (e->IsPress() && e->GetCode() == VK_MENU)
+        {
+            wnd.EnableCursor();
+            wnd.mouse.DisableRaw();
+        }
+        else if (e->IsRelease() && e->GetCode() == VK_MENU)
+        {
             wnd.DisableCursor();
+            wnd.mouse.EnableRaw();
         }
     }
-    if (wnd.Kbd.KeyIsPressed(VK_MENU)) {
-        wnd.EnableCursor();
-    }
-    else if (wnd.Kbd.KeyIsPressed('w')) {
+    if (wnd.Kbd.KeyIsPressed('w')) {
         x = 1;
     }
     else if (wnd.Kbd.KeyIsPressed('s')) {
@@ -38,7 +42,6 @@ void GameInput::Update(float deltaTime)
     {
         y = -1;
     }
-
     //playerCharacter->MoveInput(x, y);
     //Handling of mouse input
     while (auto RawDelta = wnd.mouse.ReadRawDelta())

@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 #include "Graphics.h"
-
+#include "Transform.h"
 class AActor;
 class UActorComponent {
 public:
@@ -22,9 +22,12 @@ public:
     // 设置所属的 Actor
     void SetOwner(AActor* NewOwner);
 
+    virtual DirectX::XMMATRIX GetRelationTransformMatrix();
+
     // 获取所属的 Actor
     AActor* GetOwner() const;
 
+    FTransform RelationTransform;
 protected:
     AActor* Owner; // 指向所属的 Actor
 };

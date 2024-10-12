@@ -131,7 +131,7 @@ void App::DoFrame()
 		//Lantern.Draw(wnd.Gfx());
 		Anim.Update(deltaTime);
 		elysia.CtrlWnd(wnd.Gfx());
-		elysia.Draw(wnd.Gfx());
+		elysia.Draw(wnd.Gfx(),DirectX::XMMatrixRotationX(XM_PI));
 		//wall.Draw(wnd.Gfx());
 		//skeletonMesh.Draw(wnd.Gfx());
 		light.Draw(wnd.Gfx());

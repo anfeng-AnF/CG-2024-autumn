@@ -14,6 +14,9 @@ public:
     void Update(const FTransform& OwnerTransform);
 
     FTransform GetCurrentTransform() const;
+
+    virtual DirectX::XMMATRIX GetRelationTransformMatrix()override;
+
 public:
     const static std::string name;
 private:

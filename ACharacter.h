@@ -49,6 +49,6 @@ public:
 
     std::shared_ptr<UCharacterMovementComponent> CharacterMovementComponent;
 
-
+    FTransform ControllerTransform;
 private:
 };

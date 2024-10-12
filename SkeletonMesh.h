@@ -21,6 +21,7 @@ public:
 	SKNode(int id, const std::string& name, std::vector<Mesh*> meshPtrs, const DirectX::XMMATRIX& transform);
 	void Draw(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const override;
 	std::string GetName();
+	void SetTransform(DirectX::XMMATRIX transform);
 private:
 };
 

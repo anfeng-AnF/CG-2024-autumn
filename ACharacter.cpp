@@ -32,27 +32,33 @@ void ACharacter::Move(const DirectX::XMFLOAT3& Direction) {
 
 // 设置角色转向的输入
 void ACharacter::Turn(float Angle) {
-    // 角色转向逻辑，简单的将旋转角度添加到当前旋转
+
+
     DirectX::XMVECTOR rotationQuaternion = DirectX::XMQuaternionRotationRollPitchYaw(0.0f, Angle * TurnSpeed, 0.0f);
     Transform.rotation = DirectX::XMQuaternionMultiply(Transform.rotation, rotationQuaternion); // 更新角色旋转
 }
 
 void ACharacter::AddYawInput(int x)
 {
-    XMVECTOR deltaRotation = XMQuaternionRotationNormal(Transform.GetUpVector(), (float)x);
-    Transform.rotation = DirectX::XMQuaternionMultiply(Transform.rotation, deltaRotation);
+    XMVECTOR UpVector = XMVector3TransformNormal(
+        FTransform::UpVector,
+        XMMatrixRotationQuaternion(ControllerTransform.rotation));
+    XMVECTOR deltaRotation = XMQuaternionRotationNormal(FTransform::UpVector, (float)x/360);
+    ControllerTransform.rotation = DirectX::XMQuaternionMultiply(ControllerTransform.rotation, deltaRotation);
+    Components[USpringArmComponent::name]->ActorComponent->RelationTransform.rotation = ControllerTransform.rotation;
 }
 
 void ACharacter::AddPitchInput(int x)
 {
-    XMVECTOR deltaRotation = XMQuaternionRotationNormal(Transform.GetRightVector(), (float)x);
-    Transform.rotation = DirectX::XMQuaternionMultiply(Transform.rotation, deltaRotation);
+    XMVECTOR deltaRotation = XMQuaternionRotationNormal(ControllerTransform.GetRightVector(), (float)x / 360);
+    ControllerTransform.rotation = DirectX::XMQuaternionMultiply(ControllerTransform.rotation, deltaRotation);
+    Components[USpringArmComponent::name]->ActorComponent->RelationTransform.rotation = ControllerTransform.rotation;
 }
 
 void ACharacter::AddRollInput(int x)
 {
     XMVECTOR deltaRotation = XMQuaternionRotationNormal(Transform.GetForwardVector(), (float)x);
-    Transform.rotation = DirectX::XMQuaternionMultiply(Transform.rotation, deltaRotation);
+    ControllerTransform.rotation = DirectX::XMQuaternionMultiply(ControllerTransform.rotation, deltaRotation);
 }
 
 void ACharacter::MoveInput(int x, int y)

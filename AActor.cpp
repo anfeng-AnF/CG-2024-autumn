@@ -98,7 +98,7 @@ void AActor::ProcessComponentTreeDfs(const std::string& NodeName, const DirectX:
 
     auto CurrentComponent = it->second;
 
-    ComponentFinalTransform[NodeName] = CurrentComponent->RelateTransfom.GetMatrix() * ParentTransform;
+    ComponentFinalTransform[NodeName] = CurrentComponent->ActorComponent->GetRelationTransformMatrix()* ParentTransform;
 
     for (const auto& childName : CurrentComponent->ChildComponent) {
         ProcessComponentTreeDfs(childName, ComponentFinalTransform[NodeName]);

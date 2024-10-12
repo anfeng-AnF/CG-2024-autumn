@@ -7,6 +7,7 @@ const std::string USpringArmComponent::name = "USpringArmComponent";
 USpringArmComponent::USpringArmComponent()
     : ArmLength(-30.0f) // 默认长度
 {
+    RelationTransform.position = XMVectorSetByIndex(RelationTransform.position, -30.0f, 2);
 }
 
 // 析构函数
@@ -30,8 +31,14 @@ FTransform USpringArmComponent::GetCurrentTransform() const {
     return CurrentTransform;
 }
 
+DirectX::XMMATRIX USpringArmComponent::GetRelationTransformMatrix()
+{
+    return
+        RelationTransform.GetTranslateMatrix() *
+        RelationTransform.GetScaleMatrix() *
+        RelationTransform.GetRotationMatrix();
+}
+
 void USpringArmComponent::Update(float DeltaTime)
 {
-    auto self = Owner->GetComponentInfo(USpringArmComponent::name);
-    self->RelateTransfom.position = XMVectorSetByIndex(self->RelateTransfom.position, ArmLength, 2);
 }

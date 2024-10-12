@@ -6,6 +6,7 @@
 MyCharacter::MyCharacter(Graphics& gfx)
 {
 	auto SkMesh = std::make_shared<USkeletalMeshComponent>();
+	SkMesh->RelationTransform.rotation = XMQuaternionRotationRollPitchYaw(0,XM_PI,0);
 
 	auto vAnimAssert = AnimAsset::ReadAnimAssertFromFile("Models\\Elysia\\elysiaAnim.fbx");
 	SkMesh->SetSkeletalMesh(std::make_shared<SkeletonMesh>(gfx, "Models\\Elysia\\elysiaQ2.fbx"));

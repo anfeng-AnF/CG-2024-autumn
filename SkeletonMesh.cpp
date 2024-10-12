@@ -53,6 +53,7 @@ void SkeletonMesh::Draw(Graphics& gfx,FXMMATRIX Transform)
 	//for (auto& mesh : meshPtrs) {
 	//	mesh->Draw(gfx,dx::XMMatrixIdentity());
 	//}
+	this->pRoot->SetTransform(Transform);
 	pRoot->Draw(gfx, Transform);
 }
 
@@ -380,23 +381,23 @@ SKNode::SKNode(int id, const std::string& name, std::vector<Mesh*> meshPtrs, con
 
 void SKNode::Draw(Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const
 {
-	const auto built =
-		DirectX::XMLoadFloat4x4(&appliedTransform) *
-		DirectX::XMLoadFloat4x4(&transform) *
-		accumulatedTransform;
 	for (const auto pm : meshPtrs)
 	{
-		auto a = FTransform(built);
 		pm->Draw(gfx, dx::XMMatrixIdentity());
 	}
 	for (const auto& pc : childPtrs)
 	{
-		pc->Draw(gfx, built);
+		pc->Draw(gfx, accumulatedTransform);
 	}
 }
 
 std::string SKNode::GetName()
 {
 	return this->name;
+}
+
+void SKNode::SetTransform(DirectX::XMMATRIX transform)
+{
+	XMStoreFloat4x4(&this->transform,transform);
 }
 

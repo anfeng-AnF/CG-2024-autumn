@@ -77,6 +77,7 @@ std::optional<Mouse::Event> Mouse::Read() noexcept
 void Mouse::Flush() noexcept
 {
 	buffer = std::queue<Event>();
+	FlushRawDelta();
 }
 
 void Mouse::EnableRaw() noexcept
