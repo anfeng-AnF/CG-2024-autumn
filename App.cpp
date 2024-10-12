@@ -82,13 +82,13 @@ App::App(UINT width, UINT height)
 
 
 	ISM.AddState(DEFAULT_STATE, std::make_unique<CollisionGeoManager::TranslationState>(ctrl.inputState));
-	ISM.AddState("CameraMove", std::make_unique<Camera::CameraMove>(cam.inputState));
+	ISM.AddState("CameraMove", std::move(cam.inputState));
 	ISM.AddState("SpawnGeo", std::make_unique<SpawnGeometryByInput::SpawnGeoInputState>(SG.inputState));
 	ISM.AddState("FloodFill", std::make_unique<InputStates::FloodFill>(wnd));
 	ISM.SetState(DEFAULT_STATE);
 
 	//Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\Lantern\\LanternAnim.fbx")[0];
-	Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\Elysia\\elysiaAnim.fbx")[0];
+	Anim.SetCurrentAnim(AnimAsset::ReadAnimAssertFromFile("Models\\Elysia\\elysiaAnim.fbx")[0]);
 	//Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\GLInstance\\dancing_vampire.dae")[0];
 	//Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\skeletonMeshs\\SkeletonMeshTestAnim.fbx")[0];
 
@@ -112,7 +112,7 @@ App::~App()
 
 void App::DoFrame()
 {
-	static bool StartGame = false;
+	static bool StartGame = 0;
 	float deltaTime = timer.Mark();
 	//first set Projection matrix
 
@@ -137,26 +137,25 @@ void App::DoFrame()
 		light.Draw(wnd.Gfx());
 		axis.Draw(wnd.Gfx());
 
-		ISM.DoFrame(deltaTime);
 		DGM.Draw(wnd.Gfx());
 	}
 	else
 	{
+		axis.Draw(wnd.Gfx());
 		Game.Tick(deltaTime);
+		Game.Render(wnd.Gfx());
 	}
+	ISM.DoFrame(deltaTime);
 	//ctrl.Draw(wnd.Gfx());
 	// imgui windows
 	ImGui::Begin("Menu");
-	bool ModeChanged = ImGui::RadioButton("Play Game", &StartGame);
-	if (StartGame) {
-		if (ModeChanged)
-		{
-			Game.Begin();
-		}
-		else
-		{
-			Game.End();
-		}
+	bool ModeChanged = ImGui::Checkbox("Play Game", &StartGame);
+	
+	if (StartGame&&ModeChanged) {
+		Game.Begin();
+	}
+	else if (!StartGame && ModeChanged) {
+		Game.End();
 	}
 	if (!StartGame) {
 		ImGui::Checkbox("Use Perspective", &isPerspective);

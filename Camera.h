@@ -2,7 +2,7 @@
 #include "Graphics.h"
 #include "Transform.h"
 #include "InputStateMachine.h"
-
+#include <memory>
 class Camera
 {
 public:
@@ -20,8 +20,10 @@ public:
 
 		// Í¨¹ý InputState ¼Ì³Ð
 		void Draw() override;
-	}inputState;
+	};
+	std::unique_ptr<CameraMove> inputState;
 public:
+	Camera() = default;
 	Camera(Window& window);
 	DirectX::XMMATRIX GetMatrix() const noexcept;
 	void SpawnControlWindow() noexcept;

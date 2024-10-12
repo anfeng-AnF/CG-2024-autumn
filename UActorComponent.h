@@ -1,8 +1,10 @@
 #pragma once
 #include <DirectXCollision.h>
 #include <memory>
-#include "AActor.h"
+#include <string>
+#include "Graphics.h"
 
+class AActor;
 class UActorComponent {
 public:
     UActorComponent() {}
@@ -15,14 +17,14 @@ public:
     virtual void Update(float DeltaTime) = 0;
 
     // 渲染组件
-    virtual void Render() {}
+    virtual void Render(Graphics& gfx) {}
 
     // 设置所属的 Actor
     void SetOwner(AActor* NewOwner);
 
     // 获取所属的 Actor
-    std::shared_ptr<AActor> GetOwner() const;
+    AActor* GetOwner() const;
 
 protected:
-    std::shared_ptr<AActor> Owner; // 指向所属的 Actor
+    AActor* Owner; // 指向所属的 Actor
 };

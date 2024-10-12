@@ -4,11 +4,14 @@
 #include "UCapsuleComponent.h"
 #include <DirectXMathVector.inl>
 ACharacter::ACharacter()
+    :
+    CharacterMovementComponent(std::make_shared<UCharacterMovementComponent>()),
+    APawn()
 {
     //默认添加弹簧臂组建和摄像机组件
     AddComponent("", std::make_shared<UCapsuleComponent>(), UCapsuleComponent::name);                       //root
-    AddComponent("Root", std::make_shared<USpringArmComponent>(), USpringArmComponent::Name);
-    AddComponent(USpringArmComponent::Name, std::make_shared<UCameraComponent>(), UCameraComponent::name);
+    AddComponent(AActor::RootComponentName, std::make_shared<USpringArmComponent>(), USpringArmComponent::name);
+    AddComponent(USpringArmComponent::name, std::make_shared<UCameraComponent>(std::make_shared<Camera>()), UCameraComponent::name);
 }
 
 ACharacter::~ACharacter()
@@ -36,29 +39,29 @@ void ACharacter::Turn(float Angle) {
 
 void ACharacter::AddYawInput(int x)
 {
-    XMVECTOR deltaRotation = XMQuaternionRotationNormal(Transform.GetUpVector(), x);
+    XMVECTOR deltaRotation = XMQuaternionRotationNormal(Transform.GetUpVector(), (float)x);
     Transform.rotation = DirectX::XMQuaternionMultiply(Transform.rotation, deltaRotation);
 }
 
 void ACharacter::AddPitchInput(int x)
 {
-    XMVECTOR deltaRotation = XMQuaternionRotationNormal(Transform.GetRightVector(), x);
+    XMVECTOR deltaRotation = XMQuaternionRotationNormal(Transform.GetRightVector(), (float)x);
     Transform.rotation = DirectX::XMQuaternionMultiply(Transform.rotation, deltaRotation);
 }
 
 void ACharacter::AddRollInput(int x)
 {
-    XMVECTOR deltaRotation = XMQuaternionRotationNormal(Transform.GetForwardVector(), x);
+    XMVECTOR deltaRotation = XMQuaternionRotationNormal(Transform.GetForwardVector(), (float)x);
     Transform.rotation = DirectX::XMQuaternionMultiply(Transform.rotation, deltaRotation);
 }
 
 void ACharacter::MoveInput(int x, int y)
 {
-    int length = x * x + y * y;
-    x = x * x / length;
-    y = y * y / length;
-    XMVECTOR forward = Transform.GetForwardVector()* x;
-    XMVECTOR right = Transform.GetRightVector()* y;
+    float length = x * x + y * y;
+    float dx = x * x / length;
+    float dy = y * y / length;
+    XMVECTOR forward = Transform.GetForwardVector()* dx;
+    XMVECTOR right = Transform.GetRightVector()* dy;
     CharacterMovementComponent->SetMovementInput(forward + right);
 }
 
@@ -83,5 +86,6 @@ XMMATRIX ACharacter::GetCameraMatrix()
             return camComp->GetMatrix();
         }
     }
+    return XMMatrixIdentity();
 }
 

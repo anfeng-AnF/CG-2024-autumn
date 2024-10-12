@@ -169,6 +169,8 @@
     <ClCompile Include="GameModeBase.cpp" />
     <ClCompile Include="GeometryShader.cpp" />
     <ClCompile Include="APawn.cpp" />
+    <ClCompile Include="MyAnimInstance.cpp" />
+    <ClCompile Include="MyCharacter.cpp" />
     <ClCompile Include="MyGameMode.cpp" />
     <ClCompile Include="SkeletonMesh.cpp" />
     <ClCompile Include="SpawnGeometryByInput.cpp" />
@@ -209,10 +211,13 @@
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="TransformCbuf.cpp" />
     <ClCompile Include="UActorComponent.cpp" />
-    <ClCompile Include="UAnimationComponent.cpp" />
     <ClCompile Include="UBoxComponent.cpp" />
     <ClCompile Include="UCameraComponent.cpp" />
+    <ClCompile Include="UCapsuleComponent.cpp" />
     <ClCompile Include="UCharacterMovementComponent.cpp" />
+    <ClCompile Include="UConvexComponent.cpp" />
+    <ClCompile Include="USkeletalMeshComponent.cpp" />
+    <ClCompile Include="USphereComponent.cpp" />
     <ClCompile Include="USpringArmComponent.cpp" />
     <ClCompile Include="UStaticMeshComponent.cpp" />
     <ClCompile Include="Vertex.cpp" />
@@ -228,9 +233,10 @@
     <ClInclude Include="AnimInstance.h" />
     <ClInclude Include="AnimStateMachine.h" />
     <ClInclude Include="App.h" />
+    <ClInclude Include="MyAnimInstance.h" />
+    <ClInclude Include="MyCharacter.h" />
     <ClInclude Include="MyGameMode.h" />
     <ClInclude Include="UActorComponent.h" />
-    <ClInclude Include="UAnimationComponent.h" />
     <ClInclude Include="UBoxComponent.h" />
     <ClInclude Include="UCameraComponent.h" />
     <ClInclude Include="ACharacter.h" />

@@ -4,8 +4,8 @@
 
 class APawn : public AActor {
 public:
-    APawn();
-    virtual ~APawn();
+    APawn() {};
+    virtual ~APawn() {};
 
     // Ã¿Ö¡¸üÐÂ
     virtual void Tick(float DeltaTime) override;

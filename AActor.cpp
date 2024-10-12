@@ -1,4 +1,16 @@
 #include "AActor.h"
+#include "UActorComponent.h"
+#include "World.h"
+const std::string AActor::RootComponentName="Root";
+
+AActor::AActor()
+{
+}
+
+AActor::~AActor()
+{
+
+}
 
 // 获取变换
 const FTransform& AActor::GetTransform() const {
@@ -20,12 +32,13 @@ void AActor::Tick(float DeltaTime) {
     ProcessComponentTree(DeltaTime);
 }
 
-// 渲染函数
-void AActor::Render() {
+void AActor::Render(Graphics& Gfx)
+{
     for (auto& comp : Components) {
-        comp.second->ActorComponent->Render();
+        comp.second->ActorComponent->Render(Gfx);
     }
 }
+
 
 // 处理碰撞
 void AActor::OnCollision() {
@@ -34,9 +47,9 @@ void AActor::OnCollision() {
 
 void AActor::AddComponent(std::string AttachName, std::shared_ptr<UActorComponent> NewComponent, std::string ComponentName)
 {
-    if (Components.find("Root") == Components.end()) {
-        Components["Root"] = std::make_shared<Component>(NewComponent);
-        Components["Root"]->ActorComponent->SetOwner(this);
+    if (Components.find(AActor::RootComponentName) == Components.end()) {
+        Components[AActor::RootComponentName] = std::make_shared<Component>(NewComponent);
+        Components[AActor::RootComponentName]->ActorComponent->SetOwner(this);
     }
     if (Components.find(AttachName) != Components.end()) {
         std::shared_ptr<Component> NewCompnt=std::make_shared<Component>(std::move(NewComponent));
@@ -56,10 +69,21 @@ std::unordered_map<std::string, DirectX::XMMATRIX>& AActor::GetComponentFinalTra
     return ComponentFinalTransform;
 }
 
+std::shared_ptr<Component> AActor::GetComponentInfo(std::string ComponentName)
+{
+    if (Components.find(ComponentName) != Components.end()) {
+        return Components[ComponentName];
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
 void AActor::ProcessComponentTree(float DeltaTime)
 {
-    ComponentFinalTransform["Root"] = Transform.GetMatrix();
-    ProcessComponentTreeDfs("Root", ComponentFinalTransform["Root"]);
+    ComponentFinalTransform[AActor::RootComponentName] = Transform.GetMatrix();
+    ProcessComponentTreeDfs(AActor::RootComponentName, ComponentFinalTransform[AActor::RootComponentName]);
     for (auto& comp : Components) {
         comp.second->ActorComponent->Update(DeltaTime);
     }

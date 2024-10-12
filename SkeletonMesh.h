@@ -28,7 +28,7 @@ class SkeletonMesh
 {
 public:
 	SkeletonMesh(Graphics& gfx, const std::string fileName);
-	void Draw(Graphics& gfx);
+	void Draw(Graphics& gfx,DirectX::FXMMATRIX Transform=DirectX::XMMatrixIdentity());
 	void Bind(Graphics& gfx);
 	void CtrlWnd(Graphics& gfx);
 	void SetBonesTransform(std::unordered_map<std::string, DirectX::XMMATRIX>& transforms);

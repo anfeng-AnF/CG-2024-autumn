@@ -48,12 +48,12 @@ bool UBoxComponent::CheckCollisionWithSphere(const USphereComponent& Sphere) con
 // 示例：与胶囊体碰撞检测的实现
 bool UBoxComponent::CheckCollisionWithCapsule(const UCapsuleComponent& Capsule) const {
     // 使用盒子与胶囊体的碰撞检测算法
-    return Box.Intersects(Capsule.GetBoundingSphere());
+    return 1;
 }
 
 // 示例：与凸多边形碰撞检测的实现
 bool UBoxComponent::CheckCollisionWithConvex(const UConvexComponent& Convex) const {
     // 使用盒子与凸多边形的碰撞检测算法
-    return Box.Intersects(Convex.GetConvexVertices());
+    return 1;
 }
 

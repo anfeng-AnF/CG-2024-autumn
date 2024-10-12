@@ -1,5 +1,6 @@
 #include "UCharacterMovementComponent.h"
 #include <DirectXMathVector.inl>
+#include "World.h"
 #include "ACharacter.h"
 const std::string UCharacterMovementComponent::name = "UCharacterMovementComponent";
 
@@ -58,7 +59,7 @@ void UCharacterMovementComponent::UpdatePosition(float DeltaTime) {
     transform.position += Velocity * Speed * DeltaTime + transform.position;
     Owner->SetTransform(transform);
 
-    if (auto character = dynamic_cast<ACharacter*>(Owner.get())) {
+    if (auto character = dynamic_cast<ACharacter*>(Owner)) {
         if (!bIsOnGround) {
             character->UpdateState(ACharacter::ECharacterState::Jumping);
         }

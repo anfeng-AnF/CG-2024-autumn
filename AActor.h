@@ -4,10 +4,12 @@
 #include <string>
 #include <unordered_map>
 #include "Transform.h"
-#include "UActorComponent.h"
 #include "vector"
-#include "World.h"
 #include "Window.h"
+#include "Graphics.h"
+
+class UActorComponent;
+class UWorld;
 
 struct Component
 {
@@ -18,10 +20,11 @@ struct Component
     Component(std::shared_ptr<UActorComponent> ActorComponent) :ActorComponent(std::move(ActorComponent)) {};
 };
 
-class AActor {
+class AActor 
+{
 public:
-    AActor() {};
-    virtual ~AActor() {};
+    AActor();
+    virtual ~AActor();
 
     // 获取变换
     const FTransform& GetTransform() const;
@@ -33,7 +36,7 @@ public:
     virtual void Tick(float DeltaTime);
 
     // 渲染函数（可以覆盖）
-    virtual void Render();
+    virtual void Render(Graphics&Gfx);
 
     // 处理碰撞（如果需要）
     virtual void OnCollision();
@@ -44,10 +47,14 @@ public:
     std::shared_ptr<UWorld> GetWorld();
 
     std::unordered_map<std::string, DirectX::XMMATRIX>& GetComponentFinalTransform();
+
+    std::shared_ptr<Component> GetComponentInfo(std::string ComponentName);
+public:
+    const static std::string RootComponentName;
 protected:
     std::shared_ptr<UWorld> World;
     FTransform Transform; // 变换
-    std::unordered_map<std::string, std::shared_ptr<Component>> Components{std::make_pair("Root",nullptr)};
+    std::unordered_map<std::string, std::shared_ptr<Component>> Components;
     std::unordered_map<std::string, DirectX::XMMATRIX> ComponentFinalTransform;
 
 private:

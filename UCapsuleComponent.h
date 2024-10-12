@@ -25,5 +25,8 @@ private:
     // 计算胶囊体的边界
     DirectX::BoundingBox GetBoundingBox() const;
     DirectX::BoundingSphere GetBoundingSphere() const;
+
+    // 通过 UCollisionComponent 继承
+    void Update(float DeltaTime) override;
 };
 

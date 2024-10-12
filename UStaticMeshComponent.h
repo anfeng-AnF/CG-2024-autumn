@@ -15,10 +15,10 @@ public:
     std::shared_ptr<UStaticMesh> GetStaticMesh() const;
 
     // 更新组件（可能用于计算渲染状态等）
-    void Update();
+    void Update(float DeltaTime)override;
 
     // 渲染函数
-    void Render();
+    void Render(Graphics& gfx)override;
 public:
     const static std::string name;
 private:

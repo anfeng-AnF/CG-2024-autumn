@@ -1,4 +1,5 @@
 #include "World.h"
+#include "UCollisionComponent.h"
 
 // Ìí¼Ó Actor
 void UWorld::AddActor(std::shared_ptr<AActor> Actor) {
@@ -20,15 +21,15 @@ void UWorld::Tick(float DeltaTime) {
 }
 
 // äÖÈ¾ËùÓÐ Actor
-void UWorld::Render() {
+void UWorld::Render(Graphics& Gfx) {
     for (const auto& Actor : ActiveGroupActors) {
         if (Actor) {
-
+            Actor->Render(Gfx);
         }
     }
 }
 
-std::vector<FCollisionResult> UWorld::QuaryCollision(std::shared_ptr<AActor> Actor)
+std::vector<FCollisionResult> UWorld::QuaryCollision(AActor* Actor)
 {
     return {};
 }

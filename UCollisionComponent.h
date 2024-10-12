@@ -3,13 +3,16 @@
 #include <DirectXCollision.h>
 #include <DirectXMath.h>
 #include <memory>
+
+class AActor;
+
 struct FHitResult {
     bool bHit;                  // 是否发生碰撞
-    std::shared_ptr<AActor> Actor; // 碰撞的 Actor
+    std::shared_ptr<UActorComponent> ActorComponent; // 碰撞的 ActorComponent
     DirectX::XMFLOAT3 Location; // 碰撞位置
     DirectX::XMFLOAT3 Normal;   // 碰撞法线
 
-    FHitResult() : bHit(false), Actor(nullptr), Location({ 0, 0, 0 }), Normal({ 0, 0, 0 }){}
+    FHitResult() : bHit(false), ActorComponent(nullptr), Location({ 0, 0, 0 }), Normal({ 0, 0, 0 }){}
 };
 
 // 碰撞组件基类

@@ -15,8 +15,11 @@ public:
 
     FTransform GetCurrentTransform() const;
 public:
-    const static std::string Name;
+    const static std::string name;
 private:
     float ArmLength;
     FTransform CurrentTransform;
+
+    // Í¨¹ý UActorComponent ¼Ì³Ð
+    void Update(float DeltaTime) override;
 };

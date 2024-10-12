@@ -115,6 +115,12 @@
     <Filter Include="Game">
       <UniqueIdentifier>{ec5ddf01-0a51-456a-9690-93e2422a7f69}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Header">
+      <UniqueIdentifier>{7fb9d2b0-8750-4ecb-b769-fe79f55cb54b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Source">
+      <UniqueIdentifier>{3bbd581a-409f-42e9-bde8-24722fd29fee}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -270,9 +276,6 @@
     <ClCompile Include="FloodFill.cpp">
       <Filter>Base\源文件</Filter>
     </ClCompile>
-    <ClCompile Include="UAnimationComponent.cpp">
-      <Filter>GameBase\Components\Source</Filter>
-    </ClCompile>
     <ClCompile Include="UCameraComponent.cpp">
       <Filter>GameBase\Components\Source</Filter>
     </ClCompile>
@@ -305,6 +308,27 @@
     </ClCompile>
     <ClCompile Include="GameModeBase.cpp">
       <Filter>GameBase\Classes\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="MyGameMode.cpp">
+      <Filter>Game\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="MyCharacter.cpp">
+      <Filter>Game\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="UCapsuleComponent.cpp">
+      <Filter>GameBase\Components\Source\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="UConvexComponent.cpp">
+      <Filter>GameBase\Components\Source\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="USphereComponent.cpp">
+      <Filter>GameBase\Components\Source\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="USkeletalMeshComponent.cpp">
+      <Filter>GameBase\Components\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="MyAnimInstance.cpp">
+      <Filter>Base\源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -506,9 +530,6 @@
     <ClInclude Include="UActorComponent.h">
       <Filter>GameBase\Components\Header</Filter>
     </ClInclude>
-    <ClInclude Include="UAnimationComponent.h">
-      <Filter>GameBase\Components\Header</Filter>
-    </ClInclude>
     <ClInclude Include="UCameraComponent.h">
       <Filter>GameBase\Components\Header</Filter>
     </ClInclude>
@@ -553,6 +574,15 @@
     </ClInclude>
     <ClInclude Include="UCollisionComponent.h">
       <Filter>GameBase\Components\Header\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="MyGameMode.h">
+      <Filter>Game\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="MyCharacter.h">
+      <Filter>Game\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="MyAnimInstance.h">
+      <Filter>Game\Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

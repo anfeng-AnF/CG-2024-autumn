@@ -3,6 +3,9 @@
 #include <memory>
 #include "InputStateMachine.h"
 #include "ACharacter.h"
+#include "World.h"
+#include "Graphics.h"
+
 class GameInput :public InputState
 {
 public:
@@ -25,6 +28,7 @@ public:
     virtual void Tick(float DeltaTime);
     virtual void Begin();
     virtual void End();
+    virtual void Render(Graphics& Gfx);
 protected:
     std::shared_ptr<ACharacter> DefaultCharacter;
     std::shared_ptr<UWorld> DefaultWorld;

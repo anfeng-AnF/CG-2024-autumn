@@ -1,6 +1,11 @@
 #include "UActorComponent.h"
 
-std::shared_ptr<AActor> UActorComponent::GetOwner() const
+void UActorComponent::SetOwner(AActor* NewOwner)
+{
+    Owner = NewOwner;
+}
+
+AActor* UActorComponent::GetOwner() const
 {
     return this->Owner;
 }

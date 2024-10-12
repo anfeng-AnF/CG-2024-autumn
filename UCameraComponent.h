@@ -5,7 +5,7 @@
 class UCameraComponent : public UActorComponent {
 public:
     UCameraComponent();
-    UCameraComponent(Camera* cam);
+    UCameraComponent(std::shared_ptr<Camera> cam);
     ~UCameraComponent();
 
     // 设置视野（FOV）
@@ -22,13 +22,13 @@ public:
     // 获取当前变换
     FTransform GetCurrentTransform() const;
 
-    void SetCamera(Camera* cam);
+    void SetCamera(std::shared_ptr<Camera> cam);
 
     XMMATRIX GetMatrix();
 public:
     const static std::string name;
 private:
-    Camera* cam;
+    std::shared_ptr<Camera> cam;
     float FieldOfView; // 视野
     FTransform CurrentTransform; // 当前变换
 };

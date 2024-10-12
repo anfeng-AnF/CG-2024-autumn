@@ -47,13 +47,13 @@ SkeletonMesh::SkeletonMesh(Graphics& gfx, const std::string fileName)
 	UpdateBoneInfo(pRoot.get(), dx::XMMatrixIdentity());
 }
 
-void SkeletonMesh::Draw(Graphics& gfx)
+void SkeletonMesh::Draw(Graphics& gfx,FXMMATRIX Transform)
 {
 	this->Bind(gfx);
 	//for (auto& mesh : meshPtrs) {
 	//	mesh->Draw(gfx,dx::XMMatrixIdentity());
 	//}
-	pRoot->Draw(gfx, DirectX::XMMatrixIdentity());
+	pRoot->Draw(gfx, Transform);
 }
 
 void SkeletonMesh::Bind(Graphics& gfx)

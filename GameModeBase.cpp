@@ -1,10 +1,9 @@
 #include "GameModeBase.h"
-
 void GameInput::Enter()
 {
+	wnd.DisableCursor();
 	wnd.Kbd.Flush();
 	wnd.mouse.Flush();
-	wnd.DisableCursor();
 	wnd.mouse.EnableRaw();
 }
 
@@ -14,26 +13,33 @@ void GameInput::Update(float deltaTime)
     int x = 0, y = 0;
     while (auto c = wnd.Kbd.ReadKey())
     {
-        if (c.value().GetCode() == 'w') {
-            x = 1;
-        }
-        else if (c.value().GetCode() == 's') {
-            x = -1;
-        }
-        else if(c.value().GetCode() == 'd')
-        {
-            y = 1;
-        }
-        else if (c.value().GetCode() == 'a')
-        {
-            y = -1;
-        }
-        else if (c.value().GetCode() == VK_SPACE)
+        if (c.value().GetCode() == VK_SPACE&&c.value().IsPress())
         {
             playerCharacter->Jump();
         }
+        else if (c.value().GetCode() == VK_MENU && c.value().IsRelease()) {
+            wnd.DisableCursor();
+        }
     }
-    playerCharacter->MoveInput(x, y);
+    if (wnd.Kbd.KeyIsPressed(VK_MENU)) {
+        wnd.EnableCursor();
+    }
+    else if (wnd.Kbd.KeyIsPressed('w')) {
+        x = 1;
+    }
+    else if (wnd.Kbd.KeyIsPressed('s')) {
+        x = -1;
+    }
+    else if (wnd.Kbd.KeyIsPressed('d'))
+    {
+        y = 1;
+    }
+    else if (wnd.Kbd.KeyIsPressed('a'))
+    {
+        y = -1;
+    }
+
+    //playerCharacter->MoveInput(x, y);
     //Handling of mouse input
     while (auto RawDelta = wnd.mouse.ReadRawDelta())
     {
@@ -69,8 +75,14 @@ void GameModeBase::Tick(float DeltaTime)
 
 void GameModeBase::Begin()
 {
+
 }
 
 void GameModeBase::End()
 {
+}
+
+void GameModeBase::Render(Graphics& Gfx)
+{
+    this->DefaultWorld->Render(Gfx);
 }

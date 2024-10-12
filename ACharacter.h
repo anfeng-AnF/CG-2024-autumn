@@ -42,13 +42,12 @@ public:
     XMMATRIX GetCameraMatrix();
 protected:
     // 角色的旋转速度
-    float TurnSpeed;
-
+    float TurnSpeed = 90.f;
 
 public:
-    ECharacterState CurrentState;
+    ECharacterState CurrentState=ECharacterState::Idle;
 
-    UCharacterMovementComponent* CharacterMovementComponent;
+    std::shared_ptr<UCharacterMovementComponent> CharacterMovementComponent;
 
 
 private:
