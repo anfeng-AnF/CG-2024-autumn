@@ -16,6 +16,7 @@ public:
     // 实现检查碰撞的函数
     virtual FHitResult CheckCollision(const UCollisionComponent& Other) const override;
 
+    virtual FHitResult TraceByLine(XMFLOAT3 LineOrigin, XMFLOAT3 LineDirection) const override;
 private:
     std::vector<DirectX::XMFLOAT3> ConvexVertices;
     std::vector<int> indeices;

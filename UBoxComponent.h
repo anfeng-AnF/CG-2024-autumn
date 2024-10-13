@@ -1,8 +1,9 @@
 #pragma once
 #include "UCollisionComponent.h"
-#include "USphereComponent.h"
-#include "UCapsuleComponent.h"
-#include "UConvexComponent.h"
+
+class USphereComponent;
+class UCapsuleComponent;
+class UConvexComponent;
 
 class UBoxComponent : public UCollisionComponent {
 public:
@@ -17,7 +18,7 @@ public:
 
     // 实现检查碰撞的函数
     virtual FHitResult CheckCollision(const UCollisionComponent& Other) const override;
-
+    virtual FHitResult TraceByLine(XMFLOAT3 LineOrigin, XMFLOAT3 LineDirection) const override;
 private:
     // 盒子的碰撞几何体
     DirectX::BoundingBox Box;

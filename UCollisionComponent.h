@@ -1,6 +1,5 @@
 #pragma once
 #include "UActorComponent.h"
-#include <DirectXCollision.h>
 #include <DirectXMath.h>
 #include <memory>
 
@@ -23,7 +22,7 @@ public:
 
     // 纯虚函数，检测与其他碰撞组件的碰撞
     virtual FHitResult CheckCollision(const UCollisionComponent& Other) const = 0;
-
+    virtual FHitResult TraceByLine(XMFLOAT3 LineOrigin, XMFLOAT3 LineDirection) const = 0;
 protected:
     
 };

@@ -1,4 +1,7 @@
 #include "UBoxComponent.h"
+#include "USphereComponent.h"
+#include "UCapsuleComponent.h"
+#include "UConvexComponent.h"
 
 UBoxComponent::UBoxComponent() {
     // 默认初始化盒子的边界
@@ -38,6 +41,11 @@ FHitResult UBoxComponent::CheckCollision(const UCollisionComponent& Other) const
     }
 
     return HitResult; // 返回碰撞结果
+}
+
+FHitResult UBoxComponent::TraceByLine(XMFLOAT3 LineOrigin, XMFLOAT3 LineDirection) const
+{
+    return FHitResult();
 }
 
 // 示例：与球体碰撞检测的实现

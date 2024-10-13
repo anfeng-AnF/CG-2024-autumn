@@ -21,3 +21,8 @@ FHitResult USphereComponent::CheckCollision(const UCollisionComponent& Other) co
 {
 	return FHitResult();
 }
+
+FHitResult USphereComponent::TraceByLine(XMFLOAT3 LineOrigin, XMFLOAT3 LineDirection) const
+{
+	return FHitResult();
+}

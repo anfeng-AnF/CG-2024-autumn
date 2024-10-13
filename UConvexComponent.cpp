@@ -21,3 +21,8 @@ FHitResult UConvexComponent::CheckCollision(const UCollisionComponent& Other) co
 {
 	return FHitResult();
 }
+
+FHitResult UConvexComponent::TraceByLine(XMFLOAT3 LineOrigin, XMFLOAT3 LineDirection) const
+{
+	return FHitResult();
+}

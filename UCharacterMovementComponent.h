@@ -39,7 +39,7 @@ public:
     float MaxSlopeAngle = 45.0f;                                // 最大爬坡坡度
     float maxAccAcceleration = 9.81f*2;                         // 最大地面加速加速度
     float maxDeceleration = 0.8*maxAccAcceleration;             // 最大地面减速加速度
-    float maxGroundSpeed = 9.81f;                               // 最大地面速度
+    float maxGroundSpeed = 9.81f*1.5;                             // 最大地面速度
     float MaxFallingSpeed = 10 * GravityAcceleration;           // 最大下落速度
     bool bIsOnGround;                                           // 是否在地面上
     bool bIsInputAcceration;                                    // 是否有输入加速度

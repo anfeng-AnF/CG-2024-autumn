@@ -30,6 +30,11 @@ FHitResult UCapsuleComponent::CheckCollision(const UCollisionComponent& Other) c
     return FHitResult();
 }
 
+FHitResult UCapsuleComponent::TraceByLine(XMFLOAT3 LineOrigin, XMFLOAT3 LineDirection) const
+{
+    return FHitResult();
+}
+
 DirectX::BoundingBox UCapsuleComponent::GetBoundingBox() const
 {
     return DirectX::BoundingBox();

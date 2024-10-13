@@ -121,6 +121,9 @@
     <Filter Include="Game\Source">
       <UniqueIdentifier>{3bbd581a-409f-42e9-bde8-24722fd29fee}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader\CG_Shader\Game">
+      <UniqueIdentifier>{10d09a74-9761-4336-8720-70a726fdc558}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
