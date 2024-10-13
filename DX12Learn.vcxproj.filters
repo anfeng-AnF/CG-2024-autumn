@@ -331,7 +331,7 @@
       <Filter>GameBase\Components\Source</Filter>
     </ClCompile>
     <ClCompile Include="MyAnimInstance.cpp">
-      <Filter>Base\源文件</Filter>
+      <Filter>Game\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -520,9 +520,6 @@
     </ClInclude>
     <ClInclude Include="AnimAssert.h">
       <Filter>Animation\Header</Filter>
-    </ClInclude>
-    <ClInclude Include="AnimStateMachine.h">
-      <Filter>Base\头文件\interface</Filter>
     </ClInclude>
     <ClInclude Include="AnimInstance.h">
       <Filter>Animation\Header</Filter>

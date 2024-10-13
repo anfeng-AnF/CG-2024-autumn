@@ -231,7 +231,6 @@
     <ClInclude Include="AActor.h" />
     <ClInclude Include="AnimAssert.h" />
     <ClInclude Include="AnimInstance.h" />
-    <ClInclude Include="AnimStateMachine.h" />
     <ClInclude Include="App.h" />
     <ClInclude Include="MyAnimInstance.h" />
     <ClInclude Include="MyCharacter.h" />

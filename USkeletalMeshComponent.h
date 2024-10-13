@@ -17,6 +17,7 @@ public:
 
     // 添加动画组件
     void SetAnimationInstance(std::shared_ptr<UAnimInstance> pAnimInstance);
+    std::shared_ptr<UAnimInstance> GetAnimationInstance();
 
     // 更新组件（处理动画等）
     void Update(float DeltaTime)override;

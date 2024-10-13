@@ -8,5 +8,5 @@ class MyCharacter :public ACharacter
 public:
 	MyCharacter(Graphics&gfx);
 	~MyCharacter();
-
+	void Tick(float DeltaTime)override;
 };

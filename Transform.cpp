@@ -247,3 +247,8 @@ bool IsVectorNearZero(DirectX::XMVECTOR vector, float tolerance)
 
 	return DirectX::XMVector3NearEqual(vector, zeroVector, epsilon);
 }
+
+XMMATRIX XMMatrixLerp(const XMMATRIX& A, const XMMATRIX& B, float t)
+{
+	return A + (B - A) * t;
+}

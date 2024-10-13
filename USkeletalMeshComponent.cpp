@@ -33,6 +33,11 @@ void USkeletalMeshComponent::SetAnimationInstance(std::shared_ptr<UAnimInstance>
     this->pAnimInstance = pAnimInstance;
 }
 
+std::shared_ptr<AnimInstance> USkeletalMeshComponent::GetAnimationInstance()
+{
+    return this->pAnimInstance;
+}
+
 void USkeletalMeshComponent::Update(float DeltaTime)
 {
     if (pAnimInstance) {

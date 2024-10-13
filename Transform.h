@@ -54,3 +54,5 @@ bool IsQuaternionNaN(const XMVECTOR& quat);
 float CalculateAngleBetweenVectors(DirectX::XMVECTOR vectorA, DirectX::XMVECTOR vectorB);
 
 bool IsVectorNearZero(DirectX::XMVECTOR vector, float tolerance = 1e-6f);
+
+XMMATRIX XMMatrixLerp(const XMMATRIX& A, const XMMATRIX& B, float t);
