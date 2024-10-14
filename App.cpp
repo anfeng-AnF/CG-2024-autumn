@@ -136,7 +136,7 @@ void App::DoFrame()
 		//skeletonMesh.Draw(wnd.Gfx());
 		light.Draw(wnd.Gfx());
 		axis.Draw(wnd.Gfx());
-
+		ctrl.Draw(wnd.Gfx());
 		DGM.Draw(wnd.Gfx());
 	}
 	else
@@ -146,7 +146,7 @@ void App::DoFrame()
 		Game.Render(wnd.Gfx());
 	}
 	ISM.DoFrame(deltaTime);
-	//ctrl.Draw(wnd.Gfx());
+
 	// imgui windows
 	ImGui::Begin("Menu");
 	bool ModeChanged = ImGui::Checkbox("Play Game", &StartGame);

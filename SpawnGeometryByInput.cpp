@@ -20,7 +20,12 @@ void SpawnGeometryByInput::SpawnGeoInputState::Enter()
 void SpawnGeometryByInput::SpawnGeoInputState::Update(float deltaTime)
 {
 	//Handle keyboard input
-
+	static int segment = 20;
+	if (pSpawnGeo->mehod == SpawnGeometryByInput::CIRCLE) {
+		ImGui::Begin("Circle setting");
+		ImGui::SliderInt("segment", &segment, 3, 100);
+		ImGui::End();
+	}
 	//Handling of mouse input
 	while (const auto delta = wnd.mouse.Read()) {
 		switch (delta->GetType())
@@ -35,7 +40,7 @@ void SpawnGeometryByInput::SpawnGeoInputState::Update(float deltaTime)
 			{
 			case SpawnGeometryByInput::LINE:
 			case SpawnGeometryByInput::CIRCLE:
-				drawingEnd = pSpawnGeo->SpawnLine(delta.value().GetPos(), true, pSpawnGeo->mehod);
+				drawingEnd = pSpawnGeo->SpawnLine(delta.value().GetPos(), true, pSpawnGeo->mehod,segment);
 				break;
 			case SpawnGeometryByInput::LINE_CONTINUE:
 				break;
@@ -55,7 +60,7 @@ void SpawnGeometryByInput::SpawnGeoInputState::Update(float deltaTime)
 			{
 			case SpawnGeometryByInput::LINE:
 			case SpawnGeometryByInput::CIRCLE:
-				pSpawnGeo->SpawnLine(delta.value().GetPos(), false, pSpawnGeo->mehod);
+				pSpawnGeo->SpawnLine(delta.value().GetPos(), false, pSpawnGeo->mehod,segment);
 				break;
 			case SpawnGeometryByInput::LINE_CONTINUE:
 				break;
@@ -255,7 +260,7 @@ SpawnGeometryByInput::SpawnGeometryByInput(Window& wnd, Camera& cam, CollisionGe
 {
 }
 
-bool SpawnGeometryByInput::SpawnLine(screenPos pos,bool lpressed,SpawnGeoMehod SGmehod)
+bool SpawnGeometryByInput::SpawnLine(screenPos pos,bool lpressed,SpawnGeoMehod SGmehod,int segment)
 {
 	static int called = 0;
 	LineRay line(pos, wnd, cam);
@@ -285,7 +290,7 @@ bool SpawnGeometryByInput::SpawnLine(screenPos pos,bool lpressed,SpawnGeoMehod S
 		}
 			break;
 		case SpawnGeometryByInput::CIRCLE: {
-			auto [vbuf, indices] = CreateCircleWithAdjacency(perPoint, point,plane.rayDirection);
+			auto [vbuf, indices] = CreateCircleWithAdjacency(perPoint, point,plane.rayDirection, segment);
 			drawingGeo = std::make_shared<WidthLine>(wnd.Gfx(), cam, vbuf, indices, XMFLOAT3{ 0.0f,0.0f,0.0f }, 1.0f);
 		}
 			break;

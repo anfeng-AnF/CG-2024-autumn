@@ -43,7 +43,7 @@ public:
 public:
 	SpawnGeometryByInput(Window&wnd,Camera&cam ,CollisionGeoManager*CGM);
 
-	bool SpawnLine(screenPos pos,bool lpressed,SpawnGeoMehod SGmehod);//line with circle
+	bool SpawnLine(screenPos pos,bool lpressed,SpawnGeoMehod SGmehod, int segment = 20);//line with circle
 	//bool SpawnLineContinue(screenPos pos, bool endFlag=false);
 	bool SpawnCircleArc(screenPos pos,bool lpresed);
 

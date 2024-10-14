@@ -649,8 +649,8 @@ void CollisionGeoManager::DrawImGui(Graphics& gfx)
     ImGui::SliderFloat("q Y", &reinterpret_cast<float*>(&TransformData.deltaTransform.rotation)[1], -1.1f, 1.1f);
     ImGui::SliderFloat("q Z", &reinterpret_cast<float*>(&TransformData.deltaTransform.rotation)[2], -1.1f, 1.1f);
 
-    ImGui::Text("Color");
-    ImGui::ColorEdit3("RGB", &TransformData.color.x);
+    //ImGui::Text("Color");
+    //ImGui::ColorEdit3("RGB", &TransformData.color.x);
     ImGui::Text("--------Transform--------");
 
     TransformationMethod& method = this->TransformData.transformationMethod;
