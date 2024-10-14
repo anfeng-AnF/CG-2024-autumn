@@ -11,8 +11,8 @@ MyAnimInstance::MyAnimInstance(SkeletonMesh& SkMesh):
 
 	auto animStateMachine = std::make_shared<AnimStateMachine>();
 	animStateMachine->AddState("BeginRun", std::make_shared<AnimAsset>(vAnimAssert[BeginRun]));
-	animStateMachine->AddState("Idle", std::make_shared<AnimAsset>(vAnimAssert[Idle]));
-	animStateMachine->AddState("Run", std::make_shared<AnimAsset>(vAnimAssert[Run]));
+	animStateMachine->AddState("Idle", std::make_shared<AnimAsset>(vAnimAssert[Idle]),0.8f);
+	animStateMachine->AddState("Run", std::make_shared<AnimAsset>(vAnimAssert[Run]),1.2f);
 	animStateMachine->SetCurrentState("Idle");
 
 	animStateMachine->SetTransitionCondition("Idle", "Run", [this]() {

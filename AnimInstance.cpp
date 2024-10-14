@@ -37,11 +37,11 @@ void AnimInstance::BlendAnimations(const AnimAsset& animA, const AnimAsset& anim
 
 
 
-void AnimStateMachine::AddState(const std::string& stateName, std::shared_ptr<AnimAsset> animation)
+void AnimStateMachine::AddState(const std::string& stateName, std::shared_ptr<AnimAsset> animation, float DefaultPlayRate)
 {
     if (this->states.find(stateName) == this->states.end())
     {
-        this->states[stateName] = State{ animation, {} };
+        this->states[stateName] = State{ animation,DefaultPlayRate,{} };
     }
     else
     {
@@ -71,9 +71,10 @@ void AnimStateMachine::Update(float deltaTime) {
     }
     else
     {
-        float time = fmod(AnimTime, states[currentState].animation->GetDuration()/ states[currentState].animation->GetTickPerSecond());
+        float time = fmod(AnimTime * states[currentState].playRate, states[currentState].animation->GetDuration()/ states[currentState].animation->GetTickPerSecond());
         CurrentPose = states[currentState].animation->GetTransformBoneName_tm(time);
         AnimTime+=deltaTime;
+
         for (const auto& condition : states[currentState].transitions)
         {
             if (condition.second.first()) {

@@ -4,7 +4,7 @@
 
 class AnimStateMachine {
 public:
-    void AddState(const std::string& stateName, std::shared_ptr<AnimAsset> animation);
+    void AddState(const std::string& stateName, std::shared_ptr<AnimAsset> animation, float DefaultPlayRate=1.0f);
 
     void SetTransitionCondition(const std::string& fromState, const std::string& toState, std::function<bool()> condition,float TransitionTime=1.0f);
 
@@ -19,6 +19,7 @@ protected:
 private:
     struct State {
         std::shared_ptr<AnimAsset> animation;
+        float playRate = 0.8f;
         std::unordered_map<std::string,std::pair<std::function<bool()>,float>> transitions; // ¹ý¶ÉÌõ¼þ
     };
 
