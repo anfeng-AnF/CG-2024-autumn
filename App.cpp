@@ -134,7 +134,7 @@ void App::DoFrame()
 		elysia.Draw(wnd.Gfx(),DirectX::XMMatrixRotationX(XM_PI));
 		//wall.Draw(wnd.Gfx());
 		//skeletonMesh.Draw(wnd.Gfx());
-		light.Draw(wnd.Gfx());
+		//light.Draw(wnd.Gfx());
 		axis.Draw(wnd.Gfx());
 		ctrl.Draw(wnd.Gfx());
 		DGM.Draw(wnd.Gfx());

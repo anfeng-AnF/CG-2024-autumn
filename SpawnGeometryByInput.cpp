@@ -47,6 +47,10 @@ void SpawnGeometryByInput::SpawnGeoInputState::Update(float deltaTime)
 			case SpawnGeometryByInput::CIRCLE_ARC:
 				drawingEnd = pSpawnGeo->SpawnCircleArc(delta.value().GetPos(), true);
 				break;
+			case SpawnGeometryByInput::BEZIER_LINE:
+				drawingEnd = pSpawnGeo->SpawnBezier();
+				this->Machine->SetState(DEFAULT_STATE);
+				break;
 			}
 			onDrawing = true;
 			break;
@@ -363,6 +367,14 @@ bool SpawnGeometryByInput::SpawnCircleArc(screenPos pos,bool lpressed)
 	return false;
 }
 
+bool SpawnGeometryByInput::SpawnBezier()
+{
+	drawingGeo = std::make_shared<BezierLine>(wnd.Gfx(),cam);
+	CGM->AddGeometry(drawingGeo);
+	drawingGeo = nullptr;
+	return true;
+}
+
 
 bool SpawnGeometryByInput::SpawnImGuiWnd(ImVec2 windowPos)
 {
@@ -374,6 +386,7 @@ bool SpawnGeometryByInput::SpawnImGuiWnd(ImVec2 windowPos)
 	//selected |= ImGui::RadioButton("multi line", reinterpret_cast<int*>(&mehod), static_cast<int>(SpawnGeoMehod::LINE_CONTINUE));
 	selected |= ImGui::RadioButton("circle", reinterpret_cast<int*>(&mehod), static_cast<int>(SpawnGeoMehod::CIRCLE));
 	//selected |= ImGui::RadioButton("circle arc", reinterpret_cast<int*>(&mehod), static_cast<int>(SpawnGeoMehod::CIRCLE_ARC));
+	selected |= ImGui::RadioButton("bezier", reinterpret_cast<int*>(&mehod), static_cast<int>(SpawnGeoMehod::BEZIER_LINE));
 	ImGui::End();
 	return selected;
 }

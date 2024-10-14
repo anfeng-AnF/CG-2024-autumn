@@ -28,6 +28,7 @@ struct VSOut
     float3 bitan : Bitangent;
     float2 tc : Texcoord;
     float4 pos : SV_Position;
+    matrix modelView : ModelView;
 };
 
 VSOut main(VSIn input)
@@ -79,5 +80,6 @@ VSOut main(VSIn input)
     output.bitan = input.bitan;
     output.tc = input.tc;
 
+    output.modelView = modelView;
     return output;
 }

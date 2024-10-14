@@ -7,6 +7,7 @@ struct PSIn
     float3 bitan : Bitangent;
     float2 tc : Texcoord;
     float4 pos : SV_Position; // 如果需要在后续计算中使用
+    matrix modelView : ModelView;
 };
 
 cbuffer LightCBuf

@@ -383,3 +383,116 @@ void WidthLine::Bind(Graphics& gfx) noexcept
     gcBuf.Update(gfx, data);
     gcBuf.Bind(gfx);
 }
+
+// 计算点到直线的距离
+std::pair<float,float> DistanceFromPointToLine(const XMFLOAT3& lineBeginPos, const XMFLOAT3& lineVector, const XMVECTOR& pointPosition) {
+    XMVECTOR lineStart = XMLoadFloat3(&lineBeginPos);
+    XMVECTOR lineDir = XMLoadFloat3(&lineVector);
+
+    XMVECTOR pointToLineStart = pointPosition - lineStart;
+
+    XMVECTOR lineUnitDir = XMVector3Normalize(lineDir);
+
+    float projectionLength = XMVectorGetX(XMVector3Dot(pointToLineStart, lineUnitDir));
+    XMVECTOR projection = lineStart + projectionLength * lineUnitDir;
+
+    XMVECTOR pointToProjection = pointPosition - projection;
+
+    return { XMVectorGetX(XMVector3Length(pointToProjection)),projectionLength };
+}
+
+BezierLine::BezierLine(Graphics& gfx,Camera& cam)
+    :
+    CollisionGeometry(gfx),
+    point(gfx, XMFLOAT3{ 0.8f,0.2f,0.2f }, XMFLOAT3{0,0,0}, 0.1f),
+    cam(cam),
+    gfx(gfx)
+{
+    FTransform point;
+    point.position = XMVectorSet(1.0f, 0.0f, 1.0f, 0.0f);
+    ControlPoint.push_back(point);
+    point.position = XMVectorSet(-1.0f, 0.0f, -1.0f, 0.0f);
+    ControlPoint.push_back(point);
+    selectedPointIdx = -1;
+}
+
+void BezierLine::Draw(Graphics& gfx) const noexcept
+{
+    for (auto& transform : ControlPoint) {
+        XMFLOAT3 f3;
+        XMStoreFloat3(&f3, transform.position);
+        point.SetPos(f3);
+        point.Draw(gfx);
+    }
+
+    if (Bezier) {
+        Bezier->Draw(gfx);
+    }
+}
+
+void BezierLine::Bind(Graphics& gfx) noexcept
+{
+
+}
+
+std::vector<CollisionGeometry::CollisionRes> BezierLine::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix, float posOffset)
+{
+    float minDistance = D3D11_FLOAT32_MAX;
+    CollisionRes res;
+    int minDix = 0;
+    for (int i = 0; i < ControlPoint.size();i++) {
+        auto [distance,projectionLength] = DistanceFromPointToLine(lineBeginPos, lineVector, XMVector3Transform(ControlPoint[i].position, transformMatrix));
+        if (distance < minDistance) {
+            minDistance = distance;
+            minDix = i;
+            res.hitDistance = projectionLength;
+        }
+    }
+    res.pos = lineBeginPos + XMFLOAT3{res.hitDistance* lineVector.x, res.hitDistance* lineVector.y, res.hitDistance* lineVector.z };
+    selectedPointIdx = minDix;
+    if (res.hitDistance * 0.1 > minDistance) {
+        return { res };
+    }
+    else
+    {
+        selectedPointIdx = -1;
+        return {};
+    }
+}
+
+void BezierLine::SetTransform(FTransform& transform)
+{
+    if (selectedPointIdx != -1) {
+        ControlPoint[selectedPointIdx] = transform;
+        ReGenerateBezier();
+    }
+}
+
+void BezierLine::AddControlPoint()
+{
+    ControlPoint.push_back(FTransform());
+    ReGenerateBezier();
+}
+
+
+std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> GenerationBezierLineData(std::vector<FTransform>points, int segment = 20) {
+    Dvtx::VertexBuffer vbuf(Dvtx::VertexLayout{}.Append(Dvtx::VertexLayout::Position3D));
+    std::vector<uint16_t> indices;
+    for (int i = 0; i < points.size()-1; i++) {
+        indices.push_back(i - 1);
+        indices.push_back(i + 0);
+        indices.push_back(i + 1);
+        indices.push_back(i + 2);
+        vbuf.EmplaceBack(*reinterpret_cast<XMFLOAT3*>(points[i].position.m128_f32));
+    }
+    vbuf.EmplaceBack(*reinterpret_cast<XMFLOAT3*>(points[points.size()-1].position.m128_f32));
+    indices[0] = 0;
+    indices[indices.size() - 1] = points.size() - 1;
+    return { vbuf,indices };
+};
+
+void BezierLine::ReGenerateBezier()
+{
+    auto [vbuf, ind] = GenerationBezierLineData(ControlPoint);
+    this->Bezier = std::make_unique<WidthLine>(gfx, cam, vbuf, ind);
+}

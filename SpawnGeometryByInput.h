@@ -39,6 +39,7 @@ public:
 		LINE_CONTINUE,			//画完一条直线继续
 		CIRCLE,					//圆心，半径
 		CIRCLE_ARC,				//圆弧起点，终点，圆心
+		BEZIER_LINE,			
 	};
 public:
 	SpawnGeometryByInput(Window&wnd,Camera&cam ,CollisionGeoManager*CGM);
@@ -46,6 +47,8 @@ public:
 	bool SpawnLine(screenPos pos,bool lpressed,SpawnGeoMehod SGmehod, int segment = 20);//line with circle
 	//bool SpawnLineContinue(screenPos pos, bool endFlag=false);
 	bool SpawnCircleArc(screenPos pos,bool lpresed);
+
+	bool SpawnBezier();
 
 	bool SpawnImGuiWnd(ImVec2 windowPos);
 

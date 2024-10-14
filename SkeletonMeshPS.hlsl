@@ -6,8 +6,10 @@ struct PSIn
     float3 tan : Tangent;
     float3 bitan : Bitangent;
     float2 tc : Texcoord;
-    float4 pos : SV_Position; // 如果需要在后续计算中使用
+    float4 pos : SV_Position;
+    matrix modelView : ModelView;
 };
+
 
 // 纹理采样器
 Texture2D textureMap : register(t0);
@@ -46,7 +48,14 @@ float4 main(PSIn input) : SV_Target
     // 计算基础颜色
     float4 baseColor = diff * texColor;
 
-    // 在过渡区域内混合基础颜色和过渡颜色
+    //判断是否是 描边区域
+    float3 viewDir = normalize(-input.viewPos);
+    float3 viewNormal = mul(float4(norm, 1.0f), input.modelView).xyz - mul(float4(0.0f,0.0f,0.0f,1.0f), input.modelView).xyz;
+    float edgeIntensity =1- pow(1 - dot(viewNormal, viewDir) / length(viewNormal),20);
+    if (abs(edgeIntensity) > 0.2)
+    {
+       //edgeIntensity = 1.0f;
+    }
     float4 finalColor = lerp(baseColor, transitionColor, transitionFactor);
 
     return finalColor;

@@ -4,6 +4,7 @@
 #include "Vertex.h"
 #include "Transform.h"
 #include "Camera.h"
+#include "DebugSphere.h"
 #include <optional>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -32,7 +33,7 @@ public:
 	DirectX::XMFLOAT3 GetColor()noexcept;
 	void SetSelect(bool IsSelected)noexcept;
 	FTransform GetTransform();
-	void SetTransform(FTransform&transform);
+	virtual void SetTransform(FTransform&transform);
 	void Draw(Graphics& gfx)const noexcept override;
 	virtual void Bind(Graphics& gfx)noexcept;
 public:
@@ -82,6 +83,28 @@ public:
 	};
 	Bind::GeometryConstantBuffer<CbufData> gcBuf;
 	float width;
+};
+
+class BezierLine :public CollisionGeometry
+{
+public:
+	BezierLine(Graphics& gfx, Camera& cam);
+	void Draw(Graphics& gfx)const noexcept override;
+	void Bind(Graphics& gfx)noexcept override;
+	virtual std::vector<CollisionRes> TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix = XMMatrixIdentity(), float posOffset = 0.0f) override;
+	void SetTransform(FTransform& transform)override;
+
+	void AddControlPoint();
+protected:
+	
+	mutable DebugSphere point;
+	std::shared_ptr<WidthLine> Bezier;
+	int selectedPointIdx = 0;
+	std::vector<FTransform> ControlPoint;
+	Camera& cam;
+	Graphics& gfx;
+private:
+	void ReGenerateBezier();
 };
 
 class TriangelGeo:public CollisionGeometry
