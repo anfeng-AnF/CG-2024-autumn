@@ -43,14 +43,11 @@ private:
 	Camera cam;	
 	PointLight light;	
 	CollisionGeoManager ctrl;
-	//Model wall{ wnd.Gfx(),"Models\\RockWall\\RockWall.fbx" };
-	//Model Lantern{ wnd.Gfx(),"Models\\Elysia\\elysiaQ.fbx" };
-	//Model Lantern{ wnd.Gfx(),"Models\\skeletonMeshs\\SkeletonMeshTest.fbx" };
-	//Model skeletonMesh{ wnd.Gfx(),"Models\\skeletonMeshs\\testMesh.fbx" };
+	//StaticMesh wall{ wnd.Gfx(),"Models\\RockWall\\RockWall.fbx" };
+	//StaticMesh Lantern{ wnd.Gfx(),"Models\\Lantern\\Lantern_Fixed1.fbx" };
+
 	SkeletonMesh elysia{ wnd.Gfx(),"Models\\Elysia\\elysiaQ2.fbx" };
-	//SkeletonMesh elysia{ wnd.Gfx(),"Models\\Lantern\\Lantern_Fixed1.fbx" };
-	//SkeletonMesh elysia{ wnd.Gfx(),"Models\\skeletonMeshs\\SkeletonMeshTestAnim.fbx" };
-	//SkeletonMesh elysia{ wnd.Gfx(),"Models\\GLInstance\\dancing_vampire.dae" };
+
 	AnimInstance Anim;
 	Axis axis{ wnd.Gfx() };
 	InputStateMachine ISM;

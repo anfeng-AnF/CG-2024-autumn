@@ -400,4 +400,3 @@ void SKNode::SetTransform(DirectX::XMMATRIX transform)
 {
 	XMStoreFloat4x4(&this->transform,transform);
 }
-

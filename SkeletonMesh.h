@@ -33,6 +33,20 @@ public:
 	void Bind(Graphics& gfx);
 	void CtrlWnd(Graphics& gfx);
 	void SetBonesTransform(std::unordered_map<std::string, DirectX::XMMATRIX>& transforms);
+	template<typename ShaderType>
+	void SetShader(std::string newFileName, std::string perviousFileName)
+	{
+		using namespace std::string_literals;
+		for (auto& mesh : meshPtrs) {
+			for (auto& bind : mesh->GetBinds()) {
+				auto perBindName = bind->GetUID();
+				auto typeName = typeid(ShaderType).name();
+				if (perBindName.find(typeid(ShaderType).name() + "#"s + perviousFileName) != std::string::npos) {
+					bind = ShaderType::Resolve(gfx, newFileName);
+				}
+			}
+		}
+	}
 private:
 	std::unique_ptr<SKMesh> ParseMesh(Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials);
 	std::unique_ptr<SKNode> ParseNode(int& nextId, const aiNode& node) noexcept;

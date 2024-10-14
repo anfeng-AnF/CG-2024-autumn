@@ -88,10 +88,10 @@ App::App(UINT width, UINT height)
 	ISM.SetState(DEFAULT_STATE);
 
 	//Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\Lantern\\LanternAnim.fbx")[0];
-	Anim.SetCurrentAnim(AnimAsset::ReadAnimAssertFromFile("Models\\Elysia\\elysiaAnim.fbx")[0]);
+	Anim.SetCurrentAnim(AnimAsset::ReadAnimAssertFromFile("Models\\Elysia\\elysiaAnim1.fbx")[2]);
 	//Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\GLInstance\\dancing_vampire.dae")[0];
 	//Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\skeletonMeshs\\SkeletonMeshTestAnim.fbx")[0];
-
+	//Lantern.SetShader<Bind::PixelShader>("Phong2DPS.cso", "");
 }
 int App::Go()
 {
@@ -178,6 +178,9 @@ void App::DoFrame()
 	ImGui::Text("runtime %.0f", runTime+=deltaTime);
 	frame++;
 
+	static bool UsePhong = false;
+	bool shaderChange = ImGui::Checkbox("Use Phong Shader", &UsePhong);
+
 	if (!StartGame) {
 		ctrl.DrawImGui(wnd.Gfx());
 	}
@@ -187,8 +190,20 @@ void App::DoFrame()
 		light.SpawnControlWindow();
 		ShowImguiDemoWindow();
 	}
+
 	//Lantern.ShowWindow();
-	//wall.ShowWindow();
+
+	if (shaderChange) {
+		if (UsePhong)
+		{
+			elysia.SetShader<Bind::PixelShader>("SkeletonMeshPhongPS.cso", "SkeletonMeshPS.cso");
+		}
+		else
+		{
+			elysia.SetShader<Bind::PixelShader>("SkeletonMeshPS.cso","SkeletonMeshPhongPS.cso");
+		}
+	}
+
 	Codex::DebugString();
 
 	//reprocess

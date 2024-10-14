@@ -28,6 +28,11 @@ DirectX::XMMATRIX Mesh::GetTransformXM() const noexcept
 	return DirectX::XMLoadFloat4x4(&transform);
 }
 
+std::vector<std::shared_ptr<Bind::Bindable>>& Mesh::GetBinds()
+{
+	return binds;
+}
+
 
 // Node
 Node::Node(int id, const std::string& name, std::vector<Mesh*> meshPtrs, const DirectX::XMMATRIX& transform_in)
@@ -117,13 +122,13 @@ int Node::GetId() const noexcept
 }
 
 
-// Model
+// StaticMesh
 class ModelWindow // pImpl idiom, only defined in this .cpp
 {
 public:
 	void Show(const char* windowName, const Node& root) noexcept
 	{
-		// window name defaults to "Model"
+		// window name defaults to "StaticMesh"
 		windowName = windowName ? windowName : "Model";
 		// need an ints to track node indices and selected node
 		int nodeIndexTracker = 0;
@@ -174,9 +179,10 @@ private:
 	std::unordered_map<int, TransformParameters> transforms;
 };
 
-Model::Model(Graphics& gfx, const std::string fileName)
+StaticMesh::StaticMesh(Graphics& gfx, const std::string fileName)
 	:
-	pWindow(std::make_unique<ModelWindow>())
+	pWindow(std::make_unique<ModelWindow>()),
+	gfx(gfx)
 {
 	//get and save file patch
 	std::size_t pos = fileName.find_last_of('\\');
@@ -204,7 +210,7 @@ Model::Model(Graphics& gfx, const std::string fileName)
 }
 
 
-void Model::Draw(Graphics& gfx) const
+void StaticMesh::Draw(Graphics& gfx) const
 {
 	if (auto node = pWindow->GetSelectedNode())
 	{
@@ -213,15 +219,15 @@ void Model::Draw(Graphics& gfx) const
 	pRoot->Draw(gfx, dx::XMMatrixIdentity());
 }
 
-void Model::ShowWindow(const char* windowName) noexcept
+void StaticMesh::ShowWindow(const char* windowName) noexcept
 {
 	pWindow->Show(windowName, *pRoot);
 }
 
-Model::~Model() noexcept
+StaticMesh::~StaticMesh() noexcept
 {}
 
-std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh,const aiMaterial* const* pMaterials)
+std::unique_ptr<Mesh> StaticMesh::ParseMesh(Graphics& gfx, const aiMesh& mesh,const aiMaterial* const* pMaterials)
 {
 	using namespace Bind;
 	namespace dx = DirectX;
@@ -342,7 +348,8 @@ std::unique_ptr<Mesh> Model::ParseMesh(Graphics& gfx, const aiMesh& mesh,const a
 
 	return std::make_unique<Mesh>(gfx, std::move(bindablePtrs));
 }
-std::unique_ptr<Node> Model::ParseNode(int& nextId, const aiNode& node) noexcept
+
+std::unique_ptr<Node> StaticMesh::ParseNode(int& nextId, const aiNode& node) noexcept
 {
 	namespace dx = DirectX;
 	const auto transform = dx::XMMatrixTranspose(dx::XMLoadFloat4x4(

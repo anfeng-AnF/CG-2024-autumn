@@ -3,7 +3,7 @@
 #include "UActorComponent.h"
 
 class UStaticMeshComponent : public UActorComponent {
-    using UStaticMesh = Model;
+    using UStaticMesh = StaticMesh;
 public:
     UStaticMeshComponent();
     ~UStaticMeshComponent();

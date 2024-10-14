@@ -55,7 +55,7 @@ void PointLight::Reset() noexcept
 void PointLight::Draw(Graphics& gfx) const noexcept
 {
 	mesh.SetPos(cbData.pos);
-	//mesh.Draw(gfx);
+	mesh.Draw(gfx);
 }
 
 void PointLight::Bind(Graphics& gfx, DirectX::FXMMATRIX view) const noexcept
