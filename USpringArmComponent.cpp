@@ -39,4 +39,6 @@ DirectX::XMMATRIX USpringArmComponent::GetRelationTransformMatrix()
 
 void USpringArmComponent::Update(float DeltaTime)
 {
+    auto transforms = Owner->GetComponentFinalTransform();
+    this->CurrentTransform = FTransform(transforms[USpringArmComponent::name]);
 }

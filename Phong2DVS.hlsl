@@ -12,7 +12,7 @@ struct VSOut
     float3 bitan : Bitangent;
     float2 tc : Texcoord;
     float4 pos : SV_Position;
-    matrix modelview : ModelView;
+    matrix modelview : ModelViewr;
 };
 
 VSOut main(float3 pos : Position, float3 n : Normal, float3 tan : Tangent, float3 bitan : Bitangent, float2 tc : Texcoord)

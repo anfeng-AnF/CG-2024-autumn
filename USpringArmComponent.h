@@ -11,7 +11,7 @@ public:
 
     float GetArmLength() const;
 
-    void Update(const FTransform& OwnerTransform);
+    virtual void Update(const FTransform& OwnerTransform);
 
     FTransform GetCurrentTransform() const;
 
