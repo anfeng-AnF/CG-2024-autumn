@@ -47,7 +47,7 @@ class StaticMesh
 {
 public:
 	StaticMesh(Graphics& gfx, const std::string fileName);
-	void Draw(Graphics& gfx) const;
+	void Draw(Graphics& gfx, DirectX::FXMMATRIX transform = DirectX::XMMatrixIdentity()) const;
 	void ShowWindow(const char* windowName = nullptr) noexcept;
 	~StaticMesh() noexcept;
 	template<typename ShaderType>

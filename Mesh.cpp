@@ -210,13 +210,13 @@ StaticMesh::StaticMesh(Graphics& gfx, const std::string fileName)
 }
 
 
-void StaticMesh::Draw(Graphics& gfx) const
+void StaticMesh::Draw(Graphics& gfx, DirectX::FXMMATRIX transform) const
 {
 	if (auto node = pWindow->GetSelectedNode())
 	{
 		node->SetAppliedTransform(pWindow->GetTransform());
 	}
-	pRoot->Draw(gfx, dx::XMMatrixIdentity());
+	pRoot->Draw(gfx, transform);
 }
 
 void StaticMesh::ShowWindow(const char* windowName) noexcept

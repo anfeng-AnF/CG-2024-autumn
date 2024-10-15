@@ -44,7 +44,7 @@ private:
 	PointLight light;	
 	CollisionGeoManager ctrl;
 	//StaticMesh wall{ wnd.Gfx(),"Models\\RockWall\\RockWall.fbx" };
-	//StaticMesh Lantern{ wnd.Gfx(),"Models\\Lantern\\Lantern_Fixed1.fbx" };
+	//StaticMesh Lantern{ wnd.Gfx(),"Models\\WangShukz\\WangShuKZ.fbx" };
 
 	SkeletonMesh elysia{ wnd.Gfx(),"Models\\Elysia\\elysiaQ2.fbx" };
 

@@ -333,6 +333,9 @@
     <ClCompile Include="MyAnimInstance.cpp">
       <Filter>Game\Source</Filter>
     </ClCompile>
+    <ClCompile Include="AWangshuInn.cpp">
+      <Filter>Game\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChiliWin.h">
@@ -584,6 +587,9 @@
     <ClInclude Include="MyAnimInstance.h">
       <Filter>Game\Header</Filter>
     </ClInclude>
+    <ClInclude Include="AWangshuInn.h">
+      <Filter>Game\Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX12Learn.rc">
@@ -659,9 +665,16 @@
     <FxCompile Include="SkeletonMeshPS.hlsl">
       <Filter>Shader\skeletonMesh</Filter>
     </FxCompile>
-    <FxCompile Include="Phong2DPS.hlsl" />
-    <FxCompile Include="SkeletonMeshPhongPS.hlsl" />
     <FxCompile Include="LinePSnw.hlsl">
+      <Filter>Shader\CG_Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Phong2DPS.hlsl">
+      <Filter>Shader\CG_Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="SkeletonMeshPhongPS.hlsl">
+      <Filter>Shader\CG_Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Phong2DVS.hlsl">
       <Filter>Shader\CG_Shader</Filter>
     </FxCompile>
   </ItemGroup>

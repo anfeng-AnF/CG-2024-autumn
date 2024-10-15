@@ -92,6 +92,7 @@ App::App(UINT width, UINT height)
 	//Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\GLInstance\\dancing_vampire.dae")[0];
 	//Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\skeletonMeshs\\SkeletonMeshTestAnim.fbx")[0];
 	//Lantern.SetShader<Bind::PixelShader>("Phong2DPS.cso", "");
+	//Lantern.SetShader<Bind::VertexShader>("Phong2DVS.cso", "");
 }
 int App::Go()
 {
@@ -141,7 +142,7 @@ void App::DoFrame()
 	}
 	else
 	{
-		axis.Draw(wnd.Gfx());
+		//axis.Draw(wnd.Gfx());
 		Game.Tick(deltaTime);
 		Game.Render(wnd.Gfx());
 	}

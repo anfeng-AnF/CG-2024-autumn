@@ -1,5 +1,6 @@
 #include "MyGameMode.h"
 #include "MyCharacter.h"
+#include "AWangshuInn.h"
 
 MyGameMode::MyGameMode(Window& wnd, InputStateMachine& ISM):
 	ISM(ISM),
@@ -10,6 +11,9 @@ MyGameMode::MyGameMode(Window& wnd, InputStateMachine& ISM):
 	DefaultCharacter->SetWorld(DefaultWorld);
 	DefaultWorld->AddActor(DefaultCharacter);
 	ISM.AddState("Game", std::make_unique<GameInput>(wnd, DefaultCharacter));
+
+
+	DefaultWorld->AddActor(std::make_shared<AWangshuInn>(wnd.Gfx()));
 }
 
 MyGameMode::~MyGameMode()

@@ -1,10 +1,11 @@
 #include "UStaticMeshComponent.h"
-
+#include "AActor.h"
 // 静态成员变量初始化
 const std::string UStaticMeshComponent::name = "UStaticMeshComponent";
 
 // 构造函数
-UStaticMeshComponent::UStaticMeshComponent()
+UStaticMeshComponent::UStaticMeshComponent():
+    Transform(DirectX::XMMatrixIdentity())
 {
     // 空实现
 }
@@ -18,24 +19,23 @@ UStaticMeshComponent::~UStaticMeshComponent()
 // 设置网格体
 void UStaticMeshComponent::SetStaticMesh(std::shared_ptr<UStaticMesh> Mesh)
 {
-    // 空实现
+    this->StaticMesh = Mesh;
 }
 
 // 获取网格体
 std::shared_ptr<UStaticMeshComponent::UStaticMesh> UStaticMeshComponent::GetStaticMesh() const
 {
-    // 空实现，返回 nullptr
-    return nullptr;
+    return this->StaticMesh;
 }
 
 // 更新组件（可能用于计算渲染状态等）
 void UStaticMeshComponent::Update(float DeltaTime)
 {
-    // 空实现
+    this->Transform = Owner->GetComponentFinalTransform()[UStaticMeshComponent::name];
 }
 
 // 渲染函数
 void UStaticMeshComponent::Render(Graphics& gfx)
 {
-    // 空实现
+    this->StaticMesh->Draw(gfx,Transform);
 }

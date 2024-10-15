@@ -23,7 +23,7 @@ Texture2D nmap : register(t2);
 SamplerState splr;
 
 
-float4 main(float3 viewPos : Position, float3 n : Normal, float3 tan : Tangent, float3 bitan : Bitangent, float2 tc : Texcoord) : SV_Target
+float4 main(float3 viewPos : Position, float3 n : Normal, float3 tan : Tangent, float3 bitan : Bitangent, float2 tc : Texcoord, matrix modelView : ModelView) : SV_Target
 {
     float3 lightDir = normalize(float3(0.0, 1.0, -1.0));
     float3 norm = normalize(n);
@@ -56,7 +56,14 @@ float4 main(float3 viewPos : Position, float3 n : Normal, float3 tan : Tangent, 
     // 计算基础颜色
     float4 baseColor = diff * texColor;
 
-    // 在过渡区域内混合基础颜色和过渡颜色
+    //判断是否是 描边区域
+    float3 viewDir = normalize(-viewPos);
+    float3 viewNormal = mul(float4(norm, 1.0f), modelView).xyz - mul(float4(0.0f, 0.0f, 0.0f, 1.0f), modelView).xyz;
+    float edgeIntensity = 1 - pow(1 - dot(viewNormal, viewDir) / length(viewNormal), 20);
+    if (abs(edgeIntensity) > 0.2)
+    {
+       //edgeIntensity = 1.0f;
+    }
     float4 finalColor = lerp(baseColor, transitionColor, transitionFactor);
 
     return finalColor;
