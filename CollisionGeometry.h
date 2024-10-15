@@ -32,6 +32,7 @@ public:
 	void SetColor(DirectX::XMFLOAT3 Color) noexcept;
 	DirectX::XMFLOAT3 GetColor()noexcept;
 	void SetSelect(bool IsSelected)noexcept;
+	bool GetSelect()noexcept;
 	FTransform GetTransform();
 	virtual void SetTransform(FTransform&transform);
 	void Draw(Graphics& gfx)const noexcept override;
@@ -85,26 +86,45 @@ public:
 	float width;
 };
 
+class ControlPoint :public CollisionGeometry
+{
+public:
+	ControlPoint(Graphics& gfx,XMFLOAT3 pos);
+	void Draw(Graphics& gfx)const noexcept override;
+	void Bind(Graphics& gfx)noexcept override;
+	virtual std::vector<CollisionRes> TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix = XMMatrixIdentity(), float posOffset = 0.0f) override;
+	void SetTransform(FTransform& transform)override;
+public:
+	bool bMoved = false;
+private:
+	DebugSphere point;
+};
+
+class CollisionGeoManager;
+
 class BezierLine :public CollisionGeometry
 {
 public:
-	BezierLine(Graphics& gfx, Camera& cam);
+	BezierLine(Graphics& gfx, Camera& cam, CollisionGeoManager*CGM);
 	void Draw(Graphics& gfx)const noexcept override;
 	void Bind(Graphics& gfx)noexcept override;
 	virtual std::vector<CollisionRes> TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix = XMMatrixIdentity(), float posOffset = 0.0f) override;
 	void SetTransform(FTransform& transform)override;
 
-	void AddControlPoint();
+	void AddControlPoint() const;
+	void DeleteControlPoint() const;
 protected:
-	
+	ChiliTimer timer;
 	mutable DebugSphere point;
-	std::shared_ptr<WidthLine> Bezier;
-	int selectedPointIdx = 0;
-	std::vector<FTransform> ControlPoint;
+	mutable std::shared_ptr<WidthLine> Bezier;
+	mutable std::list<std::shared_ptr<ControlPoint>> ctrlPoint;
 	Camera& cam;
 	Graphics& gfx;
+	CollisionGeoManager* CGM;
+	mutable std::string msg;
+	mutable float Width=0.5f;
 private:
-	void ReGenerateBezier();
+	void ReGenerateBezier()const;
 };
 
 class TriangelGeo:public CollisionGeometry

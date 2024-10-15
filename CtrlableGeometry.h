@@ -161,6 +161,8 @@ public:
 
 	void AddGeometry(Graphics& gfx, Dvtx::VertexBuffer& _vertexBuffer, std::vector<uint16_t> _indices, DirectX::XMFLOAT3 _pos = { 0.0f,0.0f,0.0f });
 	void AddGeometry(std::shared_ptr<CollisionGeometry> Geo, bool isSelected = false);
+	void DeleteGeometry(std::shared_ptr<CollisionGeometry> Geo);
+	void DeleteSeclectedGeometry();
 
 	//caculate deltaTransform from imgui/component
 	void TransformGeometryByImGui(Window& wnd);

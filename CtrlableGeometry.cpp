@@ -415,6 +415,19 @@ void CollisionGeoManager::AddGeometry(std::shared_ptr<CollisionGeometry> Geo, bo
     Geomertys[std::move(Geo)] = isSelected;
 }
 
+void CollisionGeoManager::DeleteGeometry(std::shared_ptr<CollisionGeometry> Geo)
+{
+    Geomertys.erase(Geo);
+}
+
+void CollisionGeoManager::DeleteSeclectedGeometry()
+{
+    for (auto s : SelectedGeomertys) {
+        Geomertys.erase(s.first);
+    }
+    SelectedGeomertys.clear();
+}
+
 void CollisionGeoManager::TransformGeometryByImGui(Window& wnd)
 {
     auto q=DirectX::XMQuaternionRotationRollPitchYaw(

@@ -16,9 +16,9 @@ public:
 	void SetPos(DirectX::XMFLOAT3 position) {
 		pos = position;
 	};
+	DirectX::XMMATRIX GetTransformXM() const noexcept override;
 private:
 	DirectX::XMFLOAT3 pos;
 	DirectX::XMFLOAT3 color = { 1.0f,1.0f,0.0f };
-	DirectX::XMMATRIX GetTransformXM() const noexcept override;
 	std::string id;
 };

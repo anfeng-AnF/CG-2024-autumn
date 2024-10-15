@@ -97,28 +97,28 @@ void main(lineadj VS_OUTPUT input[4], inout TriangleStream<GS_OUTPUT> OutputStre
     {
 // 使用预先计算的 vertexs0Nor 和 vertexs1Nor
         v.pos = mul(vertexs0[(j + 1) % n], modelViewProj);
-        v.normal = mul(vertexs0Nor[(j + 1) % n], modelView); // 对 normal 进行变换
+        v.normal = vertexs0Nor[(j + 1) % n]; // 对 normal 进行变换
         OutputStream.Append(v);
 
         v.pos = mul(vertexs0[j], modelViewProj);
-        v.normal = mul(vertexs0Nor[j], modelView); // 对 normal 进行变换
+        v.normal = vertexs0Nor[j]; // 对 normal 进行变换
         OutputStream.Append(v);
 
         v.pos = mul(vertexs1[j], modelViewProj);
-        v.normal = mul(vertexs1Nor[j], modelView); // 对 normal 进行变换
+        v.normal = vertexs1Nor[j]; // 对 normal 进行变换
         OutputStream.Append(v);
         OutputStream.RestartStrip();
 
         v.pos = mul(vertexs0[(j + 1) % n], modelViewProj);
-        v.normal = mul(vertexs0Nor[(j + 1) % n], modelView); // 对 normal 进行变换
+        v.normal = vertexs0Nor[(j + 1) % n]; // 对 normal 进行变换
         OutputStream.Append(v);
 
         v.pos = mul(vertexs1[j], modelViewProj);
-        v.normal = mul(vertexs1Nor[j], modelView); // 对 normal 进行变换
+        v.normal = vertexs1Nor[j]; // 对 normal 进行变换
         OutputStream.Append(v);
 
         v.pos = mul(vertexs1[(j + 1) % n], modelViewProj);
-        v.normal = mul(vertexs1Nor[(j + 1) % n], modelView); // 对 normal 进行变换
+        v.normal = vertexs1Nor[(j + 1) % n]; // 对 normal 进行变换
         OutputStream.Append(v);
         OutputStream.RestartStrip();
 
@@ -126,15 +126,15 @@ void main(lineadj VS_OUTPUT input[4], inout TriangleStream<GS_OUTPUT> OutputStre
         if (bIsBegin)
         {
             v.pos = mul(p0, modelViewProj);
-            v.normal = mul(-dirPrev, modelView); // 对封盖法线进行变换
+            v.normal = -dirPrev; // 对封盖法线进行变换
             OutputStream.Append(v);
 
             v.pos = mul(vertexs0[j], modelViewProj);
-            v.normal = mul(-dirPrev, modelView); // 对封盖法线进行变换
+            v.normal = -dirPrev; // 对封盖法线进行变换
             OutputStream.Append(v);
 
             v.pos = mul(vertexs0[(j + 1) % n], modelViewProj);
-            v.normal = mul(-dirPrev, modelView); // 对封盖法线进行变换
+            v.normal = -dirPrev; // 对封盖法线进行变换
             OutputStream.Append(v);
             OutputStream.RestartStrip();
         }
@@ -142,15 +142,15 @@ void main(lineadj VS_OUTPUT input[4], inout TriangleStream<GS_OUTPUT> OutputStre
         if (bIsEnd)
         {
             v.pos = mul(vertexs1[(j + 1) % n], modelViewProj);
-            v.normal = mul(-dirNext, modelView); // 对封盖法线进行变换
+            v.normal = -dirNext; // 对封盖法线进行变换
             OutputStream.Append(v);
 
             v.pos = mul(vertexs1[j], modelViewProj);
-            v.normal = mul(-dirNext, modelView); // 对封盖法线进行变换
+            v.normal = -dirNext; // 对封盖法线进行变换
             OutputStream.Append(v);
 
             v.pos = mul(p1, modelViewProj);
-            v.normal = mul(-dirNext, modelView); // 对封盖法线进行变换
+            v.normal = -dirNext; // 对封盖法线进行变换
             OutputStream.Append(v);
             OutputStream.RestartStrip();
         }

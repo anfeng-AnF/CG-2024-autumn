@@ -369,7 +369,7 @@ bool SpawnGeometryByInput::SpawnCircleArc(screenPos pos,bool lpressed)
 
 bool SpawnGeometryByInput::SpawnBezier()
 {
-	drawingGeo = std::make_shared<BezierLine>(wnd.Gfx(),cam);
+	drawingGeo = std::make_shared<BezierLine>(wnd.Gfx(),cam,CGM);
 	CGM->AddGeometry(drawingGeo);
 	drawingGeo = nullptr;
 	return true;

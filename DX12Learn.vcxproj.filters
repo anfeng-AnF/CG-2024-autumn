@@ -659,5 +659,10 @@
     <FxCompile Include="SkeletonMeshPS.hlsl">
       <Filter>Shader\skeletonMesh</Filter>
     </FxCompile>
+    <FxCompile Include="Phong2DPS.hlsl" />
+    <FxCompile Include="SkeletonMeshPhongPS.hlsl" />
+    <FxCompile Include="LinePSnw.hlsl">
+      <Filter>Shader\CG_Shader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

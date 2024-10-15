@@ -1,5 +1,6 @@
 #include "CollisionGeometry.h"
-
+#include "imguiManager.h"
+#include "CtrlableGeometry.h"
 
 CollisionGeometry::CollisionGeometry(Graphics& gfx, Dvtx::VertexBuffer &_vertexBuffer, std::vector<uint16_t> _indices,DirectX::XMFLOAT3 _pos):
     vertexBuffer(std::make_unique<Dvtx::VertexBuffer>(_vertexBuffer)),
@@ -133,6 +134,11 @@ void CollisionGeometry::Bind(Graphics& gfx) noexcept
 void CollisionGeometry::SetSelect(bool IsSelected) noexcept
 {
     Selected = IsSelected;
+}
+
+bool CollisionGeometry::GetSelect() noexcept
+{
+    return Selected;
 }
 
 FTransform CollisionGeometry::GetTransform()
@@ -384,7 +390,7 @@ void WidthLine::Bind(Graphics& gfx) noexcept
     gcBuf.Bind(gfx);
 }
 
-// 计算点到直线的距离
+//Distance from a point to a line-----distance from the nearest point to the start of the ray
 std::pair<float,float> DistanceFromPointToLine(const XMFLOAT3& lineBeginPos, const XMFLOAT3& lineVector, const XMVECTOR& pointPosition) {
     XMVECTOR lineStart = XMLoadFloat3(&lineBeginPos);
     XMVECTOR lineDir = XMLoadFloat3(&lineVector);
@@ -401,77 +407,88 @@ std::pair<float,float> DistanceFromPointToLine(const XMFLOAT3& lineBeginPos, con
     return { XMVectorGetX(XMVector3Length(pointToProjection)),projectionLength };
 }
 
-BezierLine::BezierLine(Graphics& gfx,Camera& cam)
+BezierLine::BezierLine(Graphics& gfx,Camera& cam, CollisionGeoManager* CGM)
     :
     CollisionGeometry(gfx),
     point(gfx, XMFLOAT3{ 0.8f,0.2f,0.2f }, XMFLOAT3{0,0,0}, 0.1f),
     cam(cam),
-    gfx(gfx)
+    gfx(gfx),
+    CGM(CGM)
 {
     FTransform point;
-    point.position = XMVectorSet(1.0f, 0.0f, 1.0f, 0.0f);
-    ControlPoint.push_back(point);
-    point.position = XMVectorSet(-1.0f, 0.0f, -1.0f, 0.0f);
-    ControlPoint.push_back(point);
-    selectedPointIdx = -1;
+    ctrlPoint.push_back(std::make_shared<ControlPoint>(gfx, XMFLOAT3{ 1.0f, 0.0f, 1.0f }));
+    ctrlPoint.push_back(std::make_shared<ControlPoint>(gfx, XMFLOAT3{ -1.0f, 0.0f, -1.0f }));
+    for (auto c : ctrlPoint) {
+        CGM->AddGeometry(c);
+    }
+    ReGenerateBezier();
 }
+
 
 void BezierLine::Draw(Graphics& gfx) const noexcept
 {
-    for (auto& transform : ControlPoint) {
-        XMFLOAT3 f3;
-        XMStoreFloat3(&f3, transform.position);
-        point.SetPos(f3);
-        point.Draw(gfx);
-    }
-
     if (Bezier) {
+        Bezier->Bind(gfx);
         Bezier->Draw(gfx);
+    }
+    if (Selected) {
+        ImGui::Begin("Bessel curve information");
+        if (ImGui::Button("Add Control Point")) {
+            AddControlPoint();
+        }        
+        if (ImGui::Button("Delete control point")) {
+            AddControlPoint();
+        }
+        if (ImGui::SliderFloat("Width:",&Bezier->width, 0.0f, 100.0f)) {
+            Width = Bezier->width;
+        }
+        ImGui::End();
     }
 }
 
 void BezierLine::Bind(Graphics& gfx) noexcept
 {
-
+    for (auto& cPoint : ctrlPoint) {
+        if (cPoint->bMoved) {
+            ReGenerateBezier();
+        }
+        if (cPoint->GetSelect()) {
+            Selected = true;
+        }
+    }
 }
 
 std::vector<CollisionGeometry::CollisionRes> BezierLine::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix, float posOffset)
 {
-    float minDistance = D3D11_FLOAT32_MAX;
-    CollisionRes res;
-    int minDix = 0;
-    for (int i = 0; i < ControlPoint.size();i++) {
-        auto [distance,projectionLength] = DistanceFromPointToLine(lineBeginPos, lineVector, XMVector3Transform(ControlPoint[i].position, transformMatrix));
-        if (distance < minDistance) {
-            minDistance = distance;
-            minDix = i;
-            res.hitDistance = projectionLength;
-        }
-    }
-    res.pos = lineBeginPos + XMFLOAT3{res.hitDistance* lineVector.x, res.hitDistance* lineVector.y, res.hitDistance* lineVector.z };
-    selectedPointIdx = minDix;
-    if (res.hitDistance * 0.1 > minDistance) {
-        return { res };
-    }
-    else
-    {
-        selectedPointIdx = -1;
-        return {};
-    }
+    return {};
 }
 
 void BezierLine::SetTransform(FTransform& transform)
 {
-    if (selectedPointIdx != -1) {
-        ControlPoint[selectedPointIdx] = transform;
-        ReGenerateBezier();
-    }
+
 }
 
-void BezierLine::AddControlPoint()
+void BezierLine::AddControlPoint() const
 {
-    ControlPoint.push_back(FTransform());
+    auto back = std::make_shared<ControlPoint>(gfx, XMFLOAT3{ 0.0f,0.0f,0.0f });
+    ctrlPoint.push_back(back);
+    CGM->AddGeometry(back);
     ReGenerateBezier();
+}
+
+void BezierLine::DeleteControlPoint() const
+{
+    for (auto c = ctrlPoint.begin(); c != ctrlPoint.end(); c++)
+    {
+        if (ctrlPoint.size() < 2) {
+            msg = "Bessel curve control points cannot be less than 2";
+            return;
+        }
+        if ((*c)->GetSelect()) {
+            CGM->DeleteGeometry((*c));
+            ctrlPoint.erase(c);
+        }
+    }
 }
 
 
@@ -491,8 +508,50 @@ std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> GenerationBezierLineData(st
     return { vbuf,indices };
 };
 
-void BezierLine::ReGenerateBezier()
+void BezierLine::ReGenerateBezier()const
 {
-    auto [vbuf, ind] = GenerationBezierLineData(ControlPoint);
-    this->Bezier = std::make_unique<WidthLine>(gfx, cam, vbuf, ind);
+    std::vector<FTransform> cpoint;
+    for (auto c : ctrlPoint) {
+        cpoint.push_back(c->GetTransform());
+    }
+    auto [vbuf, ind] = GenerationBezierLineData(cpoint);
+    this->Bezier = std::make_unique<WidthLine>(gfx, cam, vbuf, ind, XMFLOAT3{ 0.0f,0.0f,0.0f } ,Width);
+}
+
+ControlPoint::ControlPoint(Graphics& gfx, XMFLOAT3 pos)
+    :
+    point(gfx, XMFLOAT3{ 1.0f,1.0f,1.0f }, pos, 0.05f),
+    CollisionGeometry(gfx)
+{
+    transform = FTransform();
+    this->transform.position = XMVectorSet(pos.x, pos.y, pos.z, 0.0f);
+}
+
+void ControlPoint::Draw(Graphics& gfx) const noexcept
+{
+    point.Draw(gfx);
+}
+
+void ControlPoint::Bind(Graphics& gfx) noexcept
+{
+}
+
+std::vector<CollisionGeometry::CollisionRes> ControlPoint::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX::XMFLOAT3 lineVector, DirectX::XMMATRIX transformMatrix, float posOffset)
+{
+    auto [lengthP,lengthLine] = DistanceFromPointToLine(lineBeginPos, lineVector, transform.position);
+    CollisionRes cRes;
+    if (lengthP < lengthLine*0.1) {
+        cRes.hitDistance = lengthLine;
+        return { cRes };
+    }
+    return {};
+}
+
+void ControlPoint::SetTransform(FTransform& transform)
+{
+    this->transform = transform;
+    XMFLOAT3 f3;
+    XMStoreFloat3(&f3, transform.position);
+    point.SetPos(f3);
+    bMoved = true;
 }
