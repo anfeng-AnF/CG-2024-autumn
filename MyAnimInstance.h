@@ -18,7 +18,8 @@ protected:
     {
         Idle,
         Run,
-        BeginRun
+        BeginRun,
+        Deceleration
     };
 	State currentState = Idle;
     AnimInfo Info;

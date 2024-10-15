@@ -88,7 +88,7 @@ App::App(UINT width, UINT height)
 	ISM.SetState(DEFAULT_STATE);
 
 	//Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\Lantern\\LanternAnim.fbx")[0];
-	Anim.SetCurrentAnim(AnimAsset::ReadAnimAssertFromFile("Models\\Elysia\\elysiaAnim1.fbx")[2]);
+	Anim.SetCurrentAnim(AnimAsset::ReadAnimAssertFromFile("Models\\Elysia\\elysiaAnim1.fbx")[4]);
 	//Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\GLInstance\\dancing_vampire.dae")[0];
 	//Anim.currentAnim = AnimAsset::ReadAnimAssertFromFile("Models\\skeletonMeshs\\SkeletonMeshTestAnim.fbx")[0];
 	//Lantern.SetShader<Bind::PixelShader>("Phong2DPS.cso", "");
