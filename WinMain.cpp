@@ -33,7 +33,14 @@ int CALLBACK WinMain(
 {
 	try
 	{
-		return App(2560,1440).Go();
+		if (SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2) == FALSE) {
+			// 如果失败，尝试使用旧的 SetProcessDPIAware API
+			SetProcessDPIAware();
+		}
+		int screenWidth = GetSystemMetrics(SM_CXSCREEN)*0.75;
+		int screenHeight = GetSystemMetrics(SM_CYSCREEN)*0.75;
+
+		return App(screenWidth, screenHeight).Go();
 	}
 	catch (const std::exception& e)
 	{

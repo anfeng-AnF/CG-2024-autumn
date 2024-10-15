@@ -121,7 +121,7 @@ void Graphics::EndFrame()
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	}
 	HRESULT hr;
-	if (FAILED(hr = pSwap->Present(1u, 0u)))
+	if (FAILED(hr = pSwap->Present(0u, 0u)))
 	{
 		if (hr == DXGI_ERROR_DEVICE_REMOVED) {
 			//GFX_THROW_HR(pDevice->GetDeviceRemovedReason());
