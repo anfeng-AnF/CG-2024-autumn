@@ -45,18 +45,18 @@ void main(lineadj VS_OUTPUT input[4], inout TriangleStream<GS_OUTPUT> OutputStre
 
     // 计算法线方向
     float4 crossPrev = float4(normalize(cross(dirPrev.xyz, dirCur.xyz)), 0.0f);
+    const bool isCrossPrevZero = length(cross(dirPrev.xyz, dirCur.xyz)) < 1e-6;
     float4 crossNext = float4(normalize(cross(dirCur.xyz, dirNext.xyz)), 0.0f);
-    
+    const bool isCrossNextZero = length(cross(dirCur.xyz, dirNext.xyz)) < 1e-6;
     // 设置一个很小的阈值，用于判断向量是否接近零
     float epsilon = 1e-5f;
 
     // 计算叉积向量的长度平方
-    float lenSqPrev = dot(crossPrev.xyz, crossPrev.xyz);
-    float lenSqNext = dot(crossNext.xyz, crossNext.xyz);
-
     // 判断向量是否接近零
-    bool isCrossPrevZero = lenSqPrev < epsilon;
-    bool isCrossNextZero = lenSqNext < epsilon;
+    const float lenSqPrev = dot(crossPrev.xyz, crossPrev.xyz);
+    //const bool isCrossPrevZero = (lenSqPrev < epsilon);
+    const float lenSqNext = dot(crossNext.xyz, crossNext.xyz);
+    //const bool isCrossNextZero = (lenSqNext < epsilon);
 
     if (isCrossPrevZero)
     {

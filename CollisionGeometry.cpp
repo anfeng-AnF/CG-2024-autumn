@@ -492,22 +492,70 @@ void BezierLine::DeleteControlPoint() const
 }
 
 
+//std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> GenerationBezierLineData(std::vector<FTransform>points, int segment = 20) {
+//    Dvtx::VertexBuffer vbuf(Dvtx::VertexLayout{}.Append(Dvtx::VertexLayout::Position3D));
+//    std::vector<uint16_t> indices;
+//    for (int i = 0; i < points.size()-1; i++) {
+//        indices.push_back(i - 1);
+//        indices.push_back(i + 0);
+//        indices.push_back(i + 1);
+//        indices.push_back(i + 2);
+//        vbuf.EmplaceBack(*reinterpret_cast<XMFLOAT3*>(points[i].position.m128_f32));
+//    }
+//    vbuf.EmplaceBack(*reinterpret_cast<XMFLOAT3*>(points[points.size()-1].position.m128_f32));
+//    indices[0] = 0;
+//    indices[indices.size() - 1] = points.size() - 1;
+//    return { vbuf,indices };
+//};
+// 计算组合数的迭代方法
+int binomialCoefficient(int n, int k) {
+    if (k > n) return 0;
+    if (k == 0 || k == n) return 1;
+
+    // 使用循环来计算组合数
+    int result = 1;
+    for (int i = 0; i < k; ++i) {
+        result = result * (n - i) / (i + 1);
+    }
+    return result;
+}
+
+// 计算贝塞尔曲线上的点
+DirectX::XMFLOAT3 bezier(const std::vector<FTransform>& points, int n, float t) {
+    DirectX::XMFLOAT3 mypoint = { 0.0f, 0.0f, 0.0f };
+
+    for (int i = 0; i <= n; i++) {
+        float coefficient = binomialCoefficient(n, i) * pow(1 - t, n - i) * pow(t, i);
+        mypoint.x += coefficient * DirectX::XMVectorGetX(points[i].position);
+        mypoint.y += coefficient * DirectX::XMVectorGetY(points[i].position); // 改为 GetY 以符合 3D
+        mypoint.z += coefficient * DirectX::XMVectorGetZ(points[i].position); // 改为 GetZ 以符合 3D
+    }
+
+    return mypoint;
+}
+
 std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> GenerationBezierLineData(std::vector<FTransform>points, int segment = 20) {
     Dvtx::VertexBuffer vbuf(Dvtx::VertexLayout{}.Append(Dvtx::VertexLayout::Position3D));
     std::vector<uint16_t> indices;
-    for (int i = 0; i < points.size()-1; i++) {
+    int n = static_cast<int>(points.size()) - 1;
+    int numPoints = segment * n + 1;
+    //OutputDebugString(L"hello");
+    for (int i = 0; i < numPoints; i++) {
+        float t = (float)i / (float)numPoints;
+        vbuf.EmplaceBack(bezier(points, n, t));
+    }
+
+    for (int i = 0; i < numPoints - 1; i++) {
         indices.push_back(i - 1);
         indices.push_back(i + 0);
         indices.push_back(i + 1);
         indices.push_back(i + 2);
-        vbuf.EmplaceBack(*reinterpret_cast<XMFLOAT3*>(points[i].position.m128_f32));
     }
-    vbuf.EmplaceBack(*reinterpret_cast<XMFLOAT3*>(points[points.size()-1].position.m128_f32));
     indices[0] = 0;
     indices[indices.size() - 1] = points.size() - 1;
+
     return { vbuf,indices };
 };
-
 void BezierLine::ReGenerateBezier()const
 {
     std::vector<FTransform> cpoint;
