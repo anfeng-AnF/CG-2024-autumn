@@ -535,14 +535,31 @@ DirectX::XMFLOAT3 bezier(const std::vector<FTransform>& points, int n, float t) 
 }
 
 std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> GenerationBezierLineData(std::vector<FTransform>points, int segment = 20) {
+    //预处理输入顶点数组
+    std::vector<FTransform> GenerateBezierPoints((points.size() - 1) * 3+1);
+    int size = (points.size() - 1) * 3 + 1;
+    //第一段：
+    GenerateBezierPoints[0] = points[0];
+    GenerateBezierPoints[1].position = (-points[0].GetRightVector() * XMVector3Length(points[0].scale)) + points[0].position;
+    for (int i = 1; i < points.size() - 1; i++) {
+        GenerateBezierPoints[i * 3] = points[i];
+        GenerateBezierPoints[i * 3 + 1].position = ((-points[i].GetRightVector()) * XMVector3Length(points[i].scale)) + points[i].position;
+        GenerateBezierPoints[i * 3 - 1].position = ((points[i].GetRightVector()) * XMVector3Length(points[i].scale)) + points[i].position;
+    }
+
+    // 最后一段
+    GenerateBezierPoints[size - 1] = points[points.size() - 1];
+    GenerateBezierPoints[size - 2].position = (points[points.size() - 1].GetRightVector())*XMVector3Length(points[points.size() - 1].scale) + points[points.size() - 1].position;
+
+
     Dvtx::VertexBuffer vbuf(Dvtx::VertexLayout{}.Append(Dvtx::VertexLayout::Position3D));
     std::vector<uint16_t> indices;
-    int n = static_cast<int>(points.size()) - 1;
+    int n = static_cast<int>(GenerateBezierPoints.size()) - 1;
     int numPoints = segment * n + 1;
     //OutputDebugString(L"hello");
     for (int i = 0; i < numPoints; i++) {
         float t = (float)i / (float)numPoints;
-        vbuf.EmplaceBack(bezier(points, n, t));
+        vbuf.EmplaceBack(bezier(GenerateBezierPoints, n, t));
     }
 
     for (int i = 0; i < numPoints - 1; i++) {
@@ -552,7 +569,7 @@ std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> GenerationBezierLineData(st
         indices.push_back(i + 2);
     }
     indices[0] = 0;
-    indices[indices.size() - 1] = points.size() - 1;
+    indices[indices.size() - 1] = GenerateBezierPoints.size() - 1;
 
     return { vbuf,indices };
 };
