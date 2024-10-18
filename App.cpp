@@ -114,6 +114,8 @@ App::~App()
 void App::DoFrame()
 {
 	static bool StartGame = 0;
+	static bool showModel = false;
+	static bool UsePhong = false;
 	float deltaTime = timer.Mark();
 	//first set Projection matrix
 
@@ -131,11 +133,13 @@ void App::DoFrame()
 		light.Bind(wnd.Gfx(), cam.GetMatrix());
 		//Lantern.Draw(wnd.Gfx());
 		Anim.Update(deltaTime);
-		elysia.CtrlWnd(wnd.Gfx());
-		elysia.Draw(wnd.Gfx(),DirectX::XMMatrixRotationX(XM_PI)*DirectX::XMMatrixTranslation(20,0,0));
-		//wall.Draw(wnd.Gfx());
+		if (showModel) {
+			elysia.CtrlWnd(wnd.Gfx());
+			elysia.Draw(wnd.Gfx(), DirectX::XMMatrixRotationX(XM_PI));
+		}//wall.Draw(wnd.Gfx());
 		//skeletonMesh.Draw(wnd.Gfx());
-		//light.Draw(wnd.Gfx());
+		if(UsePhong&&showModel)light.Draw(wnd.Gfx());
+
 		axis.Draw(wnd.Gfx());
 		ctrl.Draw(wnd.Gfx());
 		DGM.Draw(wnd.Gfx());
@@ -179,10 +183,10 @@ void App::DoFrame()
 	ImGui::Text("runtime %.0f", runTime+=deltaTime);
 	frame++;
 
-	static bool UsePhong = false;
 	bool shaderChange = ImGui::Checkbox("Use Phong Shader", &UsePhong);
 
 	if (!StartGame) {
+		ImGui::Checkbox("Show Elysia? ", &showModel);
 		ctrl.DrawImGui(wnd.Gfx());
 	}
 	ImGui::End();

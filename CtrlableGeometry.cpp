@@ -34,7 +34,7 @@ bool TransformComponentBase::TraceByLine(DirectX::XMFLOAT3 lineBeginPos, DirectX
 		if (res.second->GetName() == "YZ")tAxis = YZ;
 		if (res.second->GetName() =="XYZ")tAxis = XYZ;
 
-		DGM.AddGeo(std::make_shared<DebugSphere>(gfx, XMFLOAT3{ 0.7f,0.1f,0.1f }, res.first.pos));
+		//DGM.AddGeo(std::make_shared<DebugSphere>(gfx, XMFLOAT3{ 0.7f,0.1f,0.1f }, res.first.pos),0.0f);
 		res.second->SetSelect(true);
 		ctrlingMesh = res.second;
 		return true;
@@ -250,7 +250,7 @@ XMMATRIX RotationComponent::GetDeltaTransform(screenPos from, screenPos to, Wind
         lastPosTo = to;
         deltaTo = to;
     }
-    DebugGraphsMannger::GetInstence().AddGeo(std::make_shared<DebugLine>(gfx, plane.rayOrigin, plane.rayDirection, 10.0f, XMFLOAT3{ 0.0f,1.0f,0.0f }));
+    DebugGraphsMannger::GetInstence().AddGeo(std::make_shared<DebugLine>(gfx, plane.rayOrigin, plane.rayDirection, 10.0f, XMFLOAT3{ 0.0f,1.0f,0.0f }),0.0f);
     beginDirection = XMVector3Normalize(XMVectorSubtract(
         XM3F2XMVEC(GetIntersectionPlaneLine(plane, LineRay(from + lastPosTo, wnd, cam))),
         transform.position));
@@ -469,7 +469,7 @@ int CollisionGeoManager::SelectGeometry(screenPos pos, Window& wnd)
 {
     LineRay ray(pos, wnd, *cam);
     XMFLOAT3 endPos = { ray.rayOrigin.x + ray.rayDirection.x * 1e4f, ray.rayOrigin.y + ray.rayDirection.y * 1e4f, ray.rayOrigin.z + ray.rayDirection.z * 1e4f };
-    DGM.AddGeo(std::make_shared<DebugLine>(*gfx, ray.rayOrigin, endPos, XMFLOAT3(1.0f, 0.0f, 0.0f)));
+    //DGM.AddGeo(std::make_shared<DebugLine>(*gfx, ray.rayOrigin, endPos, XMFLOAT3(1.0f, 0.0f, 0.0f)));
     //0-none  1-translate  2-scale 3-rotation
     bool selectedComponent = false;
     if (SelectedGeomertys.size()) {

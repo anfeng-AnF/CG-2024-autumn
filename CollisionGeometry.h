@@ -122,7 +122,8 @@ protected:
 	Graphics& gfx;
 	CollisionGeoManager* CGM;
 	mutable std::string msg;
-	mutable float Width=0.5f;
+	mutable float Width=0.02f;
+	mutable int segment = 20;
 private:
 	void ReGenerateBezier()const;
 };

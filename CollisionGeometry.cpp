@@ -439,8 +439,10 @@ void BezierLine::Draw(Graphics& gfx) const noexcept
         if (ImGui::Button("Delete control point")) {
             AddControlPoint();
         }
-        if (ImGui::SliderFloat("Width:",&Bezier->width, 0.0f, 100.0f)) {
+        if (ImGui::SliderFloat("Width:",&Bezier->width, 0.0f, 3.0f)) {
             Width = Bezier->width;
+        }
+        if (ImGui::SliderInt("segmentation:", &this->segment, 2, 50)) {
         }
         ImGui::End();
     }
@@ -492,21 +494,6 @@ void BezierLine::DeleteControlPoint() const
 }
 
 
-//std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> GenerationBezierLineData(std::vector<FTransform>points, int segment = 20) {
-//    Dvtx::VertexBuffer vbuf(Dvtx::VertexLayout{}.Append(Dvtx::VertexLayout::Position3D));
-//    std::vector<uint16_t> indices;
-//    for (int i = 0; i < points.size()-1; i++) {
-//        indices.push_back(i - 1);
-//        indices.push_back(i + 0);
-//        indices.push_back(i + 1);
-//        indices.push_back(i + 2);
-//        vbuf.EmplaceBack(*reinterpret_cast<XMFLOAT3*>(points[i].position.m128_f32));
-//    }
-//    vbuf.EmplaceBack(*reinterpret_cast<XMFLOAT3*>(points[points.size()-1].position.m128_f32));
-//    indices[0] = 0;
-//    indices[indices.size() - 1] = points.size() - 1;
-//    return { vbuf,indices };
-//};
 // 计算组合数的迭代方法
 int binomialCoefficient(int n, int k) {
     if (k > n) return 0;
@@ -527,10 +514,10 @@ DirectX::XMFLOAT3 bezier(const std::vector<FTransform>& points, int n, float t) 
     for (int i = 0; i <= n; i++) {
         float coefficient = binomialCoefficient(n, i) * pow(1 - t, n - i) * pow(t, i);
         mypoint.x += coefficient * DirectX::XMVectorGetX(points[i].position);
-        mypoint.y += coefficient * DirectX::XMVectorGetY(points[i].position); // 改为 GetY 以符合 3D
-        mypoint.z += coefficient * DirectX::XMVectorGetZ(points[i].position); // 改为 GetZ 以符合 3D
+        mypoint.y += coefficient * DirectX::XMVectorGetY(points[i].position);
+        mypoint.z += coefficient * DirectX::XMVectorGetZ(points[i].position);
     }
-
+    //OutputDebugStringA((std::to_string(mypoint.x) + "  " + std::to_string(mypoint.x) + "  " + std::to_string(mypoint.x) + "\n").c_str());
     return mypoint;
 }
 
@@ -554,32 +541,41 @@ std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> GenerationBezierLineData(st
 
     Dvtx::VertexBuffer vbuf(Dvtx::VertexLayout{}.Append(Dvtx::VertexLayout::Position3D));
     std::vector<uint16_t> indices;
-    int n = static_cast<int>(GenerateBezierPoints.size()) - 1;
-    int numPoints = segment * n + 1;
-    //OutputDebugString(L"hello");
-    for (int i = 0; i < numPoints; i++) {
-        float t = (float)i / (float)numPoints;
-        vbuf.EmplaceBack(bezier(GenerateBezierPoints, n, t));
-    }
 
-    for (int i = 0; i < numPoints - 1; i++) {
+    int numPoints = segment;
+    for (int i = 0; i < GenerateBezierPoints.size()-1; i += 3) {
+        std::vector<FTransform> straight(4);
+        for (int j = 0; j < 3; j++) {
+            straight[j] = GenerateBezierPoints[i+j];
+        }
+        straight[3] = GenerateBezierPoints[i + 3];
+        for (int j = 0; j < numPoints; j++) {
+            float t = (float)j / (float)numPoints;
+            vbuf.EmplaceBack(bezier(straight, 3, t));
+        }
+    }
+    vbuf.EmplaceBack(*reinterpret_cast<XMFLOAT3*>(GenerateBezierPoints[size - 1].position.m128_f32));
+    //OutputDebugStringA(("hello\n"));
+
+    for (int i = 0; i < vbuf.Size()-1; i++) {
         indices.push_back(i - 1);
         indices.push_back(i + 0);
         indices.push_back(i + 1);
         indices.push_back(i + 2);
     }
     indices[0] = 0;
-    indices[indices.size() - 1] = GenerateBezierPoints.size() - 1;
+    indices[indices.size() - 1] = vbuf.Size()-1;
 
     return { vbuf,indices };
 };
+
 void BezierLine::ReGenerateBezier()const
 {
     std::vector<FTransform> cpoint;
     for (auto c : ctrlPoint) {
         cpoint.push_back(c->GetTransform());
     }
-    auto [vbuf, ind] = GenerationBezierLineData(cpoint);
+    auto [vbuf, ind] = GenerationBezierLineData(cpoint,segment);
     this->Bezier = std::make_unique<WidthLine>(gfx, cam, vbuf, ind, XMFLOAT3{ 0.0f,0.0f,0.0f } ,Width);
 }
 
