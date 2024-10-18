@@ -192,7 +192,7 @@ void App::DoFrame()
 	ImGui::End();
 	if (!StartGame) {
 		cam.SpawnControlWindow();
-		light.SpawnControlWindow();
+		if (UsePhong && showModel)light.SpawnControlWindow();
 		ShowImguiDemoWindow();
 	}
 

@@ -41,7 +41,7 @@ private:
 	UINT width, height;
 	float speed_factor = 1.0f;
 	Camera cam;	
-	PointLight light;	
+	PointLight light;
 	CollisionGeoManager ctrl;
 	//StaticMesh wall{ wnd.Gfx(),"Models\\RockWall\\RockWall.fbx" };
 	//StaticMesh Lantern{ wnd.Gfx(),"Models\\WangShukz\\WangShuKZ.fbx" };
