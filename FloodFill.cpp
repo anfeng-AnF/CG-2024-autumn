@@ -1,79 +1,80 @@
 #include "FloodFill.h"
-#include <unordered_set>
 #include "imguiManager.h"
+#include <unordered_set>
+#include <stack>
 
 
 namespace InputStates {
-auto f = [](D3D11_MAPPED_SUBRESOURCE msrf, int width, int height, int x, int y, UINT32 fillColor) {
-	// 检查种子点是否在有效范围内
-	if (x < 0 || x >= width || y < 0 || y >= height) {
-		return;
-	}
+    auto f = [](D3D11_MAPPED_SUBRESOURCE msrf, int width, int height, int x, int y, UINT32 fillColor) {
+        // 检查种子点是否在有效范围内
+        if (x < 0 || x >= width || y < 0 || y >= height) {
+            return;
+        }
 
-	// 获取图像数据指针
-	UINT32* data = reinterpret_cast<UINT32*>(msrf.pData);
+        // 获取图像数据指针
+        UINT32* data = reinterpret_cast<UINT32*>(msrf.pData);
 
-	// 获取 RowPitch
-	size_t rowPitch = msrf.RowPitch / sizeof(UINT32);
+        // 获取 RowPitch
+        size_t rowPitch = msrf.RowPitch / sizeof(UINT32);
 
-	// 获取种子点的初始颜色
-	UINT32 targetColor = data[y * rowPitch + x];
+        // 获取种子点的初始颜色
+        UINT32 targetColor = data[y * rowPitch + x];
 
-	// 如果种子点颜色与填充颜色相同，直接返回
-	if (targetColor == fillColor) {
-		return;
-	}
+        // 如果种子点颜色与填充颜色相同，直接返回
+        if (targetColor == fillColor) {
+            return;
+        }
 
-	// 用于处理填充区域的队列
-	std::queue<std::pair<int, int>> pixelQueue;
-	pixelQueue.push({ x, y });
+        // 定义用于存储待处理区段的栈
+        std::stack<std::pair<int, int>> pixelStack;
+        pixelStack.push({ x, y });
 
-	// 记录已经访问的像素
-	std::unordered_set<int> visited;
-	visited.insert(y * rowPitch + x);
+        while (!pixelStack.empty()) {
+            auto [startX, startY] = pixelStack.top();
+            pixelStack.pop();
 
-	while (!pixelQueue.empty()) {
-		auto [currentX, currentY] = pixelQueue.front();
-		pixelQueue.pop();
+            // 跳过已经被填充的像素
+            if (data[startY * rowPitch + startX] != targetColor) {
+                continue;
+            }
 
-		// 填充颜色
-		data[currentY * rowPitch + currentX] = fillColor;
+            // 向左和向右扩展，填充当前扫描线
+            int leftX = startX;
+            int rightX = startX;
 
-		// 上
-		if (currentY > 0 && data[(currentY - 1) * rowPitch + currentX] == targetColor) {
-			int upIndex = (currentY - 1) * rowPitch + currentX;
-			if (visited.find(upIndex) == visited.end()) {
-				pixelQueue.push({ currentX, currentY - 1 });
-				visited.insert(upIndex);
-			}
-		}
-		// 下
-		if (currentY < height - 1 && data[(currentY + 1) * rowPitch + currentX] == targetColor) {
-			int downIndex = (currentY + 1) * rowPitch + currentX;
-			if (visited.find(downIndex) == visited.end()) {
-				pixelQueue.push({ currentX, currentY + 1 });
-				visited.insert(downIndex);
-			}
-		}
-		// 左
-		if (currentX > 0 && data[currentY * rowPitch + (currentX - 1)] == targetColor) {
-			int leftIndex = currentY * rowPitch + (currentX - 1);
-			if (visited.find(leftIndex) == visited.end()) {
-				pixelQueue.push({ currentX - 1, currentY });
-				visited.insert(leftIndex);
-			}
-		}
-		// 右
-		if (currentX < width - 1 && data[currentY * rowPitch + (currentX + 1)] == targetColor) {
-			int rightIndex = currentY * rowPitch + (currentX + 1);
-			if (visited.find(rightIndex) == visited.end()) {
-				pixelQueue.push({ currentX + 1, currentY });
-				visited.insert(rightIndex);
-			}
-		}
-	}
+            // 向左扩展
+            while (leftX > 0 && data[startY * rowPitch + (leftX - 1)] == targetColor) {
+                leftX--;
+            }
 
-	};
+            // 向右扩展
+            while (rightX < width - 1 && data[startY * rowPitch + (rightX + 1)] == targetColor) {
+                rightX++;
+            }
+
+            // 填充当前行
+            for (int i = leftX; i <= rightX; ++i) {
+                data[startY * rowPitch + i] = fillColor;
+            }
+
+            // 处理上方和下方扫描线（只对未填充区域递归）
+            if (startY > 0) {
+                for (int i = leftX; i <= rightX; ++i) {
+                    if (data[(startY - 1) * rowPitch + i] == targetColor) {
+                        pixelStack.push({ i, startY - 1 });
+                    }
+                }
+            }
+
+            if (startY < height - 1) {
+                for (int i = leftX; i <= rightX; ++i) {
+                    if (data[(startY + 1) * rowPitch + i] == targetColor) {
+                        pixelStack.push({ i, startY + 1 });
+                    }
+                }
+            }
+        }
+        };
 
 	void FloodFill::Enter()
 	{

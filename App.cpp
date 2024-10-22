@@ -116,6 +116,7 @@ void App::DoFrame()
 	static bool StartGame = 0;
 	static bool showModel = false;
 	static bool UsePhong = false;
+	static bool ShowAxis = false;
 	float deltaTime = timer.Mark();
 	//first set Projection matrix
 
@@ -140,13 +141,13 @@ void App::DoFrame()
 		//skeletonMesh.Draw(wnd.Gfx());
 		if(UsePhong&&showModel)light.Draw(wnd.Gfx());
 
-		axis.Draw(wnd.Gfx());
+		if (ShowAxis) axis.Draw(wnd.Gfx());
 		ctrl.Draw(wnd.Gfx());
 		DGM.Draw(wnd.Gfx());
 	}
 	else
 	{
-		//axis.Draw(wnd.Gfx());
+		if(ShowAxis) axis.Draw(wnd.Gfx());
 		Game.Tick(deltaTime);
 		Game.Render(wnd.Gfx());
 	}
@@ -187,6 +188,7 @@ void App::DoFrame()
 
 	if (!StartGame) {
 		ImGui::Checkbox("Show Elysia? ", &showModel);
+		ImGui::Checkbox("Display Axes? ", &ShowAxis);
 		ctrl.DrawImGui(wnd.Gfx());
 	}
 	ImGui::End();
