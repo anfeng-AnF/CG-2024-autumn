@@ -220,7 +220,7 @@ std::unique_ptr<SKMesh> SkeletonMesh::ParseMesh(Graphics& gfx, const aiMesh& mes
 	}
 	UINT maxBoneAffectVertex = 0;
 	for (const auto& v : boneWeights) {
-		maxBoneAffectVertex = max(maxBoneAffectVertex, v.size());
+		maxBoneAffectVertex = max(maxBoneAffectVertex,(UINT) v.size());
 	}
 	int numBoneX4 = (maxBoneAffectVertex + 3) / 4;
 	assert(numBoneX4 <= 2 && "Maximum number of vertex associations greater than 8");

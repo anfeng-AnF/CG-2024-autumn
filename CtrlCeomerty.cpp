@@ -512,7 +512,9 @@
      
      return XMMatrixScaling(scaleFactor.x,scaleFactor.y,scaleFactor.z);
  }
+
 #undef GetScale(delta,vector) XMVectorScale(XMVector3Dot(delta, rightVector),XMVector3Length(rightVector).m128_f32[0]).m128_f32[0]
+
 
 
 #define computeAngel(vec) curPos=this->RayIntersectsPlane(line.first, line.second, transform.position, vec).value();\
@@ -570,8 +572,10 @@
          break;
      }
  }
+
 #undef computeAngel(vec) curPos=this->RayIntersectsPlane(line.first, line.second, transform.position, vec).value();\
- angel = computeRotationAngle(XMVectorSubtract(XMLoadFloat3(&BeginRotationPosWorld), transform.position), XMVectorSubtract(XMLoadFloat3(&curPos), transform.position), vec);
+ angel = computeRotationAngle(XMVectorSubtract(XMLoadFloat3(&BeginRotationPosWorld), transform.position), XMVectorSubtract(XMLoadFloat3(&curPos), transform.position), vec);\
+
 
  XMVECTOR CtrlComponents::ScreenToWorld(std::pair<int, int> deltaPosScreen, int wndWidth, int wndHeight)
  {

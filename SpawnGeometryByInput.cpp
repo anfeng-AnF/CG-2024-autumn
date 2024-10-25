@@ -124,7 +124,7 @@ float CalculateDistanceSquared(const XMFLOAT3& point1, const XMFLOAT3& point2)
 std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateLineWithAdjacency(
 	const XMFLOAT3& point1, const XMFLOAT3& point2, const Linear LineType)
 {
-	static const int LengthSingleDottedLine = 1.0f;
+	static const float LengthSingleDottedLine = 1.0f;
 	// 创建仅包含Position3D的顶点布局
 	Dvtx::VertexBuffer vbuf(
 		Dvtx::VertexLayout{}
@@ -162,7 +162,7 @@ std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateLineWithAdjacency(
 					vbuf.EmplaceBack(*reinterpret_cast<XMFLOAT3*>((begin += Spacing).m128_f32));
 					curLen += LengthSingleDottedLine;
 				}
-				for (size_t i = 0; i < vbuf.Size() - 1; i++)
+				for (uint16_t i = 0; i < vbuf.Size() - 1; i++)
 				{
 					if (!(i % 2)) {
 						indices.push_back(i + 0);
@@ -190,7 +190,7 @@ std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateLineWithAdjacency(
 				auto sqrtLength = sqrtf(length);
 
 				float fullDashLength = LengthSingleDottedLine;
-				float shortDashLength = fullDashLength * 0.3;
+				float shortDashLength = fullDashLength * 0.3f;
 				float gapLength = fullDashLength * 0.7f;
 
 				XMVECTOR direction = (p2 - p1) / sqrtLength;
@@ -226,7 +226,7 @@ std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateLineWithAdjacency(
 					t++;
 				}
 
-				for (size_t i = 0; i < vbuf.Size() - 1; i += 2)
+				for (uint16_t i = 0; i < vbuf.Size() - 1; i += 2)
 				{
 					indices.push_back(i);
 					indices.push_back(i);
@@ -398,7 +398,7 @@ std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateArcWithAdjacency(
 	const XMFLOAT3& point1, const XMFLOAT3& point2, const XMFLOAT3& point3, unsigned int segmentCount)
 {
 	XMFLOAT3 center;
-	float radius;
+	//float radius;
 
 	// 计算圆心和半径
 	//CalculateCircleCenterAndRadius(point1, point2, point3, center, radius);

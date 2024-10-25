@@ -37,8 +37,8 @@ int CALLBACK WinMain(
 			// 如果失败，尝试使用旧的 SetProcessDPIAware API
 			SetProcessDPIAware();
 		}
-		int screenWidth = GetSystemMetrics(SM_CXSCREEN)*0.75;
-		int screenHeight = GetSystemMetrics(SM_CYSCREEN)*0.75;
+		int screenWidth = (int)(GetSystemMetrics(SM_CXSCREEN) * 0.75f);
+		int screenHeight = (int)(GetSystemMetrics(SM_CYSCREEN) * 0.75f);
 
 		return App(screenWidth, screenHeight).Go();
 	}

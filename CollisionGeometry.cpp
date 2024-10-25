@@ -512,7 +512,7 @@ DirectX::XMFLOAT3 bezier(const std::vector<FTransform>& points, int n, float t) 
     DirectX::XMFLOAT3 mypoint = { 0.0f, 0.0f, 0.0f };
 
     for (int i = 0; i <= n; i++) {
-        float coefficient = binomialCoefficient(n, i) * pow(1 - t, n - i) * pow(t, i);
+        float coefficient = binomialCoefficient(n, i) * powf((float)1 - t, (float)n - i) * powf((float)t, (float)i);
         mypoint.x += coefficient * DirectX::XMVectorGetX(points[i].position);
         mypoint.y += coefficient * DirectX::XMVectorGetY(points[i].position);
         mypoint.z += coefficient * DirectX::XMVectorGetZ(points[i].position);
@@ -524,7 +524,7 @@ DirectX::XMFLOAT3 bezier(const std::vector<FTransform>& points, int n, float t) 
 std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> GenerationBezierLineData(std::vector<FTransform>points, int segment = 20) {
     //预处理输入顶点数组
     std::vector<FTransform> GenerateBezierPoints((points.size() - 1) * 3+1);
-    int size = (points.size() - 1) * 3 + 1;
+    size_t size = (points.size() - 1) * 3 + 1;
     //第一段：
     GenerateBezierPoints[0] = points[0];
     GenerateBezierPoints[1].position = (-points[0].GetRightVector() * XMVector3Length(points[0].scale)) + points[0].position;
@@ -564,7 +564,7 @@ std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> GenerationBezierLineData(st
         indices.push_back(i + 2);
     }
     indices[0] = 0;
-    indices[indices.size() - 1] = vbuf.Size()-1;
+    indices[indices.size() - 1] =(uint16_t) vbuf.Size()-1;
 
     return { vbuf,indices };
 };

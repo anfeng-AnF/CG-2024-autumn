@@ -106,7 +106,7 @@ void ACharacter::AddRollInput(int x)
 void ACharacter::MoveInput(int x, int y)
 {
     //x+ ÏòÇ° y+ ÏòÓÒ
-    XMVECTOR input = { x,y,0.0f,0.0f };
+    XMVECTOR input = { (float)x,(float)y,0.0f,0.0f };
     CharacterMovementComponent->SetMovementInput(input);
 }
 

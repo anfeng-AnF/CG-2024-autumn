@@ -23,8 +23,8 @@ std::vector<AnimAsset> AnimAsset::ReadAnimAssertFromFile(std::string fileName)
         const aiAnimation* animation = scene->mAnimations[i];
 
         AAsset[i].name = animation->mName.C_Str();
-        AAsset[i].duration = animation->mDuration;
-        AAsset[i].tickPerSecond = animation->mTicksPerSecond;
+        AAsset[i].duration = (float)animation->mDuration;
+        AAsset[i].tickPerSecond = (float)animation->mTicksPerSecond;
         AAsset[i].anim.resize(animation->mNumChannels);
 
         for (unsigned int j = 0; j < animation->mNumChannels; j++) {
@@ -33,17 +33,17 @@ std::vector<AnimAsset> AnimAsset::ReadAnimAssertFromFile(std::string fileName)
 
             // Position
             for (unsigned int k = 0; k < channel->mNumPositionKeys; k++) {
-                AAsset[i].anim[j].translation[channel->mPositionKeys[k].mTime] = ConvertToXMVECTOR(channel->mPositionKeys[k].mValue);
+                AAsset[i].anim[j].translation[(float)channel->mPositionKeys[k].mTime] = ConvertToXMVECTOR(channel->mPositionKeys[k].mValue);
             }
 
             // Scale
             for (unsigned int k = 0; k < channel->mNumScalingKeys; k++) {
-                AAsset[i].anim[j].scale[channel->mScalingKeys[k].mTime] = ConvertToXMVECTOR(channel->mScalingKeys[k].mValue);
+                AAsset[i].anim[j].scale[(float)channel->mScalingKeys[k].mTime] = ConvertToXMVECTOR(channel->mScalingKeys[k].mValue);
             }
 
             // Rotation
             for (unsigned int k = 0; k < channel->mNumRotationKeys; k++) {
-                AAsset[i].anim[j].rotation[channel->mRotationKeys[k].mTime] = ConvertToXMVECTOR(channel->mRotationKeys[k].mValue);
+                AAsset[i].anim[j].rotation[(float)channel->mRotationKeys[k].mTime] = ConvertToXMVECTOR(channel->mRotationKeys[k].mValue);
             }
         }
     }
