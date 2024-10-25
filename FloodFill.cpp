@@ -84,12 +84,12 @@ namespace InputStates {
 
 	void FloodFill::Update(float deltaTime)
 	{
-		while (auto mouseMsg = wnd.mouse.Read())
-		{
-			if (mouseMsg.value().GetType() == Mouse::Event::Type::LPress) {
-				fillPos.push_back(mouseMsg.value().GetPos());
-			}
-		}
+        while (auto mouseMsg = wnd.mouse.Read())
+        {
+            if (mouseMsg.value().GetType() == Mouse::Event::Type::LPress) {
+                fillPos.push_back(mouseMsg.value().GetPos());
+            }
+        }
 		while (auto c = wnd.Kbd.ReadKey())
 		{
 			switch (c.value().GetCode()) {

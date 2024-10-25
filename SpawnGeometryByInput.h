@@ -3,10 +3,18 @@
 #include "CtrlableGeometry.h"
 #include "InputStateMachine.h"
 #include "Vertex.h"
+
+enum class Linear {
+	DEFAULT,    // 直线 (默认)
+	DottedLine, // 虚线
+	DashDotLine // 点划线
+};
+
+
 std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateLineWithAdjacency(
-	const XMFLOAT3& point1, const XMFLOAT3& point2);
+	const XMFLOAT3& point1, const XMFLOAT3& point2 , const Linear LineType = Linear::DEFAULT);
 std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateCircleWithAdjacency(
-	const XMFLOAT3& center, const XMFLOAT3& edgePoint, const XMFLOAT3& normal, unsigned int segmentCount = 20);
+	const XMFLOAT3& center, const XMFLOAT3& edgePoint, const XMFLOAT3& normal, unsigned int segmentCount = 20,const Linear LineType = Linear::DEFAULT);
 std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateArcWithAdjacency(
 	const XMFLOAT3& point1, const XMFLOAT3& point2, const XMFLOAT3& point3, unsigned int segmentCount=20);
 
@@ -44,7 +52,7 @@ public:
 public:
 	SpawnGeometryByInput(Window&wnd,Camera&cam ,CollisionGeoManager*CGM);
 
-	bool SpawnLine(screenPos pos,bool lpressed,SpawnGeoMehod SGmehod, int segment = 20);//line with circle
+	bool SpawnLine(screenPos pos,bool lpressed,SpawnGeoMehod SGmehod, int segment = 20, const Linear LineType = Linear::DEFAULT);//line with circle
 	//bool SpawnLineContinue(screenPos pos, bool endFlag=false);
 	bool SpawnCircleArc(screenPos pos,bool lpresed);
 

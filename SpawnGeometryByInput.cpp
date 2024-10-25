@@ -1,4 +1,5 @@
 #include "SpawnGeometryByInput.h"
+#include <DirectXMathVector.inl>
 
 SpawnGeometryByInput::SpawnGeoInputState::SpawnGeoInputState(Window& wnd,SpawnGeometryByInput* pSpawnGeo)
 	:
@@ -21,11 +22,25 @@ void SpawnGeometryByInput::SpawnGeoInputState::Update(float deltaTime)
 {
 	//Handle keyboard input
 	static int segment = 20;
+	static Linear LineType = Linear::DEFAULT;
 	if (pSpawnGeo->mehod == SpawnGeometryByInput::CIRCLE) {
 		ImGui::Begin("Circle setting");
 		ImGui::SliderInt("segment", &segment, 3, 100);
+		ImGui::RadioButton("Default Line", (int*)&LineType, (int)Linear::DEFAULT);
+		ImGui::RadioButton("Dotted Line", (int*)&LineType, (int)Linear::DottedLine);
+		ImGui::RadioButton("Dash-Dot Line", (int*)&LineType, (int)Linear::DashDotLine);
 		ImGui::End();
 	}
+	else if (pSpawnGeo->mehod == SpawnGeometryByInput::LINE) {
+		ImGui::Begin("Line setting");
+		ImGui::SliderInt("segment", &segment, 3, 100);
+		ImGui::Text("Select Line Type:");
+		ImGui::RadioButton("Default Line", (int*)&LineType, (int)Linear::DEFAULT);
+		ImGui::RadioButton("Dotted Line", (int*)&LineType, (int)Linear::DottedLine);
+		ImGui::RadioButton("Dash-Dot Line", (int*)&LineType, (int)Linear::DashDotLine);
+		ImGui::End();
+	}
+
 	//Handling of mouse input
 	while (const auto delta = wnd.mouse.Read()) {
 		switch (delta->GetType())
@@ -40,7 +55,7 @@ void SpawnGeometryByInput::SpawnGeoInputState::Update(float deltaTime)
 			{
 			case SpawnGeometryByInput::LINE:
 			case SpawnGeometryByInput::CIRCLE:
-				drawingEnd = pSpawnGeo->SpawnLine(delta.value().GetPos(), true, pSpawnGeo->mehod,segment);
+				drawingEnd = pSpawnGeo->SpawnLine(delta.value().GetPos(), true, pSpawnGeo->mehod,segment,LineType);
 				break;
 			case SpawnGeometryByInput::LINE_CONTINUE:
 				break;
@@ -64,7 +79,7 @@ void SpawnGeometryByInput::SpawnGeoInputState::Update(float deltaTime)
 			{
 			case SpawnGeometryByInput::LINE:
 			case SpawnGeometryByInput::CIRCLE:
-				pSpawnGeo->SpawnLine(delta.value().GetPos(), false, pSpawnGeo->mehod,segment);
+				pSpawnGeo->SpawnLine(delta.value().GetPos(), false, pSpawnGeo->mehod,segment,LineType);
 				break;
 			case SpawnGeometryByInput::LINE_CONTINUE:
 				break;
@@ -98,36 +113,146 @@ void SpawnGeometryByInput::SpawnGeoInputState::Draw()
 	}bool methodIsNone = (pSpawnGeo->mehod == NONE);
 }
 
+float CalculateDistanceSquared(const XMFLOAT3& point1, const XMFLOAT3& point2)
+{
+	float dx = point2.x - point1.x;
+	float dy = point2.y - point1.y;
+	float dz = point2.z - point1.z;
+	return dx * dx + dy * dy + dz * dz;
+}
 
 std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateLineWithAdjacency(
-	const XMFLOAT3& point1, const XMFLOAT3& point2)
+	const XMFLOAT3& point1, const XMFLOAT3& point2, const Linear LineType)
 {
-
+	static const int LengthSingleDottedLine = 1.0f;
 	// 创建仅包含Position3D的顶点布局
 	Dvtx::VertexBuffer vbuf(
 		Dvtx::VertexLayout{}
 		.Append(Dvtx::VertexLayout::Position3D)
 	);
+	std::vector<uint16_t> indices;
+	switch (LineType)
+	{
+		case Linear::DEFAULT:
+			// 添加四个点，依次为：邻接点1, 起点, 终点, 邻接点2
+			vbuf.EmplaceBack(point1);  // 起点
+			vbuf.EmplaceBack(point2);  // 终点
+			// 构建带有邻接信息的线段的indices
+			indices = {
+				0, 0, 1, 1  // adj1, point1, point2, adj2
+			};
+			break;
 
+		case Linear::DottedLine:
+		{
+			float length = CalculateDistanceSquared(point1, point2);
+			if (LengthSingleDottedLine * LengthSingleDottedLine > length) {
+				return CreateLineWithAdjacency(point1, point2, Linear::DEFAULT);
+			}
+			else
+			{
+				XMVECTOR p1 = XMLoadFloat3(&point1), p2 = XMLoadFloat3(&point2);
+				auto sqrtLength = sqrtf(length);
+				auto Spacing = (p2 - p1) * (LengthSingleDottedLine / sqrtLength);
+				float curLen = 0.0f;
+				auto begin = p1;
+				vbuf.EmplaceBack(point1);
+				while (curLen < sqrtLength)
+				{
+					vbuf.EmplaceBack(*reinterpret_cast<XMFLOAT3*>((begin += Spacing).m128_f32));
+					curLen += LengthSingleDottedLine;
+				}
+				for (size_t i = 0; i < vbuf.Size() - 1; i++)
+				{
+					if (!(i % 2)) {
+						indices.push_back(i + 0);
+						indices.push_back(i + 0);
+						indices.push_back(i + 1);
+						indices.push_back(i + 1);
+					}
+				}
+			}
+		}
+		break;
 
-	// 添加四个点，依次为：邻接点1, 起点, 终点, 邻接点2
-	vbuf.EmplaceBack(point1);  // 起点
-	vbuf.EmplaceBack(point2);  // 终点
-	// 构建带有邻接信息的线段的indices
-	std::vector<uint16_t> indices = {
-		0, 0, 1, 1  // adj1, point1, point2, adj2
-	};
+		case Linear::DashDotLine:
+		{
+			float length = CalculateDistanceSquared(point1, point2);
+
+			if (LengthSingleDottedLine * LengthSingleDottedLine > length) {
+				return CreateLineWithAdjacency(point1, point2, Linear::DEFAULT);
+			}
+			else
+			{
+				XMVECTOR p1 = XMLoadFloat3(&point1);
+				XMVECTOR p2 = XMLoadFloat3(&point2);
+
+				auto sqrtLength = sqrtf(length);
+
+				float fullDashLength = LengthSingleDottedLine;
+				float shortDashLength = fullDashLength * 0.3;
+				float gapLength = fullDashLength * 0.7f;
+
+				XMVECTOR direction = (p2 - p1) / sqrtLength;
+
+				XMVECTOR currentPoint = p1;
+				float curLen = 0.0f;
+
+				vbuf.EmplaceBack(point1);
+
+				int t = 0;
+				while (curLen < sqrtLength)
+				{
+					switch (t % 4)//长-空-短-空
+					{
+					case 0:
+						currentPoint += direction * fullDashLength;
+						curLen += fullDashLength;
+						break;
+					case 2:
+						currentPoint += direction * shortDashLength;
+						curLen += shortDashLength;
+						break;
+					case 1:
+					case 3:
+						currentPoint += direction * gapLength;
+						curLen += gapLength;
+						break;
+					}
+
+					XMFLOAT3 f3Point;
+					XMStoreFloat3(&f3Point, currentPoint);
+					vbuf.EmplaceBack(f3Point);
+					t++;
+				}
+
+				for (size_t i = 0; i < vbuf.Size() - 1; i += 2)
+				{
+					indices.push_back(i);
+					indices.push_back(i);
+					indices.push_back(i + 1);
+					indices.push_back(i + 1);
+				}
+
+				indices[0] = 0;
+				indices.back() = static_cast<uint16_t>(vbuf.Size() - 1);
+			}
+			break;
+		}
+	}
 
 	return { std::move(vbuf), indices };
 }
+
 std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateCircleWithAdjacency(
-	const XMFLOAT3& center, const XMFLOAT3& edgePoint, const XMFLOAT3& normal, unsigned int segmentCount)
+	const XMFLOAT3& center, const XMFLOAT3& edgePoint, const XMFLOAT3& normal, unsigned int segmentCount, const Linear LineType)
 {
-	// 创建仅包含Position3D的顶点布局
 	Dvtx::VertexBuffer vbuf(
 		Dvtx::VertexLayout{}
 		.Append(Dvtx::VertexLayout::Position3D)
 	);
+
+	std::vector<uint16_t> indices;
 
 	// 计算半径和圆上的起始点到圆心的向量
 	XMFLOAT3 radiusVec{
@@ -145,43 +270,125 @@ std::pair<Dvtx::VertexBuffer, std::vector<uint16_t>> CreateCircleWithAdjacency(
 	XMVECTOR circleCenter = XMLoadFloat3(&center);
 	XMVECTOR biTanget =XMVector3Normalize(XMVector3Cross(tanget, planeNormal));
 
-	float angleStep = XM_2PI / segmentCount;
 
-
-	for (unsigned int i = 0; i < segmentCount; ++i)
+	switch (LineType)
 	{
-		float angle = i * angleStep;
+	case Linear::DEFAULT:
+		{
+			float angleStep = XM_2PI / segmentCount;
+			for (unsigned int i = 0; i < segmentCount; ++i)
+			{
+				float angle = i * angleStep;
 
+				XMVECTOR point = XMVectorAdd(circleCenter,
+					XMVectorScale(
+						XMVectorAdd(
+							XMVectorScale(biTanget, cosf(angle)),
+							XMVectorScale(tanget, sinf(angle))
+						), radius)
+				);
+
+				XMFLOAT3 vertex;
+				XMStoreFloat3(&vertex, point);
+
+				vbuf.EmplaceBack(vertex);
+			}
+			for (unsigned int i = 0; i < segmentCount; ++i)
+			{
+				int prevIndex = (i - 1 + segmentCount) % segmentCount;
+				int currIndex = i;
+				int nextIndex = (i + 1) % segmentCount;
+				int nextNextIndex = (i + 2) % segmentCount;
+
+				// 添加 4 个索引：前一个顶点，当前顶点，下一个顶点，再下一个顶点
+				indices.push_back(prevIndex);
+				indices.push_back(currIndex);
+				indices.push_back(nextIndex);
+				indices.push_back(nextNextIndex);
+			}
+		}
+		break;
+	case Linear::DottedLine:
+		{
+			float angleStep = XM_2PI / segmentCount / 2;
+			for (unsigned int i = 0; i < segmentCount*2; ++i)
+			{
+				float angle = i * angleStep;
+
+				XMVECTOR point = XMVectorAdd(circleCenter,
+					XMVectorScale(
+						XMVectorAdd(
+							XMVectorScale(biTanget, cosf(angle)),
+							XMVectorScale(tanget, sinf(angle))
+						), radius)
+				);
+
+				XMFLOAT3 vertex;
+				XMStoreFloat3(&vertex, point);
+
+				vbuf.EmplaceBack(vertex);
+			}
+			for (unsigned int i = 0; i < vbuf.Size(); i+=2)
+			{
+				indices.push_back(i);
+				indices.push_back(i);
+				indices.push_back(i + 1);
+				indices.push_back(i + 1);
+			}
+		}
+		break;
+	case Linear::DashDotLine:
+		{
+		float LongAngleStep = XM_2PI / segmentCount / 2;
+		float angleStep = XM_2PI / segmentCount / 2 / 3;
+		float angle = 0;
 		XMVECTOR point = XMVectorAdd(circleCenter,
 			XMVectorScale(
-			XMVectorAdd(
-				XMVectorScale(biTanget,cosf(angle)),
-				XMVectorScale(tanget,sinf(angle))
-			),radius)
+				XMVectorAdd(
+					XMVectorScale(biTanget, cosf(angle)),
+					XMVectorScale(tanget, sinf(angle))
+				), radius)
 		);
 
 		XMFLOAT3 vertex;
 		XMStoreFloat3(&vertex, point);
 
 		vbuf.EmplaceBack(vertex);
+			for (unsigned int i = 0; i < segmentCount*4; ++i)
+			{
+				if (i % 4) 
+				{
+					angle += angleStep;
+				}
+				else
+				{
+					angle += LongAngleStep;
+				}
+
+				XMVECTOR point = XMVectorAdd(circleCenter,
+					XMVectorScale(
+						XMVectorAdd(
+							XMVectorScale(biTanget, cosf(angle)),
+							XMVectorScale(tanget, sinf(angle))
+						), radius)
+				);
+
+				XMFLOAT3 vertex;
+				XMStoreFloat3(&vertex, point);
+
+				vbuf.EmplaceBack(vertex);
+			}
+			for (unsigned int i = 0; i < vbuf.Size()-1; i += 2)
+			{
+				indices.push_back(i);
+				indices.push_back(i);
+				indices.push_back(i + 1);
+				indices.push_back(i + 1);
+			}
+		}
+	break;
 	}
 
-	// 构建邻接信息的indices
-	std::vector<uint16_t> indices;
-
-	for (unsigned int i = 0; i < segmentCount; ++i)
-	{
-		int prevIndex = (i - 1 + segmentCount) % segmentCount;
-		int currIndex = i;
-		int nextIndex = (i + 1) % segmentCount;
-		int nextNextIndex = (i + 2) % segmentCount;
-
-		// 添加 4 个索引：前一个顶点，当前顶点，下一个顶点，再下一个顶点
-		indices.push_back(prevIndex);
-		indices.push_back(currIndex);
-		indices.push_back(nextIndex);
-		indices.push_back(nextNextIndex);
-	}
 
 	return { std::move(vbuf), indices };
 }
@@ -264,7 +471,7 @@ SpawnGeometryByInput::SpawnGeometryByInput(Window& wnd, Camera& cam, CollisionGe
 {
 }
 
-bool SpawnGeometryByInput::SpawnLine(screenPos pos,bool lpressed,SpawnGeoMehod SGmehod,int segment)
+bool SpawnGeometryByInput::SpawnLine(screenPos pos,bool lpressed,SpawnGeoMehod SGmehod,int segment, const Linear LineType)
 {
 	static int called = 0;
 	LineRay line(pos, wnd, cam);
@@ -289,12 +496,12 @@ bool SpawnGeometryByInput::SpawnLine(screenPos pos,bool lpressed,SpawnGeoMehod S
 		switch (SGmehod)
 		{
 		case SpawnGeometryByInput::LINE: {
-			auto [vbuf, indices] = CreateLineWithAdjacency(perPoint, point);
+			auto [vbuf, indices] = CreateLineWithAdjacency(perPoint, point, LineType);
 			drawingGeo = std::make_shared<WidthLine>(wnd.Gfx(), cam, vbuf, indices, XMFLOAT3{ 0.0f,0.0f,0.0f }, 1.0f);
 		}
 			break;
 		case SpawnGeometryByInput::CIRCLE: {
-			auto [vbuf, indices] = CreateCircleWithAdjacency(perPoint, point,plane.rayDirection, segment);
+			auto [vbuf, indices] = CreateCircleWithAdjacency(perPoint, point,plane.rayDirection, segment, LineType);
 			drawingGeo = std::make_shared<WidthLine>(wnd.Gfx(), cam, vbuf, indices, XMFLOAT3{ 0.0f,0.0f,0.0f }, 1.0f);
 		}
 			break;
