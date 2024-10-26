@@ -17,7 +17,7 @@ namespace InputStates {
 		};
 
 	public:
-		FloodFill(Window& window) :InputState(window){};
+		FloodFill(Window& window) :InputState(window) { ResetClipWindow(); };
 		// Í¨¹ý InputState ¼Ì³Ð
 		void Enter() override;
 		void Update(float deltaTime) override;

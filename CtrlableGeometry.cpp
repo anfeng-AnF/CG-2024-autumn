@@ -917,7 +917,7 @@ void CollisionGeoManager::TranslationState::Draw()
 {
     ImGui::Begin("Menu");
     ImGui::RadioButton("selected Geometry", &menuSelected, 0);
-    ImGui::RadioButton("Fill Color   ", &menuSelected, 1);
+    ImGui::RadioButton("Fill Color/draw line/clip   ", &menuSelected, 1);
     ImGui::RadioButton("create Geometry", &menuSelected, 2);
     ImGui::End();
     switch (menuSelected)

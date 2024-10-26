@@ -79,9 +79,6 @@
     <Filter Include="Animation\Sourse Files">
       <UniqueIdentifier>{8d687785-09aa-4727-86f9-0019a7976f2a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Base\头文件\InputStates">
-      <UniqueIdentifier>{0d089b22-8191-499e-ba9b-7a9538fbf52a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameBase">
       <UniqueIdentifier>{47663ed0-80f1-48bc-8686-2ede204d0793}</UniqueIdentifier>
     </Filter>
@@ -681,5 +678,6 @@
   <ItemGroup>
     <None Include="ClassDiagram1.cd" />
     <None Include="ClassDiagram11.cd" />
+    <None Include="ClassDiagram12.cd" />
   </ItemGroup>
 </Project>

@@ -2,7 +2,18 @@
 #include "imguiManager.h"
 #include <unordered_set>
 #include <stack>
+#include <string>
+#include <codecvt>
+#include <locale>
 
+// 函数将宽字符串转换为UTF-8字符串
+std::string WideToUTF8(const std::wstring& wideStr) {
+    // 计算需要的缓冲区大小
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, wideStr.c_str(), static_cast<int>(wideStr.length()), nullptr, 0, nullptr, nullptr);
+    std::string utf8Str(size_needed, 0); // 创建UTF-8字符串的缓冲区
+    WideCharToMultiByte(CP_UTF8, 0, wideStr.c_str(), static_cast<int>(wideStr.length()), &utf8Str[0], size_needed, nullptr, nullptr);
+    return utf8Str; // 返回转换后的UTF-8字符串
+}
 
 namespace InputStates {
     auto FloodFillFunc = [](D3D11_MAPPED_SUBRESOURCE msrf, int width, int height, int x, int y, UINT32 fillColor) {
@@ -298,10 +309,16 @@ namespace InputStates {
 				break;
 			case VK_DELETE:
 				fillPos.clear();
+                if (OperationCounter[(int)InputStates::FloodFill::DrawLineMidpoint] == 0) {
+                    Lines.clear();
+                }
 				break;
 			case VK_BACK:
 				if(fillPos.size()&&c.value().IsPress())
 				fillPos.pop_back();
+                if (OperationCounter[(int)InputStates::FloodFill::DrawLineMidpoint] == 0) {
+                    Lines.pop_back();
+                }
 				break;
 			}
 		}
@@ -318,8 +335,29 @@ namespace InputStates {
 	{
 		static unsigned int color = 0xff0000ff;
 		static auto colorf4 = ImGui::ColorConvertU32ToFloat4(color);
+        // ImGui窗口代码
         ImGui::Begin("helps");
-        //ImGui::Text
+        ImGui::Text("%s", WideToUTF8(L"帮助:").c_str()); // Title
+        ImGui::Separator(); // A separator line for better readability
+
+        ImGui::Text("%s", WideToUTF8(L"1. 操作模式:").c_str());
+        ImGui::BulletText("%s", WideToUTF8(L"洪水填充模式: 使用左键单击图像以填充颜色。").c_str());
+        ImGui::BulletText("%s", WideToUTF8(L"中点绘制线段: 选择起点后，再次单击选择终点来绘制线段。").c_str());
+        ImGui::BulletText("%s", WideToUTF8(L"Bresenham绘制线段: 选择起点后，再次单击选择终点来绘制线段。").c_str());
+        ImGui::BulletText("%s", WideToUTF8(L"裁剪模式: 选择左上角，然后释放鼠标选择右下角定义裁剪区域。").c_str());
+
+        ImGui::Text("%s", WideToUTF8(L"2. 颜色选择:").c_str());
+        ImGui::BulletText("%s", WideToUTF8(L"使用颜色选择器更改当前操作的颜色。").c_str());
+
+        ImGui::Text("%s", WideToUTF8(L"3. 键盘快捷键:").c_str());
+        ImGui::BulletText("%s", WideToUTF8(L"ESC: 返回到上一个状态.").c_str());
+        ImGui::BulletText("%s", WideToUTF8(L"DELETE: 清空所有填充点/直线.").c_str());
+        ImGui::BulletText("%s", WideToUTF8(L"BACKSPACE: 撤销上一个填充点/直线 (如果有的话).").c_str());
+        ImGui::BulletText("%s", WideToUTF8(L"左键: 用于选择点或定义窗口.").c_str());
+
+        ImGui::Separator(); // Another separator
+        ImGui::Text("%s", WideToUTF8(L"4. 注意事项:").c_str());
+        ImGui::BulletText("%s", WideToUTF8(L"确保在图像的有效区域内进行操作，避免越界.").c_str());
         ImGui::End();
 
 
@@ -415,6 +453,6 @@ namespace InputStates {
     void FloodFill::ResetClipWindow()
     {
         ClipWindow.first = { 0,0 };
-        ClipWindow.first = { wnd.GetWndSize().first,wnd.GetWndSize().second };
+        ClipWindow.second = { wnd.GetWndSize().first,wnd.GetWndSize().second };
     }
 }

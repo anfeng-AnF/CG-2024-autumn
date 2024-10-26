@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="InputState" Collapsed="true">
+    <Position X="1.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AASAAAAAAAAAAgAEAAAAAAAAAEAEAAAAIBAAAAAAAAA=</HashCode>
+      <FileName>InputStateMachine.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="InputStateMachine" Collapsed="true">
+    <Position X="3" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAIBAAAAAAAAAQAIAAAAAAAAAAAAAAEIAAAAAAACAA=</HashCode>
+      <FileName>InputStateMachine.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SpawnGeometryByInput">
+    <Position X="5" Y="0.75" Width="2.25" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="SpawnGeometryByInput::SpawnGeoInputState" Collapsed="true">
+        <InheritanceLine Type="InputState" FixedToPoint="true">
+          <Path>
+            <Point X="2" Y="2.048" />
+            <Point X="2" Y="4.812" />
+            <Point X="5.21" Y="4.812" />
+          </Path>
+          <InheritanceModifierLabel ManuallyPlaced="true">
+            <Position X="-0.273" Y="0.265" />
+          </InheritanceModifierLabel>
+        </InheritanceLine>
+        <TypeIdentifier>
+          <NewMemberFileName>SpawnGeometryByInput.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Enum Name="SpawnGeometryByInput::SpawnGeoMehod" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>SpawnGeometryByInput.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AACBBCEAAAAAAAAAAAIAAQAAAAAgAABAAAACgAABABA=</HashCode>
+      <FileName>SpawnGeometryByInput.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TransformComponentBase" Collapsed="true">
+    <Position X="10" Y="1.25" Width="1.5" />
+    <NestedTypes>
+      <Enum Name="TransformComponentBase::TransformAxis" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>CtrlableGeometry.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>gAgABAQAAAAggIAAACoCAQQAAAAGCAAAABAAAAQACgA=</HashCode>
+      <FileName>CtrlableGeometry.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TranslateComponent" Collapsed="true">
+    <Position X="7.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAA=</HashCode>
+      <FileName>CtrlableGeometry.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RotationComponent" Collapsed="true">
+    <Position X="10" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAACAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>CtrlableGeometry.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ScaleComponent" Collapsed="true">
+    <Position X="12.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAQAAAAAAAAAAAAAAAAQAAAAAAAAAAAQQAAAAAAA=</HashCode>
+      <FileName>CtrlableGeometry.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CollisionGeoManager">
+    <Position X="14.75" Y="1.25" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Struct Name="CollisionGeoManager::TransformState" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>CtrlableGeometry.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Enum Name="CollisionGeoManager::TransformationMethod" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>CtrlableGeometry.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Class Name="CollisionGeoManager::TranslationState" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>CtrlableGeometry.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>EAgABAAAIAAoggAAQIAAAQQAAIIAgBDAACAEIUBAAAI=</HashCode>
+      <FileName>CtrlableGeometry.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="screenPos" Collapsed="true">
+    <Position X="16.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAQAAAAACAAAAAABgAAAAAAA=</HashCode>
+      <FileName>CtrlableGeometry.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="LineRay" Collapsed="true">
+    <Position X="16.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAIABAAAAAAAAAAAAAABA=</HashCode>
+      <FileName>CtrlableGeometry.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Enum Name="Linear" Collapsed="true">
+    <Position X="0.5" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAAAAAAAAAAAAAAAAgAAAABAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>SpawnGeometryByInput.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Microsoft YaHei UI" Size="9" />
+</ClassDiagram>
