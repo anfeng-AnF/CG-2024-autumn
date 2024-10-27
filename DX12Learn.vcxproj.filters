@@ -676,8 +676,9 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram1.cd" />
-    <None Include="ClassDiagram11.cd" />
-    <None Include="ClassDiagram12.cd" />
+    <None Include="README.MD">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="Project Class Relationship Diagram.cd" />
   </ItemGroup>
 </Project>

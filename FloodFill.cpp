@@ -430,10 +430,11 @@ namespace InputStates {
         }
             break;
         case InputStates::FloodFill::ClipMode:
+            static std::pair<ScreenPos, ScreenPos> curWnd = ClipWindow;
             if (0 == OperationCounter[(int)InputStates::FloodFill::ClipMode]) {
                 if (msg.value().GetType() == Mouse::Event::Type::LPress) {
-                    ClipWindow.first = { msg.value().GetPosX() ,msg.value().GetPosY() };
-                    ClipWindow.second = ClipWindow.first;
+                    curWnd.first = { msg.value().GetPosX() ,msg.value().GetPosY() };
+                    curWnd.second = curWnd.first;
                     OperationCounter[(int)InputStates::FloodFill::ClipMode]++;
                 }
             }
@@ -441,11 +442,13 @@ namespace InputStates {
                 if (msg.value().GetType() == Mouse::Event::Type::LRelease) {
                     OperationCounter[(int)InputStates::FloodFill::ClipMode] = 0;
                 }
-                ClipWindow.second = { msg.value().GetPosX() ,msg.value().GetPosY() };
+                curWnd.second = { msg.value().GetPosX() ,msg.value().GetPosY() };
+                ClipWindow.first.x = min(curWnd.first.x, curWnd.second.x);
+                ClipWindow.first.y = min(curWnd.first.y, curWnd.second.y);
+                ClipWindow.second.x = max(curWnd.first.x, curWnd.second.x);
+                ClipWindow.second.y = max(curWnd.first.y, curWnd.second.y);
             }
 
-            break;
-        default:
             break;
         }
     }
